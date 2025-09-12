@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import LogoPlaceholder from "../../assets/ligth-logo.PNG";
+import LogoPlaceholder from "../../assets/images/light-logo.png";
 import {
   FaHome, FaChalkboardTeacher, FaUsers, FaSignOutAlt, FaCalendarAlt, FaListUl,
   FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper, FaRunning, FaChevronDown
