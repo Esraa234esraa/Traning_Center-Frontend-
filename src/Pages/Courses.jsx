@@ -7,7 +7,7 @@ import 'swiper/css/pagination';
 import course1 from '../assets/images/reading.jpg';
 import course2 from '../assets/images/arabic.jpg';
 import course3 from '../assets/images/talking.jpg';
-import vector from '../assets/images/vector.png';
+import vector from '../assets/images/Vector.png';
 import lamb from '../assets/images/idea-lamp.png';
 const courses = [
     {
