@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logo from '../assets/ligth-logo.png';
+import logo from '../assets/images/light-logo.png';
+
 import { NavLink, Link } from 'react-router-dom';
 
 function Navbar() {
