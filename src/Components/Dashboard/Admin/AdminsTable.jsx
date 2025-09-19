@@ -1,6 +1,6 @@
 import React from 'react';
-import { useGetAllAdmins } from '../../../Hooks/useQueryAdmin';
-import { useDeactivateAdmin } from '../../../Hooks/useMutationAdmins';
+import { useGetAllAdmins } from '../../../Hooks/Admin/useQueryAdmin';
+import { useDeactivateAdmin } from '../../../Hooks/Admin/useMutationAdmins';
 import Loading from '../../../Components/Loading';
 import { confirmAlert } from 'react-confirm-alert';
 import { FaChalkboardTeacher } from 'react-icons/fa';

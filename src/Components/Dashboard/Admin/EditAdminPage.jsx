@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useGetAdminById } from '../../../Hooks/useQueryAdmin'; // fetch by id
+import { useGetAdminById } from '../../../Hooks/Admin/useQueryAdmin'; // fetch by id
 import { useQueryClient } from '@tanstack/react-query';
 import EditAdminForm from './EditAdminForm';
 import { useNavigate } from 'react-router-dom';
@@ -11,35 +11,24 @@ export default function EditAdminPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();
+
   const onClose = () => {
-    navigate('/dashboard/admins_table');  // ترجع لصفحة الجدول
+    navigate('/dashboard/admins_table');
   };
-  // بيانات الأدمن من الحالة (state)
+
   const adminFromState = location.state?.admin;
-
-  // لو البيانات موجودة في state نستخدمها
-  if (adminFromState) {
-    return <EditAdminForm admin={adminFromState} onClose={onClose} />;
-  }
-
-  // لو مش موجودة في state، نحاول نجيبها من الكاش
   const cachedAdmins = queryClient.getQueryData(['allAdmins']);
   const adminFromCache = cachedAdmins?.data?.find((a) => a.id === id);
 
-  if (adminFromCache) {
-    return <EditAdminForm admin={adminFromCache} onClose={onClose} />;
-  }
-
-  // لو مش موجودة في الكاش، نعمل fetch من السيرفر
+  // ✅ Hook دايمًا في top-level
   const { data, isLoading, isError } = useGetAdminById(id);
 
+  // ترتيب الشروط للعرض
+  if (adminFromState) return <EditAdminForm admin={adminFromState} onClose={onClose} />;
+  if (adminFromCache) return <EditAdminForm admin={adminFromCache} onClose={onClose} />;
   if (isLoading) return <Loading />;
   if (isError) return <div>حدث خطأ أثناء جلب بيانات الأدمن</div>;
+  if (!data?.data) return <div>لا توجد بيانات لعرضها</div>;
 
-  const adminData = data?.data;
-
-  if (!adminData) return <div>لا توجد بيانات لعرضها</div>;
-
-  return <EditAdminForm admin={adminData} onClose={onClose} />;
+  return <EditAdminForm admin={data.data} onClose={onClose} />;
 }
-

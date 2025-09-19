@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAdminRegister } from '../../../Hooks/useMutationAdmins';
+import { useAdminRegister } from '../../../Hooks/Admin/useMutationAdmins';
 
 // الفاليديشن
 const validationSchema = Yup.object({
@@ -42,7 +42,6 @@ export default function StepTwoPassword({ adminData }) {
 
                         mutation.mutate(finalData, {
                             onSuccess: () => {
-                                console.log('نجح التسجيل');
                                 toast.success('تم إضافة الادمن  بنجاح');
                                 navigate('/dashboard/admins_table', { replace: true });
                             },

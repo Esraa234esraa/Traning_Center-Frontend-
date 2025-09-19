@@ -1,7 +1,7 @@
 // src/Components/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../Context/AuthContext";
+import { useAuth } from "../Context/useAuth";
 import LoadingSpinner from "./Loading"; // component بسيط للتحميل
 
 export default function ProtectedRoute({ children }) {

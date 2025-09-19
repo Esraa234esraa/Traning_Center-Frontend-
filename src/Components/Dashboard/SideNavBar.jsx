@@ -5,7 +5,7 @@ import {
   FaHome, FaChalkboardTeacher, FaUsers, FaSignOutAlt, FaCalendarAlt, FaListUl,
   FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper, FaRunning, FaChevronDown
 } from "react-icons/fa";
-import { useAdminLogout } from '../../Hooks/useMutationAdmins';
+import { useAdminLogout } from '../../Hooks/Admin/useMutationAdmins';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 

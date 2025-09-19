@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast, ToastContainer } from 'react-toastify';
-import { useUpdateAdmin } from '../../../Hooks/useMutationAdmins';
+import { useUpdateAdmin } from '../../../Hooks/Admin/useMutationAdmins';
 import 'react-toastify/dist/ReactToastify.css';
 
 const validationSchema = Yup.object({

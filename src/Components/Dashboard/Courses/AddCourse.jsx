@@ -3,6 +3,8 @@ import { Upload } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import { useCreateCourse } from "../../../Hooks/Courses/useMutationCourses";
+import { toast } from "react-toastify";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -43,10 +45,11 @@ const validationSchema = Yup.object({
 });
 
 
+
 export default function AddCourse() {
   const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
-
+  const mutation = useCreateCourse();
   return (
     <div className="p-6 max-w-2xl md:mt-14 mx-auto bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-teal-700">
@@ -54,14 +57,31 @@ export default function AddCourse() {
       </h2>
 
       <Formik
-        initialValues={{ name: "", description: "", image: null }}
+        initialValues={{ name: "", description: "", image: "" }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          console.log(values); // هنا ممكن تبعتيه للـ API
-          navigate("/dashboard/courses");
+          const formData = new FormData();
+          formData.append("Name", values.name);
+          formData.append("Description", values.description);
+          formData.append("Image", values.image); 
+
+          mutation.mutate(formData, {
+            onSuccess: () => {
+              toast.success("تم إضافة الدورة بنجاح");
+              navigate("/dashboard/courses");
+            },
+            onError: (error) => {
+
+              const errorMsg = error?.response?.data?.message || 'حدث خطأ أثناء التسجيل';
+              toast.error(errorMsg, {
+                toastId: `${errorMsg}-${Date.now()}` // ID مختلف كل مرة
+              });
+            },
+          });
         }}
+
       >
-        {({ setFieldValue, values }) => (
+        {({ isSubmitting, setFieldValue }) => (
           <Form className="space-y-4">
             {/* اسم الدورة */}
             <div>
@@ -145,8 +165,11 @@ export default function AddCourse() {
             {/* زر الإضافة */}
             <button
               type="submit"
+              disabled={mutation.isLoading || isSubmitting}
+
               className="bg-background text-white px-4 py-2 rounded-lg"
             >
+              {mutation.isLoading ? "جاري الإضافة..." : ""}
               إضافة
             </button>
             <button

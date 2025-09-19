@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAdminLogout } from '../../Hooks/useMutationAdmins';
+import { useAdminLogout } from '../../Hooks/Admin/useMutationAdmins';
 
 import { FaUserShield, FaChalkboardTeacher, FaUserGraduate } from "react-icons/fa";
 import { toast } from 'react-toastify';

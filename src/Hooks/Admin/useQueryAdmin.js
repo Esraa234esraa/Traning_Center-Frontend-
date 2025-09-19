@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAdminProfile, getAllAdmins,fetchAdminById } from '../APIs/adminsApis';
+import { getAdminProfile, getAllAdmins,fetchAdminById } from '../../APIs/Admin/adminsApis';
 
 export function useGetAdminProfile() {
   return useQuery({

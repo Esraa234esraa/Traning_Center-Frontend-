@@ -1,0 +1,50 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  addNewStudent,
+  updateStudent,
+  deleteStudent,
+  moveNewStudentToWatingStudent,
+} from "../../../APIs/Students/NewStudents/newStudentApis";
+
+export const useAddNewStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addNewStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+    },
+  });
+};
+
+export const useUpdateStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+      queryClient.invalidateQueries(["allWaitingStudents"]);
+    },
+  });
+};
+
+export const useDeleteStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+      queryClient.invalidateQueries(["allWaitingStudents"]);
+    },
+  });
+};
+
+export const useMoveStudentToWaiting = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: moveNewStudentToWatingStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+      queryClient.invalidateQueries(["allWaitingStudents"]);
+    },
+  });
+};

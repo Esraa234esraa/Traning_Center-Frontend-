@@ -12,7 +12,7 @@ export default function DeleteReviewModal({ review, onClose, onConfirm }) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-lg font-bold mb-4">حذف التقييم</h2>
-                <p className="mb-4">هل أنت متأكد أنك تريد حذف التقييم الخاص بـ {review.name}؟</p>
+                <p className="mb-4">هل أنت متأكد أنك تريد حذف التقييم الخاص بـ {review.evaluationOwner}؟</p>
                 <div className="flex justify-end gap-2">
                     <button
                         className="px-3 py-1 bg-gray-400 text-white rounded"

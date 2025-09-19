@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useChangePassword } from "../../../Hooks/useMutationAdmins";
+import { useChangePassword } from "../../../Hooks/Admin/useMutationAdmins";
 
 export default function ChangeAdminPassword() {
   const { id } = useParams();

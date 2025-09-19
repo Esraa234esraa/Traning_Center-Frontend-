@@ -3,7 +3,6 @@ import axios from 'axios';
 const API_URL = 'http://traning-center.runasp.net/api/admins';
 
 export const adminLogin = (data) => {
-    console.log('Login payload:', data);
 
   return axios.post(`${API_URL}/login`, data,{ withCredentials: true });
 };

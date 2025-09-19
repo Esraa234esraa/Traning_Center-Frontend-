@@ -1,52 +1,57 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ConfirmDeletePopup from "./ConfirmDeletePopup";
-import EditStudentPopup from "./EditStudentPopup";
+import ConfirmDeletePopup from "../NewStudent/ConfirmDeletePopup";
+import EditStudentPopup from "../NewStudent/EditStudentPopup";
+import { useGetAllWaitingStudents } from "../../../../Hooks/Students/NewStudents/useQueryNewStudent";
+import Loading from "../../../Loading";
+import EmptyImg from "../../../../assets/images/Empty.png";
+import { useDeleteStudent, useUpdateStudent } from "../../../../Hooks/Students/NewStudents/useMutationNewStudent";
+import { toast } from "react-toastify";
+
 
 export default function WaitingStudentsTable() {
     const [searchTerm, setSearchTerm] = useState("");
-    const navigate = useNavigate();
 
-    const [students, setStudents] = useState([
-        { name: "علي", phone: "01111111111", city: "السعودية, الاحساء" },
-        { name: "محمد", phone: "--", city: "السعودية, الاحساء" },
-        { name: "محمود", phone: "--", city: "السعودية, الاحساء" },
-        { name: "حسن", phone: "--", city: "السعودية, الاحساء" },
-        { name: "فاطمه", phone: "--", city: "السعودية, الاحساء" },
-        { name: "احمد", phone: "--", city: "السعودية, الاحساء" },
-    ]);
+    const { data: studentsData, isLoading, isError } = useGetAllWaitingStudents();
 
-    const [deletePopup, setDeletePopup] = useState({ isOpen: false, index: null });
-    const [editPopup, setEditPopup] = useState({ isOpen: false, index: null });
+    const students = studentsData ?? [];
+    const deleteMutation = useDeleteStudent();
+    const updateMutation = useUpdateStudent();
+
+    const [deletePopup, setDeletePopup] = useState({ isOpen: false, student: null });
+    const [editPopup, setEditPopup] = useState({ isOpen: false, student: null });
 
     const normalizeText = (text) =>
-        text.toLowerCase().replace(/[\u064B-\u0652]/g, "").replace(/[أإآا]/g, "ا").replace(/\s+/g, " ").trim();
+        text
+            .toLowerCase()
+            .replace(/[\u064B-\u0652]/g, "")
+            .replace(/[أإآا]/g, "ا")
+            .replace(/\s+/g, " ")
+            .trim();
 
-    const filteredStudents = students.filter(
-        (student) =>
-            normalizeText(student.name).includes(normalizeText(searchTerm)) ||
-            normalizeText(student.phone).includes(normalizeText(searchTerm))
-    );
 
-    const handleAddToSession = (student) => {
-        navigate("/dashboard/students/add-to-session", { state: { student } });
-    };
+    const filteredStudents = students.filter((student) => {
+        if (!searchTerm.trim()) return true;
+        return (
+            normalizeText(student.studentName).includes(normalizeText(searchTerm)) ||
+            normalizeText(student.phoneNumber).includes(normalizeText(searchTerm))
+        );
+    });
 
-    const handleDeleteStudent = (index) => {
-        setStudents(students.filter((_, i) => i !== index));
-        setDeletePopup({ isOpen: false, index: null });
-    };
 
-    const handleUpdateStudent = (updatedStudent) => {
-        const newStudents = [...students];
-        newStudents[editPopup.index] = updatedStudent;
-        setStudents(newStudents);
-    };
+    if (isLoading) {
+        return <Loading />
+    }
+
+    if (isError) {
+        return <p className="text-center py-6 text-red-500">حدث خطأ أثناء جلب البيانات</p>;
+    }
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-5xl mx-auto">
             <div className="flex justify-between items-center p-4">
-                <h3 className="text-text_color font-cairo text-basemobile md:text-lg">الطلاب في الانتظار</h3>
+                <h3 className="text-text_color font-cairo text-basemobile md:text-lg">
+                    الطلاب في الانتظار
+                </h3>
             </div>
 
             <div className="p-4 bg-white dark:bg-gray-800">
@@ -61,7 +66,11 @@ export default function WaitingStudentsTable() {
 
             {filteredStudents.length === 0 ? (
                 <div className="text-center py-12">
+                    <img src={EmptyImg} alt="لا يوجد طلاب" className="mx-auto mb-4 w-40 h-40 object-contain" />
                     <h2 className="text-lg font-cairo text-gray-600 mb-2">لا يوجد طلاب في الوقت الحالي</h2>
+                    <p className="text-gray-500">
+                        سوف يظهر هنا جدول للطلاب الذين قاموا بزيارة للمركز التدريبي
+                    </p>
                 </div>
             ) : (
                 <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
@@ -76,26 +85,23 @@ export default function WaitingStudentsTable() {
                     </thead>
                     <tbody>
                         {filteredStudents.map((student, index) => (
-                            <tr key={index} className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100">
+                            <tr
+                                key={student.id || index}
+                                className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
+                            >
                                 <td className="p-4">{index + 1}</td>
-                                <td>{student.name}</td>
-                                <td>{student.phone}</td>
+                                <td>{student.studentName}</td>
+                                <td>{student.phoneNumber}</td>
                                 <td>{student.city}</td>
                                 <td className="flex items-center px-6 py-4 space-x-2">
                                     <button
-                                        onClick={() => handleAddToSession(student)}
-                                        className="bg-background text-white px-3 py-1 ml-4 rounded-lg hover:bg-[#0f8392] transition"
-                                    >
-                                        إضافة لحصة
-                                    </button>
-                                    <button
-                                        onClick={() => setEditPopup({ isOpen: true, index })}
-                                        className="text-blue-600 hover:underline"
+                                        onClick={() => setEditPopup({ isOpen: true, student })}
+                                        className="text-blue-600 ml-4 hover:underline"
                                     >
                                         تعديل
                                     </button>
                                     <button
-                                        onClick={() => setDeletePopup({ isOpen: true, index })}
+                                        onClick={() => setDeletePopup({ isOpen: true, student })}
                                         className="text-red-600 hover:underline"
                                     >
                                         حذف
@@ -107,19 +113,45 @@ export default function WaitingStudentsTable() {
                 </table>
             )}
 
-            <ConfirmDeletePopup
-                isOpen={deletePopup.isOpen}
-                studentName={deletePopup.index !== null ? students[deletePopup.index].name : ""}
-                onClose={() => setDeletePopup({ isOpen: false, index: null })}
-                onConfirm={() => handleDeleteStudent(deletePopup.index)}
-            />
 
-            <EditStudentPopup
-                isOpen={editPopup.isOpen}
-                studentData={editPopup.index !== null ? students[editPopup.index] : null}
-                onClose={() => setEditPopup({ isOpen: false, index: null })}
-                onUpdateStudent={handleUpdateStudent}
-            />
+            {deletePopup.isOpen && (
+                <ConfirmDeletePopup
+                    isOpen={deletePopup.isOpen}
+                    studentId={deletePopup.student.id}
+                    studentName={deletePopup.student?.studentName || "هذا الطالب"}
+                    onClose={() => setDeletePopup({ isOpen: false, student: null })}
+                    onConfirm={() =>
+                        deleteMutation.mutate(deletePopup.student.id, {
+                            onSuccess: () => {
+                                setDeletePopup({ isOpen: false, student: null });
+                                toast.success("تم حذف الطالب بنجاح");
+                            },
+                            onError: () => toast.error("حدث خطأ أثناء الحذف"),
+                        })
+                    }
+                />
+            )}
+
+
+            {editPopup.isOpen && (
+                <EditStudentPopup
+                    isOpen={editPopup.isOpen}
+                    onClose={() => setEditPopup({ isOpen: false, student: null })}
+                    studentData={editPopup.student}
+                    onSubmit={(data) =>
+                        updateMutation.mutate(
+                            { id: editPopup.student.id, data },
+                            {
+                                onSuccess: () => {
+                                    setEditPopup({ isOpen: false, student: null });
+                                    toast.success("تم تعديل الطالب بنجاح");
+                                },
+                                onError: () => toast.error("حدث خطأ أثناء التعديل"),
+                            }
+                        )
+                    }
+                />
+            )}
         </div>
     );
 }

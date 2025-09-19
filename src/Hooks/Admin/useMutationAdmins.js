@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateAdmin, deactivateAdmin, adminLogout, changePassword, adminRegister, adminLogin } from '../APIs/adminsApis';
+import { updateAdmin, deactivateAdmin, adminLogout, changePassword, adminRegister, adminLogin } from '../../APIs/Admin/adminsApis';
 
 export function useUpdateAdmin() {
   const queryClient = useQueryClient();
@@ -30,7 +30,7 @@ export function useAdminLogout() {
     mutationFn: adminLogout,
     onSuccess: () => {
       queryClient.invalidateQueries(['adminProfile']);
-      localStorage.removeItem('userToken'); // لو فعلاً بتستخدم التخزين في localStorage
+      CookieStore.removeItem('userToken'); // لو فعلاً بتستخدم التخزين في localStorage
     }
   });
 }

@@ -1,27 +1,62 @@
 import React from "react";
+import { toast } from "react-toastify";
+import { useDeleteStudent } from "../../../../Hooks/Students/NewStudents/useMutationNewStudent";
 
-export default function ConfirmDeletePopup({ isOpen, onClose, onConfirm, studentName }) {
+export default function ConfirmDeletePopup({
+  isOpen,
+  onClose,
+  studentId,
+  studentName = "",
+}) {
+  const deleteStudentMutation = useDeleteStudent();
+
   if (!isOpen) return null;
 
+  const handleDelete = () => {
+    deleteStudentMutation.mutate(studentId, {
+      onSuccess: (res) => {
+        if (!res?.data?.success) {
+          toast.error(res?.message || "حدث خطأ أثناء حذف الطالب", {
+            toastId: `${res?.data?.message}-${Date.now()}`,
+          });
+          return; 
+        }
+
+        toast.success(res?.message || "تم حذف الطالب بنجاح");
+        onClose();
+      },
+      onError: (error) => {
+        const errorMsg =
+          error?.response?.data?.message || "حدث خطأ أثناء حذف الطالب";
+        toast.error(errorMsg, {
+          toastId: `${errorMsg}-${Date.now()}`,
+        });
+      },
+    });
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative text-center">
-        <h2 className="text-lg font-cairo mb-4 text-text_color">
-          حذف الطالب
-        </h2>
-        <p className="mb-6">هل أنت متأكد من حذف الطالب <strong>{studentName}</strong>؟</p>
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={onConfirm}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            حذف
-          </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+        <h3 className="text-lg font-semibold mb-4">تأكيد الحذف</h3>
+        <p>هل أنت متأكد من حذف {studentName || "هذا الطالب"}؟</p>
+        <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={onClose}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
           >
             إلغاء
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleteStudentMutation.isLoading}
+            className={`px-4 py-2 rounded-lg text-white ${
+              deleteStudentMutation.isLoading
+                ? "bg-red-300 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
+          >
+            {deleteStudentMutation.isLoading ? "جارٍ الحذف..." : "حذف"}
           </button>
         </div>
       </div>

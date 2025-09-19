@@ -2,33 +2,48 @@ import React, { useState } from "react";
 import AddStudentPopup from "./AddNewStudent";
 import ConfirmDeletePopup from "./ConfirmDeletePopup";
 import EditStudentPopup from "./EditStudentPopup";
+import ConfirmMoveToWaitingPopup from "../WaitingStudent/ConfirmMoveToWaitingPopup";
 import EmptyImg from "../../../../assets/images/Empty.png";
+import { useGetAllStudents } from "../../../../Hooks/Students/NewStudents/useQueryNewStudent";
+import {
+  useAddNewStudent,
+  useUpdateStudent,
+  useDeleteStudent,
+  useMoveStudentToWaiting,
+} from "../../../../Hooks/Students/NewStudents/useMutationNewStudent";
+import { toast } from "react-toastify";
 
 export default function NewStudentsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [deletePopup, setDeletePopup] = useState({ isOpen: false, index: null });
-  const [editPopup, setEditPopup] = useState({ isOpen: false, index: null });
+  const [editPopup, setEditPopup] = useState({ isOpen: false, student: null });
+  const [moveToWatingPop, setMoveToWatingPop] = useState({ isOpen: false, student: null });
+  const [deletePopup, setDeletePopup] = useState({ isOpen: false, student: null });
 
-  const [students, setStudents] = useState([
-    { name: "علي", phone: "01111111111", city: "السعودية, الاحساء", day: "الاحد 19-7", time: "3:45 صباحاً" },
-    { name: "محمد", phone: "--", city: "السعودية, الاحساء", day: "الاحد 19-7", time: "4:00 صباحاً" },
-  ]);
+  // ✅ جلب الطلاب
+  const { data: students, isLoading, isError } = useGetAllStudents();
+
+  // ✅ الميوتيشنز
+  const addMutation = useAddNewStudent();
+  const updateMutation = useUpdateStudent();
+  const deleteMutation = useDeleteStudent();
+  const moveToWatingMutation = useMoveStudentToWaiting();
 
   const normalizeText = (text) =>
-    text.toLowerCase().replace(/[\u064B-\u0652]/g, "").replace(/[أإآا]/g, "ا").replace(/\s+/g, " ").trim();
+    text
+      .toLowerCase()
+      .replace(/[\u064B-\u0652]/g, "")
+      .replace(/[أإآا]/g, "ا")
+      .replace(/\s+/g, " ")
+      .trim();
 
-  const filteredStudents = students.filter(
-    (student) =>
-      normalizeText(student.name).includes(normalizeText(searchTerm)) ||
-      normalizeText(student.phone).includes(normalizeText(searchTerm))
+  const filteredStudents = (students?.data ?? []).filter((student) =>
+    normalizeText(student.studentName).includes(normalizeText(searchTerm)) ||
+    normalizeText(student.phoneNumber).includes(normalizeText(searchTerm))
   );
 
-  const handleAddStudent = (student) => setStudents([...students, student]);
-  const handleDeleteStudent = (index) => {
-    setStudents(students.filter((_, i) => i !== index));
-    setDeletePopup({ isOpen: false, index: null });
-  };
+  if (isLoading) return <p className="text-center p-4">جاري تحميل الطلاب...</p>;
+  if (isError) return <p className="text-center p-4 text-red-500">حدث خطأ أثناء جلب الطلاب</p>;
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-5xl mx-auto">
@@ -56,11 +71,7 @@ export default function NewStudentsTable() {
       {/* Empty State */}
       {filteredStudents.length === 0 ? (
         <div className="text-center py-12">
-          <img
-            src={EmptyImg} // ضع رابط الصورة المناسب
-            alt="لا يوجد طلاب"
-            className="mx-auto mb-4 w-40 h-40 object-contain"
-          />
+          <img src={EmptyImg} alt="لا يوجد طلاب" className="mx-auto mb-4 w-40 h-40 object-contain" />
           <h2 className="text-lg font-cairo text-gray-600 mb-2">لا يوجد طلاب في الوقت الحالي</h2>
           <p className="text-gray-500">
             سوف يظهر هنا جدول للطلاب الذين قاموا بحجز موعد زيارة للمركز التدريبي
@@ -82,25 +93,31 @@ export default function NewStudentsTable() {
           <tbody>
             {filteredStudents.map((student, index) => (
               <tr
-                key={index}
+                key={student.id}
                 className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
               >
                 <td className="p-4">{index + 1}</td>
-                <td>{student.name}</td>
-                <td>{student.phone}</td>
+                <td>{student.studentName}</td>
+                <td>{student.phoneNumber}</td>
                 <td>{student.city}</td>
-                <td>{student.day}</td>
+                <td>{student.date}</td>
                 <td>{student.time}</td>
                 <td className="flex items-center px-6 py-4">
                   <button
                     className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    onClick={() => setEditPopup({ isOpen: true, index })}
+                    onClick={() => setEditPopup({ isOpen: true, student })}
                   >
                     تعديل
                   </button>
+                   <button
+                    className="font-medium text-secondary mr-2 dark:text-yellow-600 hover:underline"
+                    onClick={() => setMoveToWatingPop({ isOpen: true, student })}
+                  >
+                    نقل الي قائمة الانتظار
+                  </button>
                   <button
                     className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
-                    onClick={() => setDeletePopup({ isOpen: true, index })}
+                    onClick={() => setDeletePopup({ isOpen: true, student })}
                   >
                     حذف
                   </button>
@@ -115,30 +132,71 @@ export default function NewStudentsTable() {
       <AddStudentPopup
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onAddStudent={handleAddStudent}
+        onSubmit={(data) => addMutation.mutate(data)}
       />
 
       {/* بوب اب تعديل الطالب */}
       {editPopup.isOpen && (
         <EditStudentPopup
           isOpen={editPopup.isOpen}
-          onClose={() => setEditPopup({ isOpen: false, index: null })}
-          studentData={students[editPopup.index]}
-          onUpdateStudent={(updatedStudent) => {
-            const newStudents = [...students];
-            newStudents[editPopup.index] = updatedStudent;
-            setStudents(newStudents);
-          }}
+          onClose={() => setEditPopup({ isOpen: false, student: null })}
+          studentData={editPopup.student}
+          onSubmit={(data) =>
+            updateMutation.mutate(
+              { id: editPopup.student.id, data }, 
+              {
+                onSuccess: () => {
+                  setEditPopup({ isOpen: false, student: null });
+                  toast.success("تم تعديل الطالب بنجاح");
+                },
+                onError: () => toast.error("حدث خطأ أثناء التعديل"),
+              }
+            )
+          }
+        />
+      )}
+      {/* نقل الطالب الي قائمة الانتظار} */}
+
+      {moveToWatingPop.isOpen && (
+        <ConfirmMoveToWaitingPopup
+          isOpen={moveToWatingPop.isOpen}
+          studentId={moveToWatingPop.student.id}
+          studentName={moveToWatingPop.student?.studentName || "هذا الطالب"}
+          onClose={() => setMoveToWatingPop({ isOpen: false, student: null })}
+          onConfirm={() =>
+            moveToWatingMutation.mutate(moveToWatingPop.student.id, {
+              onSuccess: () => {
+                setMoveToWatingPop({ isOpen: false, student: null });
+                toast.success("تم نقل الطالب إلى قائمة الانتظار بنجاح");
+              },
+              onError: (error) => {
+                console.error("MoveToWaiting error:", error.response?.data || error.message);
+
+                toast.error("حدث خطأ أثناء النقل")
+              },
+            })
+          }
+        />
+      )}
+      {/* بوب اب حذف الطالب */}
+      {deletePopup.isOpen && (
+        <ConfirmDeletePopup
+          isOpen={deletePopup.isOpen}
+          studentId={deletePopup.student.id}
+          studentName={deletePopup.student?.studentName || "هذا الطالب"}
+          onClose={() => setDeletePopup({ isOpen: false, student: null })}
+          onConfirm={() =>
+            deleteMutation.mutate(deletePopup.student.id, {
+              onSuccess: () => {
+                setDeletePopup({ isOpen: false, student: null });
+                toast.success("تم حذف الطالب بنجاح");
+              },
+              onError: () => toast.error("حدث خطأ أثناء الحذف"),
+            })
+          }
         />
       )}
 
-      {/* بوب اب حذف الطالب */}
-      <ConfirmDeletePopup
-        isOpen={deletePopup.isOpen}
-        studentName={deletePopup.index !== null ? students[deletePopup.index].name : ""}
-        onClose={() => setDeletePopup({ isOpen: false, index: null })}
-        onConfirm={() => handleDeleteStudent(deletePopup.index)}
-      />
     </div>
   );
 }

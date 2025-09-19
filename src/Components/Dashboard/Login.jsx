@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { useAdminLogin } from '../../Hooks/useMutationAdmins';
+import { useAdminLogin } from '../../Hooks/Admin/useMutationAdmins';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import chat from '../../assets/images/chat.png';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../../Context/AuthContext'; // استدعاء الـ context
+import { useAuth } from '../../Context/useAuth'; // استدعاء الـ context
 
 function Login() {
   const loginMutation = useAdminLogin();
