@@ -4,7 +4,7 @@ import DeleteReviewModal from "./DeleteReviewModal";
 import { useDeleteEvaluation } from "../../../Hooks/Evaluation/useMutationEvaluation";
 import { useGetAllEvaluations } from "../../../Hooks/Evaluation/useQueryEvaluation";
 import Loading from "../../Loading";
-import emptyImg from "../../../assets/images/empty.png"; // حطي صورة مناسبة هنا
+import emptyImg from "../../../assets/images/Empty.png"; // حطي صورة مناسبة هنا
 
 export default function ReviewsTable() {
   const { data: allReviews = [], isLoading } = useGetAllEvaluations();
