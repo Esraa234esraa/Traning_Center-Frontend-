@@ -13,6 +13,7 @@ export default function BouquetsTable() {
     const [filterCourse, setFilterCourse] = useState("");
     const [filterLevel, setFilterLevel] = useState("");
     const filteredBouquets = useMemo(() => {
+        if(!data?.data) return [];
         return data.data.filter((b) => {
             const matchSearch = b.bouquetName
                 .toLowerCase()
@@ -61,7 +62,7 @@ export default function BouquetsTable() {
                     className="border p-2 rounded"
                 >
                     <option value="">كل الكورسات</option>
-                    {[...new Set(data.data.map((b) => b.courseName))].map((course) => (
+                    {[...new Set(data?.data?.map((b) => b.courseName))].map((course) => (
                         <option key={course} value={course}>
                             {course}
                         </option>

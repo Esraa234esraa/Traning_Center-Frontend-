@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://traning-center.runasp.net/api/NewStudents';
+const API_URL = 'http://traning-center.runasp.net/api/NewStudents';
 export const getAllStudents = () => {
 
   return axios.get(`${API_URL}/GetAllNewStudent`, { withCredentials: true });

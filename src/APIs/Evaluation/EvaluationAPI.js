@@ -1,7 +1,7 @@
 // EvaluationAPI.js
 import axios from "axios";
 
-const API_URL = "https://traning-center.runasp.net/api/Evaluation";
+const API_URL = "http://traning-center.runasp.net/api/Evaluation";
 
 export const getAllEvaluations = async () => {
   const res = await axios.get(`${API_URL}/GetAllEvaluation`, {
