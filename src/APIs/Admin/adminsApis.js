@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://traning-center.runasp.net/api/admins';
+const API_URL = 'https://traning-center.runasp.net/api/admins';
 
 export const adminLogin = async (data) => {
   try {
