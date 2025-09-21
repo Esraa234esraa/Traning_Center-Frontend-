@@ -209,7 +209,7 @@ export default function Sidebar() {
                   className={linkClasses}
                   onClick={() => setIsOpen(false)}
                 >
-                  <FaBookOpen /> <span className="flex-1 text-right">الباقات</span>
+                  <FaBookOpen /> <span className="flex-1 text-right">الحصص</span>
                 </NavLink>
               </li> 
 
