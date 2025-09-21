@@ -1,13 +1,16 @@
-// src/Components/ProtectedRoute.jsx
-import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../Context/useAuth";
-import LoadingSpinner from "./Loading"; // component بسيط للتحميل
 
-export default function ProtectedRoute({ children }) {
-  const { user, loadingAuth } = useAuth();
+export default function ProtectedRoute({ children, allowedRoles }) {
+  const { user } = useAuth();
 
-  if (loadingAuth) return <LoadingSpinner />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return children;
 }

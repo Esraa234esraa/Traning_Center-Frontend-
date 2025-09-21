@@ -17,7 +17,7 @@ function Navbar() {
     { label: 'من نحن', href: 'about' },
     { label: 'الدورات التدريبية', href: 'courses' },
     { label: 'نشاطات المركز', href: 'activities' },
-    { label: 'امتحان تجريبي', href: 'examintro' },
+    // { label: 'امتحان تجريبي', href: 'examintro' },
     { label: 'تواصل معنا', href: 'contact' },
   ];
 
@@ -104,7 +104,7 @@ const scrollToSection = (id) => {
           <li key={'قوانين وسياسيات المركز'}>
             <NavLink
               to="/roles"
-              className="hover:text-background transition-all"
+              className="hover:text-background text-text_color transition-all"
             >
               سياسات وقوانين المركز
             </NavLink>
@@ -142,7 +142,16 @@ const scrollToSection = (id) => {
                 {link.label}
               </button>
             </li>
+            
           ))}
+          <li key={'قوانين وسياسيات المركز'} className="text-primary hover:text-background transition-all">
+            <NavLink
+              to="/roles"
+              className="hover:text-background text-text_color transition-all"
+            >
+              سياسات وقوانين المركز
+            </NavLink>
+          </li>
         </ul>
       )}
     </nav>

@@ -3,11 +3,10 @@ import { NavLink } from "react-router-dom";
 import LogoPlaceholder from "../../assets/images/light-logo.png";
 import {
   FaHome, FaChalkboardTeacher, FaUsers, FaSignOutAlt, FaCalendarAlt, FaListUl,
-  FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper, FaRunning, FaChevronDown
+  FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper, FaRunning, FaChevronDown,FaLayerGroup,FaBookOpen,FaBoxOpen
 } from "react-icons/fa";
 import { useAdminLogout } from '../../Hooks/Admin/useMutationAdmins';
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,25 +15,21 @@ export default function Sidebar() {
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
 
-  const navigate = useNavigate();
+
   const logoutMutation = useAdminLogout();
   // بعد ما تخزن بيانات المعلم عند تسجيل الدخول
   const teacherId = localStorage.getItem("teacherId");
   const teacherName = localStorage.getItem("teacherName");
 
-  const handleLogout = (e) => {
-    e.preventDefault(); // لمنع الانتقال الافتراضي
 
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigate('/login');
-      },
-      onError: () => {
-        toast.error('فشل تسجيل الخروج، حاول مرة أخرى');
-      }
-    });
+  // لما يضغط على زرار تسجيل الخروج 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logoutMutation.mutate();
+    setIsOpen(false);
   };
 
+  
   const linkClasses = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-l-md transition-colors duration-200
    ${isActive ? "bg-blue_Light/80 text-white" : "hover:bg-white/10 text-white"}`;
@@ -187,6 +182,37 @@ export default function Sidebar() {
                   <FaRunning /> <span className="flex-1 text-right">الدورات التدريبية</span>
                 </NavLink>
               </li>
+               {/* المستويات */}
+              <li>
+                <NavLink
+                  to="/dashboard/levels"
+                  className={linkClasses}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FaLayerGroup /> <span className="flex-1 text-right">المستويات</span>
+                </NavLink>
+              </li> 
+               {/* الباقات */}
+              <li>
+                <NavLink
+                  to="/dashboard/bouquets"
+                  className={linkClasses}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FaBoxOpen /> <span className="flex-1 text-right">الباقات</span>
+                </NavLink>
+              </li> 
+                {/* الحصص */}
+              <li>
+                <NavLink
+                  to="/dashboard/classes"
+                  className={linkClasses}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FaBookOpen /> <span className="flex-1 text-right">الباقات</span>
+                </NavLink>
+              </li> 
+
               {/* التقييمات */}
               <li>
                 <NavLink
@@ -236,10 +262,7 @@ export default function Sidebar() {
                 )}
               </li>
 
-
-
-
-              <li className="mt-6">
+              <li className="md:backdrop:mt-2">
                 <NavLink
                   to="/Login"
                   className={linkClasses}

@@ -29,10 +29,21 @@ function Login() {
       loginMutation.mutate(values, {
         // بعد ما الـ API يرجع التوكن وبيانات المستخدم
         onSuccess: (res) => {
-          login(res.data.data); // تحديث الـ context مباشرة
-          toast.success('تم تسجيل الدخول بنجاح');
-          navigate('/dashboard/dbhome', { replace: true });
+          const userData = {
+            role: res.data.role,
+            email: res.data.email,
+            expiresAt: res.data.expiresAt,
+          };
+          login(userData);
+          toast.success("تم تسجيل الدخول بنجاح");
+
+          if (userData.role === "Admin") {
+            navigate("/dashboard/dbhome", { replace: true });
+          } else if (userData.role === "Teacher") {
+            navigate("/teacher/home", { replace: true });
+          }
         }
+
 
         ,
 

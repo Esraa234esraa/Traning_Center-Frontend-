@@ -118,109 +118,119 @@ export default function Booking() {
   if (loading) return <Loading />;
 
   return (
-    <div className="pt-12 my-[5%] max-w-4xl mx-auto bg-blue-50 p-6 md:p-10 shadow-lg rounded-2xl space-y-6">
-      <h2 className="text-2xl font-bold text-text_color text-center mb-4">
-        حجز موعد في مركز اللغة المثالية
-      </h2>
-
-      {/* اختيار اليوم */}
-      <div>
-        <label className="block mb-2 font-semibold">اختر اليوم</label>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={handleDateChange}
-          min={new Date().toISOString().split("T")[0]}
-          className="p-2 border border-gray-300 rounded-lg w-full max-w-xs text-center"
-        />
-      </div>
-
-      {/* اختيار الوقت */}
-      {selectedDate && (
+    <section className="md:mt-[10rem] mt-[7rem] mb-10">
+      <div className="pt-12 my-[5%] max-w-4xl mx-auto bg-blue-50 p-6 md:p-10 shadow-lg rounded-2xl space-y-6">
         <div>
-          <label className="block mb-2 font-semibold">اختر الوقت</label>
-          <div className="grid grid-cols-2 gap-2">
-            {generateSlots().map((time) => (
-              <button
-                key={time}
-                onClick={() => setSelectedTime(time)}
-                disabled={unavailableSlots.includes(time)}
-                className={`p-2 rounded border text-sm ${unavailableSlots.includes(time)
-                  ? "bg-red-200 cursor-not-allowed"
-                  : selectedTime === time
-                    ? "bg-background text-white"
-                    : "bg-white hover:bg-blue-100"
-                  }`}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* بيانات الطالب */}
-      {selectedTime && (
-        <div className="space-y-4 bg-white p-6 rounded shadow-md">
-          <h3 className="text-lg font-semibold text-center text-text_color">
-            أكمل بيانات الطالب
-          </h3>
-          <input
-            type="text"
-            placeholder="اسم الطالب"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="block mb-2 p-2 border rounded w-full"
-          />
-          <input
-            type="text"
-            placeholder="رقم الهاتف"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="block mb-2 p-2 border rounded w-full"
-          />
-          <select
-            value={selectedGender}
-            onChange={(e) => setSelectedGender(e.target.value)}
-            className="block mb-2 p-2 border rounded w-full"
-          >
-            <option value="">اختر الجنس</option>
-            <option value="ذكر">ذكر</option>
-            <option value="أنثى">أنثى</option>
-          </select>
-          <input
-            type="text"
-            placeholder="المدينة"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="block mb-2 p-2 border rounded w-full"
-          />
-
-          {duplicateWarning && (
-            <p className="text-red-500 text-sm">{duplicateWarning}</p>
-          )}
-
-          <p className="text-sm text-gray-500">
-            التاريخ: {selectedDate} - الوقت: {selectedTime}
+          <h2 className="text-2xl font-bold text-text_color text-center mb-4">
+            حجز موعد في مركز اللغة المثالية
+          </h2>
+          <p className="text-center text-gray-600">
+            اختر اليوم والوقت المناسبين لك لإجراء اختبار تحديد المستوى
+        .
           </p>
-
-          <button
-            onClick={handleSubmit}
-            disabled={duplicateWarning}
-            className="bg-background hover:bg-[#347d86] transition-all text-white font-bold py-2 px-4 rounded w-full"
-          >
-            تأكيد الحجز
-          </button>
+          
         </div>
-      )}
 
-      {showConfirmation && (
-        <BookingConfirmation
-          date={selectedDate}
-          time={selectedTime}
-          onClose={() => setShowConfirmation(false)}
-        />
-      )}
-    </div>
+
+        {/* اختيار اليوم */}
+        <div>
+          <label className="block mb-2 font-semibold">اختر اليوم</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            min={new Date().toISOString().split("T")[0]}
+            className="p-2 border border-gray-300 rounded-lg w-full max-w-xs text-center"
+          />
+        </div>
+
+        {/* اختيار الوقت */}
+        {selectedDate && (
+          <div>
+            <label className="block mb-2 font-semibold">اختر الوقت</label>
+            <div className="grid grid-cols-2 gap-2">
+              {generateSlots().map((time) => (
+                <button
+                  key={time}
+                  onClick={() => setSelectedTime(time)}
+                  disabled={unavailableSlots.includes(time)}
+                  className={`p-2 rounded border text-sm ${unavailableSlots.includes(time)
+                    ? "bg-red-200 cursor-not-allowed"
+                    : selectedTime === time
+                      ? "bg-background text-white"
+                      : "bg-white hover:bg-blue-100"
+                    }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* بيانات الطالب */}
+        {selectedTime && (
+          <div className="space-y-4 bg-white p-6 rounded shadow-md">
+            <h3 className="text-lg font-semibold text-center text-text_color">
+              أكمل بيانات الطالب
+            </h3>
+            <input
+              type="text"
+              placeholder="اسم الطالب"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="block mb-2 p-2 border rounded w-full"
+            />
+            <input
+              type="text"
+              placeholder="رقم الهاتف"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="block mb-2 p-2 border rounded w-full"
+            />
+            <select
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+              className="block mb-2 p-2 border rounded w-full"
+            >
+              <option value="">اختر الجنس</option>
+              <option value="ذكر">ذكر</option>
+              <option value="أنثى">أنثى</option>
+            </select>
+            <input
+              type="text"
+              placeholder="المدينة"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="block mb-2 p-2 border rounded w-full"
+            />
+
+            {duplicateWarning && (
+              <p className="text-red-500 text-sm">{duplicateWarning}</p>
+            )}
+
+            <p className="text-sm text-gray-500">
+              التاريخ: {selectedDate} - الوقت: {selectedTime}
+            </p>
+
+            <button
+              onClick={handleSubmit}
+              disabled={duplicateWarning}
+              className="bg-background hover:bg-[#347d86] transition-all text-white font-bold py-2 px-4 rounded w-full"
+            >
+              تأكيد الحجز
+            </button>
+          </div>
+        )}
+
+        {showConfirmation && (
+          <BookingConfirmation
+            date={selectedDate}
+            time={selectedTime}
+            onClose={() => setShowConfirmation(false)}
+          />
+        )}
+      </div></section>
+
   );
 }

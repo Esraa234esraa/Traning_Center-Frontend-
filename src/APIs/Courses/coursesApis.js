@@ -1,44 +1,50 @@
-import axios from 'axios';
+// src/Apis/CoursesApi.js
+import axios from "axios";
 
-const API_URL = 'http://traning-center.runasp.net/api/Courses';
+const API_URL = "http://traning-center.runasp.net/api/Course";
 
+// ✅ Get all courses
 export const getAllCourses = () => {
-
-  return axios.get(`${API_URL}`, { withCredentials: true });
+  return axios.get(`${API_URL}/GetAllCourses`, { withCredentials: true });
 };
 
+// ✅ Get only visible courses
 export const getVisibleCourses = () => {
-  return axios.get(`${API_URL}/visible`, { withCredentials: true });
+  return axios.get(`${API_URL}/GetOnlyVisibleCourses`, { withCredentials: true });
 };
 
-export const getCourseById = ({ id }) => {
-  return axios.get(`${API_URL}/${id}`, { withCredentials: true });
+// ✅ Get course by Id
+export const getCourseById = (id) => {
+  return axios.get(`${API_URL}/GetCourseById/${id}`, { withCredentials: true });
 };
 
-
-export const updateCourse = ({ id ,data}) => {
-return axios.put(`${API_URL}/${id}`, data, {
-  withCredentials: true,
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
-});
+// ✅ Add new course
+export const addCourse = (formData) => {
+  return axios.post(`${API_URL}/AddCourse`, formData, {
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };
 
-export const deactivateCourse = (id) => {
+// ✅ Update course
+export const updateCourse = (id, formData) => {
+  return axios.put(`${API_URL}/UpdateCourse/${id}`, formData, {
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+// ✅ Delete course
+export const deleteCourse = (id) => {
   return axios.delete(`${API_URL}/${id}`, { withCredentials: true });
 };
 
-
-export const createCourse = async (data) => {
-  try {
-    const response = await axios.post(`${API_URL}/addCourse`, data, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
+// ✅ Hide course
+export const hideCourse = (id) => {
+  return axios.put(`${API_URL}/HideCourse/${id}`, {}, { withCredentials: true });
 };
 
+// ✅ Show (make visible) course
+export const visibleCourse = (id) => {
+  return axios.put(`${API_URL}/VisibleCourse/${id}`, {}, { withCredentials: true });
+};

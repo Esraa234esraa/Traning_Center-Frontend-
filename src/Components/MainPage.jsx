@@ -26,9 +26,9 @@ function Home() {
       <section id="activities">
         <Activites />
       </section>
-      <section id="examintro">
+      {/* <section id="examintro">
         <ExamIntro />
-      </section>
+      </section> */}
     </div>
   );
 }

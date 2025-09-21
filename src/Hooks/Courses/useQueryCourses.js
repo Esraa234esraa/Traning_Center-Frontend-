@@ -1,30 +1,31 @@
+// src/Hooks/Courses/useQueryCourses.js
+import { useQuery } from "@tanstack/react-query";
+import { getAllCourses, getVisibleCourses, getCourseById } from "../../APIs/Courses/coursesApis";
 
-import { useQuery } from '@tanstack/react-query';
-import { getAllCourses, getVisibleCourses, getCourseById } from '../../APIs/Courses/coursesApis';
-
-export function useGetAllCourses() {
+// ✅ Get all courses
+export const useGetAllCourses = () => {
   return useQuery({
-    queryKey: ['allCourses'],
-    queryFn: async () => {
-      const response = await getAllCourses();
-      return response.data; // هترجع { success, message, data }
-    },
+    queryKey: ["courses"],
+    queryFn: getAllCourses,
+    select: (res) => res.data.data, // نرجع الداتا بس
   });
-}
+};
 
-export function useGetVisibleCourses() {
+// ✅ Get visible courses
+export const useGetVisibleCourses = () => {
   return useQuery({
-    queryKey: ['visibleCourses'],
-    queryFn: async () => {
-      const response = await getVisibleCourses();
-      return response.data; // هترجع { success, message, data }
-    },
+    queryKey: ["visibleCourses"],
+    queryFn: getVisibleCourses,
+    select: (res) => res.data,
   });
-}
-export function useGetCourseById(id) {
-  return useQuery(['course', id], () => getCourseById(id), {
-    enabled: !!id, // يشغل الـ query فقط لو id موجود
-    retry: 1,      // يعيد المحاولة مرة واحدة عند الفشل
-    staleTime: 1000 * 60 * 5, // 5 دقائق كوقت صلاحية البيانات
+};
+
+// ✅ Get course by Id
+export const useGetCourseById = (id) => {
+  return useQuery({
+    queryKey: ["course", id],
+    queryFn: () => getCourseById(id),
+    enabled: !!id, // ما يشتغلش غير لو فيه id
+    select: (res) => res.data,
   });
-}
+};

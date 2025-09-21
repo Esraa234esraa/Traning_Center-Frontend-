@@ -1,29 +1,35 @@
-// AuthContext.jsx
-import React, { createContext, useState, useEffect } from "react";
-import { useGetAdminProfile } from "../Hooks/Admin/useQueryAdmin";
+import { createContext, useState, useEffect } from "react";
 
-const AuthContext = createContext();
+ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const { data, isLoading, refetch } = useGetAdminProfile();
   const [user, setUser] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
 
+  // لما يفتح الموقع أول مرة يشيك لو فيه بيانات متخزنة
   useEffect(() => {
-    if (!isLoading) {
-      setUser(data?.data || null);
-      setLoadingAuth(false);
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
-  }, [data, isLoading]);
+  }, []);
 
-  const login = (userData) => setUser(userData);
-  const logout = () => setUser(null);
+  // login → تخزين بيانات المستخدم
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  // logout → مسح بيانات المستخدم
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loadingAuth, refetch }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export default AuthContext;
+export { AuthContext };

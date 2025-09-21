@@ -3,15 +3,15 @@ import { Upload } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
-import { useCreateCourse } from "../../../Hooks/Courses/useMutationCourses";
+import { useAddCourse } from "../../../Hooks/Courses/useMutationCourses";
 import { toast } from "react-toastify";
 
+// سكيمة التحقق
 const validationSchema = Yup.object({
   name: Yup.string()
     .required("اسم الدورة مطلوب")
     .min(3, "الاسم يجب ألا يقل عن 3 أحرف")
     .max(100, "الاسم يجب ألا يزيد عن 100 حرف"),
-
   description: Yup.string()
     .required("الوصف مطلوب")
     .test(
@@ -22,8 +22,7 @@ const validationSchema = Yup.object({
         return value.trim().split(/\s+/).length <= 100;
       }
     ),
-
-  image: Yup.mixed()
+  file: Yup.mixed()
     .required("الصورة مطلوبة")
     .test(
       "fileType",
@@ -44,12 +43,11 @@ const validationSchema = Yup.object({
     ),
 });
 
-
-
 export default function AddCourse() {
   const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
-  const mutation = useCreateCourse();
+  const mutation = useAddCourse();
+
   return (
     <div className="p-6 max-w-2xl md:mt-14 mx-auto bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-teal-700">
@@ -57,13 +55,13 @@ export default function AddCourse() {
       </h2>
 
       <Formik
-        initialValues={{ name: "", description: "", image: "" }}
+        initialValues={{ name: "", description: "", file: null }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
           const formData = new FormData();
           formData.append("Name", values.name);
           formData.append("Description", values.description);
-          formData.append("Image", values.image); 
+          formData.append("Image", values.file); // الباك اند متوقع Image
 
           mutation.mutate(formData, {
             onSuccess: () => {
@@ -71,15 +69,14 @@ export default function AddCourse() {
               navigate("/dashboard/courses");
             },
             onError: (error) => {
-
-              const errorMsg = error?.response?.data?.message || 'حدث خطأ أثناء التسجيل';
+              const errorMsg =
+                error?.response?.data?.message || "حدث خطأ أثناء التسجيل";
               toast.error(errorMsg, {
-                toastId: `${errorMsg}-${Date.now()}` // ID مختلف كل مرة
+                toastId: `${errorMsg}-${Date.now()}`, // ID مختلف لكل رسالة
               });
             },
           });
         }}
-
       >
         {({ isSubmitting, setFieldValue }) => (
           <Form className="space-y-4">
@@ -116,8 +113,6 @@ export default function AddCourse() {
             {/* رفع صورة */}
             <div>
               <label className="block mb-2">رفع صورة</label>
-
-              {/* Input مخفي */}
               <input
                 id="fileUpload"
                 type="file"
@@ -125,32 +120,25 @@ export default function AddCourse() {
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  setFieldValue("image", file);
-                  if (file) {
-                    setPreview(URL.createObjectURL(file));
-                  }
+                  setFieldValue("file", file);
+                  if (file) setPreview(URL.createObjectURL(file));
                 }}
               />
 
-              {/* أيقونة للرفع */}
               <label
                 htmlFor="fileUpload"
                 className="flex flex-col items-center justify-center w-40 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-teal-600 transition"
               >
                 <Upload className="w-8 h-8 text-gray-500 mb-2" />
-                <span className="text-sm text-gray-500">
-                  اضغط لرفع صورة
-                </span>
+                <span className="text-sm text-gray-500">اضغط لرفع صورة</span>
               </label>
 
-              {/* رسالة خطأ */}
               <ErrorMessage
-                name="image"
+                name="file"
                 component="div"
                 className="text-red-500 text-sm mt-2"
               />
 
-              {/* معاينة الصورة */}
               {preview && (
                 <div className="mt-3">
                   <img
@@ -162,24 +150,23 @@ export default function AddCourse() {
               )}
             </div>
 
-            {/* زر الإضافة */}
-            <button
-              type="submit"
-              disabled={mutation.isLoading || isSubmitting}
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={mutation.isLoading || isSubmitting}
+                className="bg-background text-white px-4 py-2 rounded-lg"
+              >
+                {mutation.isLoading ? "جاري الإضافة..." : "إضافة"}
+              </button>
 
-              className="bg-background text-white px-4 py-2 rounded-lg"
-            >
-              {mutation.isLoading ? "جاري الإضافة..." : ""}
-              إضافة
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/dashboard/courses")}
-              className="bg-gray-400 text-white px-4 py-2 rounded-lg ml-2 mr-8"
-            >
-              إلغاء
-            </button>
-
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard/courses")}
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
+              >
+                إلغاء
+              </button>
+            </div>
           </Form>
         )}
       </Formik>

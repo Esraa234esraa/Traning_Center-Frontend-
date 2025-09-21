@@ -50,6 +50,13 @@ import StudentProfile from './Components/Dashboard/Students/StudentProfile';
 import ReviewsTable from './Components/Dashboard/Reviews/ReviewsTable';
 import Questioncontrol from './Components/Dashboard/Exam/QuestionControl';
 import ResultSettings from './Components/Dashboard/Exam/ResultSettings';
+import LevelsTable from './Components/Dashboard/Levels/LevelsTable';
+import AddLevel from './Components/Dashboard/Levels/AddLevel';
+import EditLevel from './Components/Dashboard/Levels/EditLevel';
+import BouquetsTable from './Components/Dashboard/Bouquets/BouquetsTable';
+import AddBouquet from './Components/Dashboard/Bouquets/AddBouquet';
+import EditBouquet from './Components/Dashboard/Bouquets/EditBouquet';
+
 
 
 function App() {
@@ -71,14 +78,16 @@ function App() {
               <Route path='booking' element={<Booking />} />
               <Route path='roles' element={<Booking />} />
               <Route path="/login" element={<Login />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <Dashboard />
-                }
-              />
+
             </Route>
-            <Route path="/dashboard" element={<Dashboard_layout />}>
+            <Route path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['Admin']}>
+                  <Dashboard_layout />
+                </ProtectedRoute>
+              }>
+              <Route
+                path="/dashboard" element={<Home />} />
               <Route path="dbhome" element={<Home />} />
               <Route path="add-admin" element={<AddAdmin />} />
               <Route path="admins/edit-admin/:id" element={<EditAdminPage />} />
@@ -141,6 +150,20 @@ function App() {
                 <Route path='questions-settings' element={<Questioncontrol />} />
                 <Route path="result-settings" element={<ResultSettings />} />
               </Route>
+              {/* المستويات */}
+              <Route path='levels'>
+                <Route index element={<LevelsTable />} />
+                 <Route path="addlevel" element={<AddLevel />} />
+                 <Route path="editlevel/:id" element={<EditLevel />} />
+              </Route>
+              {/* الباقات */}
+              <Route path='bouquets'>
+                <Route index element={<BouquetsTable />} />
+                <Route path="add-bouquet" element={<AddBouquet />} />
+                <Route path="edit-bouquet/:id" element={<EditBouquet />} />
+              </Route>
+            
+
 
 
 
@@ -153,7 +176,7 @@ function App() {
         <ToastContainer position="top-center" rtl />
 
 
-      </AuthProvider>
+      </AuthProvider >
 
 
     </>
