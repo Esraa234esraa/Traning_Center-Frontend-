@@ -1,204 +1,148 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useGetAllCurrentStudents } from "../../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
+import { useDeleteCurrentStudent } from "../../../../Hooks/Students/CurrentStudent/useMutationCurrentStudent";
+import DeleteModal from "./ConfirmDeleteModal";
 import { useNavigate } from "react-router-dom";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import { toast } from "react-toastify";
+import Loading from "../../../Loading";
 
-export default function CurrentStudentsTable({ onDelete }) {
+export default function CurrentStudentTable() {
   const navigate = useNavigate();
+  const { data, isLoading } = useGetAllCurrentStudents();
+  const deleteMutation = useDeleteCurrentStudent();
+
+  const [deleteStudent, setDeleteStudent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [filterPaid, setFilterPaid] = useState("all"); // all, paid, unpaid
 
-  const [filterPackage, setFilterPackage] = useState(""); // فلتر الباقة
-  const [filterPayment, setFilterPayment] = useState(""); // فلتر الدفع
-  const [filterTeacher, setFilterTeacher] = useState(""); // فلتر الحصة/المعلم
-  const [filterCity, setFilterCity] = useState("");
-  const [filterSubject, setFilterSubject] = useState("");
+  const filteredStudents = useMemo(() => {
+    return data?.data?.filter((student) => {
+      const matchesSearch =
+        student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.phoneNumber.includes(searchTerm);
 
-  const openPopup = (student) => {
-    setSelectedStudent(student);
-    setIsOpen(true);
+      const matchesFilter =
+        filterPaid === "all" ||
+        (filterPaid === "paid" && student.isPaid) ||
+        (filterPaid === "unpaid" && !student.isPaid);
+
+      return matchesSearch && matchesFilter;
+    }) || [];
+  }, [data, searchTerm, filterPaid]);
+
+  if (isLoading) return <Loading />;
+
+  const handleDeleteConfirm = () => {
+    if (!deleteStudent) return;
+    deleteMutation.mutate(deleteStudent.id, {
+      onSuccess: (res) => toast.success(res.message),
+      onError: () => toast.error("حدث خطأ أثناء الحذف"),
+      onSettled: () => {
+        setIsModalOpen(false);
+        setDeleteStudent(null);
+      },
+    });
   };
-
-  const confirmDelete = () => {
-    if (selectedStudent) {
-      onDelete(selectedStudent.id);
-    }
-    setIsOpen(false);
-    setSelectedStudent(null);
-  };
-
-  const Allstudents = [
-    { id: 1, name: "علي", phone: "01111111111", city: "السعودية, الاحساء", subject: "Maths", teacher: "علي / الحصة الاولى", package: "طالب واحد", paymentStatus: "تم الدفع" },
-    { id: 2, name: "محمد", phone: "--", city: "السعودية, الاحساء", subject: "Maths", teacher: "محمد / الحصة الثانية", package: "3 طلاب", paymentStatus: "لم يتم" },
-    { id: 3, name: "احمد", phone: "--", city: "السعودية, الاحساء", subject: "Maths", teacher: "احمد / الحصة السادسة", package: "طالبين", paymentStatus: "تم الدفع" },
-    { id: 4, name: "حسن", phone: "--", city: "السعودية, الاحساء", subject: "Maths", teacher: "حسن / الحصة السابعة", package: "طالب واحد", paymentStatus: "لم يتم" },
-    { id: 5, name: "فاطمه", phone: "--", city: "السعودية, الاحساء", subject: "Maths", teacher: "--", package: "5 طلاب", paymentStatus: "تم الدفع" },
-  ];
-
-  const normalizeText = (text) =>
-    text.toLowerCase().replace(/[\u064B-\u0652]/g, "").replace(/[أإآا]/g, "ا").replace(/\s+/g, " ").trim();
-
-  const filteredStudents = Allstudents.filter((student) => {
-    const matchesSearch =
-      normalizeText(student.name).includes(normalizeText(searchTerm)) ||
-      normalizeText(student.phone).includes(normalizeText(searchTerm)) ||
-      normalizeText(student.subject).includes(normalizeText(searchTerm));
-
-    const matchesPackage = filterPackage ? student.package === filterPackage : true;
-    const matchesPayment = filterPayment ? student.paymentStatus === filterPayment : true;
-    const matchesTeacher = filterTeacher ? student.teacher === filterTeacher : true;
-    const matchesCity = filterCity ? student.city === filterCity : true;
-    const matchesSubject = filterSubject ? student.subject === filterSubject : true;
-
-    return matchesSearch && matchesPackage && matchesPayment && matchesTeacher && matchesCity && matchesSubject;
-  });
-
-  const packages = [...new Set(Allstudents.map((s) => s.package))];
-  const teachers = [...new Set(Allstudents.map((s) => s.teacher).filter(t => t !== "--"))];
-  const cities = [...new Set(Allstudents.map((s) => s.city))];
-  const subjects = [...new Set(Allstudents.map((s) => s.subject))];
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-6xl mx-auto p-4">
-      <h3 className="text-text_color font-cairo text-basemobile md:text-lg mb-4">الطلاب الحاليين</h3>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">طلاب الصف الحالي</h1>
 
-      {/* الفلاتر */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="🔍 ابحث عن الطالب بالاسم أو رقم الهاتف"
-          className="p-2 border rounded-lg flex-1 min-w-[180px]"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-
-        <select
-          className="p-2 border rounded-lg min-w-[140px]"
-          value={filterPackage}
-          onChange={(e) => setFilterPackage(e.target.value)}
-        >
-          <option value="">كل الباقات</option>
-          {packages.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-
-        <select
-          className="p-2 border rounded-lg min-w-[140px]"
-          value={filterPayment}
-          onChange={(e) => setFilterPayment(e.target.value)}
-        >
-          <option value="">كل الحالات</option>
-          <option value="تم الدفع">تم الدفع</option>
-          <option value="لم يتم">لم يتم</option>
-        </select>
-
-        <select
-          className="p-2 border rounded-lg min-w-[160px]"
-          value={filterTeacher}
-          onChange={(e) => setFilterTeacher(e.target.value)}
-        >
-          <option value="">كل الحصص/المعلمين</option>
-          {teachers.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
-
-        <select
-          className="p-2 border rounded-lg min-w-[140px]"
-          value={filterCity}
-          onChange={(e) => setFilterCity(e.target.value)}
-        >
-          <option value="">كل المدن</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-
-        <select
-          className="p-2 border rounded-lg min-w-[140px]"
-          value={filterSubject}
-          onChange={(e) => setFilterSubject(e.target.value)}
-        >
-          <option value="">كل المواد</option>
-          {subjects.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
         <button
-          className="px-3 py-2 bg-background text-white rounded-lg hover:bg-[#0f8392] transition"
+          className="px-4 py-2 bg-primary text-white rounded hover:bg-text_color transition"
           onClick={() => navigate("/dashboard/students/add-current")}
         >
-          إضافة طالب
+          إضافة طالب جديد
         </button>
+
+        <div className="flex gap-2 flex-col md:flex-row items-start md:items-center">
+          <input
+            type="text"
+            placeholder="ابحث بالاسم، المدينة أو الهاتف..."
+            className="px-4 py-2 border rounded w-full md:w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select
+            className="px-4 py-2 border rounded"
+            value={filterPaid}
+            onChange={(e) => setFilterPaid(e.target.value)}
+          >
+            <option value="all">الكل</option>
+            <option value="paid">المدفوع</option>
+            <option value="unpaid">غير المدفوع</option>
+          </select>
+        </div>
       </div>
 
-      {/* الجدول */}
-      {filteredStudents.length === 0 ? (
-        <div className="text-center py-12">
-          <h2 className="text-lg font-cairo text-gray-600 mb-2">لا يوجد طلاب حاليين</h2>
-        </div>
-      ) : (
-        <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <div className="overflow-x-auto bg-white shadow rounded">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="p-4">#</th>
-              <th className="px-4 py-3">اسم الطالب</th>
-              <th className="px-4 py-3">رقم الهاتف</th>
-              <th className="px-4 py-3">المدينة</th>
-              <th className="px-4 py-3">المادة التدريبية</th>
-              <th className="px-4 py-3">المعلم</th>
-              <th className="px-4 py-3">الباقة</th>
-              <th className="px-4 py-3">حالة الدفع</th>
-              <th className="px-6 py-3">الإجراء</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المدينة</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الباقة</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الكورس</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المستوى</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الدفع</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
             </tr>
           </thead>
-          <tbody>
-            {filteredStudents.map((student, index) => (
-              <tr key={student.id} className="odd:bg-white even:bg-blue-50 border-b hover:bg-gray-100">
-                <td className="p-4">{index + 1}</td>
-                <td>
-                  <button onClick={() => navigate(`/dashboard/students/student-profile/${student.id}`)} className="text-blue-600 hover:underline">
-                    {student.name}
-                  </button>
-                </td>
-                <td>{student.phone}</td>
-                <td>{student.city}</td>
-                <td>{student.subject}</td>
-                <td>{student.teacher}</td>
-                <td>{student.package}</td>
-                <td>
-                  <span className={student.paymentStatus === "تم الدفع" ? "text-green-600" : "text-red-600"}>
-                    {student.paymentStatus}
-                  </span>
-                </td>
-                <td className="px-6 py-4 space-x-2">
-                  <button
-                    className="text-blue-600 hover:bg-blue-700 hover:text-white px-3 py-1 rounded-lg transition"
-                    onClick={() => navigate(`/dashboard/students/edit/${student.id}`)}
-                  >
-                    تعديل
-                  </button>
-                  <button
-                    onClick={() => openPopup(student)}
-                    className="text-red-700 px-3 py-1 rounded-lg hover:bg-red-700 hover:text-white transition"
-                  >
-                    حذف
-                  </button>
-                </td>
-              </tr>
-            ))}
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredStudents.map((student, idx) => {
+              const firstClass = student.classes?.[0] || {}; // ناخد الحصة الأولى لو موجودة
+              return (
+                <tr
+                  key={student.id}
+                  className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.studentName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.phoneNumber}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.city}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {firstClass.bouquetName || "-"} #{firstClass.bouquetNumber || "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{firstClass.courseName || "-"}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {firstClass.levelName || "-"} ({firstClass.levelNumber || "-"})
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${student.isPaid ? "text-green-600" : "text-red-600"}`}>
+                    {student.isPaid ? "نعم" : "لا"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <button
+                      className="mr-2 px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
+                      onClick={() => navigate(`/dashboard/students/edit/${student.id}`)}
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                      onClick={() => { setDeleteStudent(student); setIsModalOpen(true); }}
+                    >
+                      حذف
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
-        </table>
-      )}
 
-      {/* البوب أب */}
-      <ConfirmDeleteModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        onConfirm={confirmDelete}
-        student={selectedStudent}
+
+        </table>
+      </div>
+
+      {/* Delete Modal */}
+      <DeleteModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        studentName={deleteStudent?.studentName}
       />
     </div>
   );

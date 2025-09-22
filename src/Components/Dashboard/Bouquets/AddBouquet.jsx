@@ -1,90 +1,175 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAddBouquet } from "../../../Hooks/Bouquets/useMutationBouquet";
+import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
+import { useGetAllLevels } from "../../../Hooks/Levels/useQueryLevel";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { toast } from "react-toastify";
+import Loading from "../../Loading";
+
+// ✅ مخطط التحقق Yup
+const validationSchema = Yup.object({
+  bouquetName: Yup.string().required("اسم الباقة مطلوب"),
+  courseId: Yup.string().required("يجب اختيار كورس"),
+  levelId: Yup.string().required("يجب اختيار مستوى"),
+  studentsPackageCount: Yup.number()
+    .positive("عدد الطلاب يجب أن يكون أكبر من 0")
+    .required("عدد الطلاب مطلوب"),
+  money: Yup.number()
+    .positive("السعر يجب أن يكون أكبر من 0")
+    .required("السعر مطلوب"),
+});
 
 export default function AddBouquet() {
   const navigate = useNavigate();
   const { mutate: addBouquet } = useAddBouquet();
 
-  const [formData, setFormData] = useState({
-    bouquetName: "",
-    courseId: "",
-    levelId: "",
-    studentsPackageCount: "",
-    money: "",
-  });
+  // 🟢 جلب الكورسات والمستويات
+  const { data: courses, isLoading: loadingCourses } = useGetAllCourses();
+  const { data: levels, isLoading: loadingLevels } = useGetAllLevels();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const form = new FormData();
-    form.append("BouquetName", formData.bouquetName);
-    form.append("CourseId", formData.courseId);
-    form.append("LevelId", formData.levelId);
-    form.append("StudentsPackageCount", formData.studentsPackageCount);
-    form.append("Money", formData.money);
-
-    addBouquet(form, {
-      onSuccess: (res) => {
-        if (res.success) {
-          alert(res.message);
-          navigate("/bouquets");
-        } else {
-          alert(res.message);
-        }
-      },
-    });
-  };
+  if (loadingCourses || loadingLevels) return <Loading />;
 
   return (
     <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">➕ إضافة باقة</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="اسم الباقة"
-          value={formData.bouquetName}
-          onChange={(e) => setFormData({ ...formData, bouquetName: e.target.value })}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="CourseId"
-          value={formData.courseId}
-          onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="LevelId"
-          value={formData.levelId}
-          onChange={(e) => setFormData({ ...formData, levelId: e.target.value })}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          placeholder="عدد الطلاب"
-          value={formData.studentsPackageCount}
-          onChange={(e) => setFormData({ ...formData, studentsPackageCount: e.target.value })}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          placeholder="السعر"
-          value={formData.money}
-          onChange={(e) => setFormData({ ...formData, money: e.target.value })}
-          className="w-full border p-2 rounded"
-          required
-        />
+      <h2 className="text-xl font-bold mb-4">إضافة باقة</h2>
 
-        <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
-          حفظ
-        </button>
-      </form>
+      <Formik
+        initialValues={{
+          bouquetName: "",
+          courseId: "",
+          levelId: "",
+          studentsPackageCount: "",
+          money: "",
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(values, { setSubmitting, resetForm }) => {
+          const form = new FormData();
+          form.append("BouquetName", values.bouquetName);
+          form.append("CourseId", values.courseId);
+          form.append("LevelId", values.levelId);
+          form.append("StudentsPackageCount", values.studentsPackageCount);
+          form.append("Money", values.money);
+
+          addBouquet(form, {
+            onSuccess: (res) => {
+              if (res.success) {
+                toast.success(res.message || "تمت إضافة الباقة بنجاح ✅");
+                resetForm();
+                navigate("/dashboard/bouquets");
+              } else {
+                toast.error(res.message || "فشل في إضافة الباقة ");
+              }
+              setSubmitting(false);
+            },
+            onError: () => {
+              toast.error("حدث خطأ أثناء الإضافة ");
+              setSubmitting(false);
+            },
+          });
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form className="space-y-4">
+            {/* اسم الباقة */}
+            <div>
+              <Field
+                type="text"
+                name="bouquetName"
+                placeholder="اسم الباقة"
+                className="w-full border p-2 rounded"
+              />
+              <ErrorMessage
+                name="bouquetName"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+            {/* اختيار الكورس */}
+            <div>
+              <Field
+                as="select"
+                name="courseId"
+                className="w-full border p-2 rounded"
+              >
+                <option value="">اختر الكورس</option>
+                {courses?.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.name}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage
+                name="courseId"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+            {/* اختيار المستوى */}
+            <div>
+              <Field
+                as="select"
+                name="levelId"
+                className="w-full border p-2 rounded"
+              >
+                <option value="">اختر المستوى</option>
+                {levels?.data?.map((level) => (
+                  <option key={level.id} value={level.id}>
+                    {level.levelName} (رقم {level.levelNumber})
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage
+                name="levelId"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+            {/* عدد الطلاب */}
+            <div>
+              <Field
+                type="number"
+                name="studentsPackageCount"
+                placeholder="عدد الطلاب"
+                className="w-full border p-2 rounded"
+              />
+              <ErrorMessage
+                name="studentsPackageCount"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+            {/* السعر */}
+            <div>
+              <Field
+                type="number"
+                name="money"
+                placeholder="السعر"
+                className="w-full border p-2 rounded"
+              />
+              <ErrorMessage
+                name="money"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+
+            {/* زر الحفظ */}
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "جارٍ الحفظ..." : " حفظ"}
+            </button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }

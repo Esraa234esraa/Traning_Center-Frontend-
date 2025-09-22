@@ -22,6 +22,7 @@ export const getAllLevelsOfCourse = async (courseId) => {
   return response.data;
 };
 
+
 // ✅ Get Level by Id
 export const getLevelById = async (id) => {
   const response = await axios.get(`${API_URL}/GetLevelById/${id}`);

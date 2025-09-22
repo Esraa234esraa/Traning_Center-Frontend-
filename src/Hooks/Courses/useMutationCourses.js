@@ -24,6 +24,7 @@ export const useUpdateCourse = () => {
   });
 };
 
+
 // ✅ Delete Course
 export const useDeleteCourse = () => {
   const queryClient = useQueryClient();

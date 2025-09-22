@@ -38,8 +38,6 @@ import AddNewStudent from './Components/Dashboard/Students/NewStudent/AddNewStud
 import WaitingStudentsTable from './Components/Dashboard/Students/WaitingStudent/WaitingStudentsTable';
 import AddToSessionForm from './Components/Dashboard/Students/WaitingStudent/AddToSessionForm';
 import CurrentStudentsTable from './Components/Dashboard/Students/CurrentStudents/CurrentStudentsTable';
-import AddCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/AddCurrentStudentForm';
-import EditCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/EditCurrentStudentForm';
 import CoursesTable from './Components/Dashboard/Courses/CoursesTable';
 import AddCourse from './Components/Dashboard/Courses/AddCourse';
 import EditCourse from './Components/Dashboard/Courses/EditCourse';
@@ -56,7 +54,10 @@ import EditLevel from './Components/Dashboard/Levels/EditLevel';
 import BouquetsTable from './Components/Dashboard/Bouquets/BouquetsTable';
 import AddBouquet from './Components/Dashboard/Bouquets/AddBouquet';
 import EditBouquet from './Components/Dashboard/Bouquets/EditBouquet';
-
+import ClassesTable from './Components/Dashboard/Classes/ClassesTable';
+import AddClass from './Components/Dashboard/Classes/AddClass';
+import AddCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/AddCurrentStudentForm';
+import EditCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/EditCurrentStudentForm';
 
 
 function App() {
@@ -82,9 +83,9 @@ function App() {
             </Route>
             <Route path="/dashboard"
               element={
-                // <ProtectedRoute allowedRoles={['Admin']}>
-                  <Dashboard_layout />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={['Admin']}>
+                <Dashboard_layout />
+                 </ProtectedRoute>
               }>
               <Route
                 path="/dashboard" element={<Home />} />
@@ -122,9 +123,7 @@ function App() {
                 <Route path="current-students" element={<CurrentStudentsTable />} />
                 {/* صفحة الفورم لإضافة طالب جديد */}
                 <Route path="add-current" element={<AddCurrentStudentForm />} />
-                {/* صفحة الفورم لتعديل بيانات طالب */}
                 <Route path="edit/:id" element={<EditCurrentStudentForm />} />
-
                 <Route
                   path="student-profile/:studentId"
                   element={<StudentProfile />}
@@ -153,8 +152,8 @@ function App() {
               {/* المستويات */}
               <Route path='levels'>
                 <Route index element={<LevelsTable />} />
-                 <Route path="addlevel" element={<AddLevel />} />
-                 <Route path="editlevel/:id" element={<EditLevel />} />
+                <Route path="addlevel" element={<AddLevel />} />
+                <Route path="editlevel/:id" element={<EditLevel />} />
               </Route>
               {/* الباقات */}
               <Route path='bouquets'>
@@ -162,7 +161,12 @@ function App() {
                 <Route path="add-bouquet" element={<AddBouquet />} />
                 <Route path="edit-bouquet/:id" element={<EditBouquet />} />
               </Route>
-            
+              {/* الحصص */}
+              <Route path='classes'>
+                <Route index element={<ClassesTable />} />
+                <Route path="add-classes" element={<AddClass />} />
+              </Route>
+
 
 
 

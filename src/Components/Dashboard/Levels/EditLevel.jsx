@@ -1,118 +1,144 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUpdateLevel } from "../../../Hooks/Levels/useMutationLevel";
 import { useGetLevelById } from "../../../Hooks/Levels/useQueryLevel";
-import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses"; // ✅
+import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
 import { toast } from "react-toastify";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 export default function EditLevel() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data } = useGetLevelById(id);
-  const { data: courses, isLoading } = useGetAllCourses(); // ✅ جلب كل الكورسات
-  const { mutate: updateLevel } = useUpdateLevel();
+  const { data: levelData, isLoading: isLevelLoading } = useGetLevelById(id);
+  const { data: courses, isLoading: isCoursesLoading } = useGetAllCourses();
+  const { mutate: updateLevel, isLoading: isUpdating } = useUpdateLevel();
 
-  const [formData, setFormData] = useState({
-    levelNumber: "",
-    name: "",
-    courseId: "",
+  // ✅ schema للتحقق
+  const validationSchema = Yup.object({
+    levelNumber: Yup.number()
+      .required("رقم المستوى مطلوب")
+      .positive("يجب أن يكون رقم موجب"),
+    name: Yup.string().required("اسم المستوى مطلوب"),
+    courseId: Yup.string().required("اختيار الكورس مطلوب"),
   });
 
-  useEffect(() => {
-    if (data?.success) {
-      setFormData({
-        levelNumber: data.data.levelNumber,
-        name: data.data.name,
-        courseId: data.data.courseId, // ✅ نحتفظ بالـ ID لاستخدامه في التحديث
-      });
-    }
-  }, [data]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (values) => {
     const form = new FormData();
-    form.append("LevelNumber", formData.levelNumber);
-    form.append("Name", formData.name);
-    form.append("CourseId", formData.courseId);
+    form.append("LevelNumber", values.levelNumber);
+    form.append("Name", values.name);
+    form.append("CourseId", values.courseId);
 
     updateLevel(
       { id, formData: form },
       {
         onSuccess: (res) => {
           if (res.success) {
-            toast(res.message);
+            toast.success(res.message || "تم التحديث بنجاح 🎉");
             navigate("/dashboard/levels");
           } else {
-            toast(res.message);
+            toast.error(res.message || "حدث خطأ في التحديث");
           }
         },
+        onError: () => toast.error("فشل الاتصال بالسيرفر 🚨"),
       }
     );
   };
 
+  if (isLevelLoading) return <p className="text-center">جاري تحميل البيانات...</p>;
+
   return (
     <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">تعديل المستوى</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="number"
-          placeholder="رقم المستوى"
-          value={formData.levelNumber}
-          onChange={(e) =>
-            setFormData({ ...formData, levelNumber: e.target.value })
-          }
-          className="w-full border p-2 rounded"
-          required
-        />
+      <h2 className="text-xl font-bold mb-4">✏️ تعديل المستوى</h2>
 
-        <input
-          type="text"
-          placeholder="اسم المستوى"
-          value={formData.name}
-          onChange={(e) =>
-            setFormData({ ...formData, name: e.target.value })
-          }
-          className="w-full border p-2 rounded"
-          required
-        />
+      <Formik
+        enableReinitialize
+        initialValues={{
+          levelNumber: levelData?.data?.levelNumber || "",
+          name: levelData?.data?.name || "",
+          courseId: levelData?.data?.courseId || "",
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {() => (
+          <Form className="space-y-4">
+            {/* رقم المستوى */}
+            <div>
+              <Field
+                type="number"
+                name="levelNumber"
+                placeholder="رقم المستوى"
+                className="w-full border p-2 rounded"
+              />
+              <ErrorMessage
+                name="levelNumber"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
 
-        {/* ✅ dropdown لاختيار الكورس */}
-        <select
-          value={formData.courseId}
-          onChange={(e) =>
-            setFormData({ ...formData, courseId: e.target.value })
-          }
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="">اختر الكورس</option>
-          {isLoading ? (
-            <option disabled>جاري تحميل الكورسات...</option>
-          ) : (
-            courses?.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.name}
-              </option>
-            ))
-          )}
-        </select>
+            {/* اسم المستوى */}
+            <div>
+              <Field
+                type="text"
+                name="name"
+                placeholder="اسم المستوى"
+                className="w-full border p-2 rounded"
+              />
+              <ErrorMessage
+                name="name"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
 
-        <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-4 py-2 rounded"
-          >
-            رجوع
-          </button>
-          <button
-            type="submit"
-            className="bg-yellow-500 text-white px-4 py-2 rounded"
-          >
-            تحديث
-          </button>
-        </div>
-      </form>
+            {/* Dropdown اختيار الكورس */}
+            <div>
+              <Field
+                as="select"
+                name="courseId"
+                className="w-full border p-2 rounded"
+              >
+                <option value="">اختر الكورس</option>
+                {isCoursesLoading ? (
+                  <option disabled>جاري تحميل الكورسات...</option>
+                ) : (
+                  courses?.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name}
+                    </option>
+                  ))
+                )}
+              </Field>
+              <ErrorMessage
+                name="courseId"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* الأزرار */}
+            <div className="flex justify-between">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                رجوع
+              </button>
+
+              <button
+                type="submit"
+                className="bg-yellow-500 text-white px-4 py-2 rounded"
+                disabled={isUpdating}
+              >
+                {isUpdating ? "جارٍ التحديث..." : "تحديث"}
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }

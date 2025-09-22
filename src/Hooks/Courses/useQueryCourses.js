@@ -26,6 +26,6 @@ export const useGetCourseById = (id) => {
     queryKey: ["course", id],
     queryFn: () => getCourseById(id),
     enabled: !!id, // ما يشتغلش غير لو فيه id
-    select: (res) => res.data,
+    select: (res) => res.data.data, // نرجع الداتا بس
   });
 };

@@ -1,14 +1,15 @@
+// src/Pages/Courses/EditCourse.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useGetCourseById } from "../../../Hooks/Courses/useQueryCourses";
 import { useUpdateCourse } from "../../../Hooks/Courses/useMutationCourses";
 import { toast } from "react-toastify";
 import { getImageUrl } from "../../../Utils/getImageUrl";
-import axios from "axios";
 
-// سكيمة التحقق
+// ✅ سكيمة التحقق
 const CourseSchema = Yup.object({
   name: Yup.string()
     .required("اسم الدورة مطلوب")
@@ -26,28 +27,20 @@ const CourseSchema = Yup.object({
 export default function EditCourse() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [initialCourse, setInitialCourse] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const { data: course, isLoading, refetch } = useGetCourseById(id);
   const mutation = useUpdateCourse();
+  const [preview, setPreview] = useState(null);
 
-  // جلب بيانات الكورس من API
+  // تحديث preview عند تحميل بيانات الكورس
   useEffect(() => {
-    axios
-      .get(`http://traning-center.runasp.net/api/Courses/${id}`)
-      .then((res) => {
-        setInitialCourse(res.data);
-        setPreview(getImageUrl(res.data.FilePath)); // preview للصورة الحالية
-      })
-      .catch(() => {
-        toast.error("فشل تحميل بيانات الدورة");
-      });
-  }, [id]);
+    if (course?.filePath) setPreview(getImageUrl(course.filePath));
+  }, [course]);
 
-  if (!initialCourse) {
+  if (isLoading || !course) {
     return (
       <div className="text-center py-20">
         <div className="animate-spin h-10 w-10 border-4 border-teal-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p className="text-gray-600">جاري تحميل البيانات...</p>
+        <p className="text-gray-600">جاري تحميل بيانات الدورة...</p>
       </div>
     );
   }
@@ -57,32 +50,39 @@ export default function EditCourse() {
       <h2 className="text-2xl font-bold mb-6 text-teal-700">تعديل الدورة</h2>
 
       <Formik
+        enableReinitialize
         initialValues={{
-          name: initialCourse.Name,
-          description: initialCourse.Description,
+          name: course.name,
+          description: course.description,
           file: null,
         }}
         validationSchema={CourseSchema}
         onSubmit={(values) => {
           const formData = new FormData();
+
           formData.append("Name", values.name);
           formData.append("Description", values.description);
-          if (values.file) formData.append("Image", values.file); // اسم الـ property عند الباك اند
+          if (values.file) {
+            formData.append("Image", values.file);
+          } else {
+            formData.append("Image", null); // أو حذفي السطر لو السيرفر يقبل null
+          }
+          for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+          }
+          console.log("file:", values.file);
 
-          mutation.mutate(
-            { id, formData },
-            {
-              onSuccess: () => {
-                toast.success("تم تعديل الدورة بنجاح");
-                navigate("/dashboard/courses");
-              },
-              onError: (error) => {
-                const errorMsg =
-                  error?.response?.data?.message || "حدث خطأ أثناء التعديل";
-                toast.error(errorMsg);
-              },
-            }
-          );
+          mutation.mutate({ id, formData }, {
+            onSuccess: () => {
+              toast.success("تم تعديل الدورة بنجاح");
+              refetch(); // رجوع البيانات الجديدة
+              navigate("/dashboard/courses");
+            },
+            onError: (error) => {
+              const errorMsg = error?.response?.data?.message || "حدث خطأ أثناء التعديل";
+              toast.error(errorMsg);
+            },
+          });
         }}
       >
         {({ setFieldValue }) => (
@@ -118,10 +118,7 @@ export default function EditCourse() {
             <div>
               <label className="block mb-2">رفع صورة جديدة (اختياري)</label>
               <input
-                id="fileUpload"
                 type="file"
-                accept="image/png, image/jpeg"
-                className="hidden"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {

@@ -29,9 +29,9 @@ export const addCourse = (formData) => {
 // ✅ Update course
 export const updateCourse = (id, formData) => {
   return axios.put(`${API_URL}/UpdateCourse/${id}`, formData, {
-    withCredentials: true,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  withCredentials: true,
+  headers: { "Content-Type": "multipart/form-data" },
+});
 };
 
 // ✅ Delete course
