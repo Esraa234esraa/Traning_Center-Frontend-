@@ -30,12 +30,23 @@ export const addClass = async (newClass) => {
 
 // ✅ Update class
 export const updateClass = async (id, updatedClass) => {
-  const res = await axios.put(`${API_URL}/UpdateClass/${id}`, updatedClass);
+  const res = await axios.put(
+    `${API_URL}/UpdateClass/${id}`,
+    updatedClass,
+    {
+      headers: { "Content-Type": "application/json" }
+    }
+  );
   return res.data;
 };
+
 
 // ✅ Delete class
 export const deleteClass = async (id) => {
   const res = await axios.delete(`${API_URL}/${id}`);
   return res.data;
+};
+export const getAllClassesEmptyFromTeacher = async () => {
+  const res = await axios.get(`${API_URL}/GetAllClassesEmptyFromTeacher`);
+  return res.data; // هيكون بالشكل اللي بعتهولي
 };

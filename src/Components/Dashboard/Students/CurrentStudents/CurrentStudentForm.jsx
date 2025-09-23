@@ -2,276 +2,255 @@ import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import {
-    useAddCurrentStudent,
-    useUpdateCurrentStudent,
-} from "../../../../Hooks/Students/CurrentStudent/useMutationCurrentStudent";
+import { useAddCurrentStudent } from "../../../../Hooks/Students/CurrentStudent/useMutationCurrentStudent";
 import { useGetAllWaitingStudents } from "../../../../Hooks/Students/NewStudents/useQueryNewStudent";
-import { useGetAllClasses } from "../../../../Hooks/Classes/useQueryClasses";
+// Queries
+import { useGetAllCourses } from "../../../../Hooks/Courses/useQueryCourses";
+import { useGetAllLevelsOfCourse } from "../../../../Hooks/Levels/useQueryLevel";
+import { useGetBouquetsOfLevel } from "../../../../Hooks/Bouquets/useQueryBouquet";
+import { useGetAllClassesOfBouquet } from "../../../../Hooks/Classes/useQueryClasses";
 
-export default function CurrentStudentForm({ initialValues, isEdit, onClose }) {
-    const addMutation = useAddCurrentStudent();
-    const updateMutation = useUpdateCurrentStudent();
+export default function ClassAssignmentForm() {
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
 
-    const { data: waitingRes } = useGetAllWaitingStudents();
-    const waitingStudents = waitingRes || [];
+  const addMutation = useAddCurrentStudent();
+  const { data: waitingRes } = useGetAllWaitingStudents();
+  const waitingStudents = waitingRes || [];
 
-    const { data: classesRes } = useGetAllClasses();
-    const classes = classesRes?.data || [];
-    console.log(classes);
+  // Courses
+  const { data: coursesRes } = useGetAllCourses();
+  const courses = coursesRes || [];
 
-    const [selectedStudent, setSelectedStudent] = useState(null);
-    const [studentSearch, setStudentSearch] = useState("");
-    const [showStudentDropdown, setShowStudentDropdown] = useState(false);
-    const [classSearch, setClassSearch] = useState("");
+  // Schema
+  const validationSchema = Yup.object({
+    StudentName: Yup.string().required("الاسم مطلوب"),
+    PhoneNumber: Yup.string().required("رقم الهاتف مطلوب"),
+    Email: Yup.string().email("البريد الإلكتروني غير صالح").required("البريد الإلكتروني مطلوب"),
+    CourseId: Yup.string().required("اختيار الدورة مطلوب"),
+    LevelId: Yup.string().required("اختيار المستوى مطلوب"),
+    BouquetId: Yup.string().required("اختيار الباقة مطلوب"),
+    ClassId: Yup.string().required("اختيار الحصة مطلوب"),
+  });
 
-    const validationSchema = Yup.object({
-        StudentName: Yup.string().required("الاسم مطلوب"),
-        PhoneNumber: Yup.string().required("رقم الهاتف مطلوب"),
-        Email: Yup.string()
-            .email("البريد الإلكتروني غير صالح")
-            .required("البريد الإلكتروني مطلوب"),
-        ClassId: Yup.string().required("اختيار الحصة مطلوب"),
-    });
+  const handleSelectStudent = (student, setFieldValue) => {
+    setSelectedStudent(student);
+    setFieldValue("StudentName", student.studentName || "");
+    setFieldValue("PhoneNumber", student.phoneNumber || "");
+    setFieldValue("City", student.city || "");
+    setFieldValue("Gender", student.gender || "");
+    setFieldValue("Email", student.email || "");
+    setStudentSearch(student.studentName || "");
+    setShowStudentDropdown(false);
+  };
 
-    const handleSelectStudent = (student, setFieldValue) => {
-        setSelectedStudent(student);
-        setFieldValue("StudentName", student.studentName || "");
-        setFieldValue("PhoneNumber", student.phoneNumber || "");
-        setFieldValue("City", student.city || "");
-        setFieldValue("Gender", student.gender || "");
-        setStudentSearch(student.studentName || "");
-        setShowStudentDropdown(false);
-        setFieldValue("Email", student.email || "");
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest("#student-dropdown")) setShowStudentDropdown(false);
     };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
-    const handleSelectClass = (cls, setFieldValue) => {
-        if (!cls) return;
-        setFieldValue("ClassId", cls.id);
-        setFieldValue("bouquetName", cls.bouquetName || "");
-        setFieldValue("bouquetNumber", cls.bouquetNumber || 0);
-        setFieldValue("courseName", cls.courseName || "");
-        setFieldValue("levelNumber", cls.levelNumber || 0);
-        setFieldValue("levelName", cls.levelName || "");
-        setFieldValue("classTime", cls.classTime || "");
-        setFieldValue("currentStudentsCount", cls.currentStudentsCount || 0);
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (!e.target.closest("#student-dropdown")) setShowStudentDropdown(false);
-        };
-        document.addEventListener("click", handleClickOutside);
-        return () => document.removeEventListener("click", handleClickOutside);
-    }, []);
-
-    const handleSubmit = (values, { setSubmitting }) => {
-        if (!values.Email || values.Email.trim() === "") {
-            toast.error("البريد الإلكتروني مطلوب!");
-            setSubmitting(false);
-            return;
-        }
-
+  return (
+    <Formik
+      initialValues={{
+        StudentName: "",
+        PhoneNumber: "",
+        Email: "",
+        Gender: "",
+        City: "",
+        CourseId: "",
+        LevelId: "",
+        BouquetId: "",
+        ClassId: "",
+        IsPaid: false,
+      }}
+      validationSchema={validationSchema}
+      onSubmit={(values, { setSubmitting }) => {
         const payload = {
-            ...values,
-            WaitingStudentId: selectedStudent?.id || null,
+          StudentName: values.StudentName,
+          PhoneNumber: values.PhoneNumber,
+          Email: values.Email,
+          Gender: values.Gender,
+          City: values.City,
+          IsPaid: values.IsPaid,
+          ClassId: values.ClassId,
         };
+
         console.log("Payload going to API:", payload);
 
-        if (isEdit) {
-            updateMutation.mutate(
-                { id: values.id, formData: payload },
-                {
-                    onSuccess: () => {
-                        toast.success("تم التعديل بنجاح");
-                        onClose();
-                    },
-                    onError: () => toast.error("حدث خطأ أثناء التعديل"),
-                    onSettled: () => setSubmitting(false),
-                }
-            );
-        } else {
-            addMutation.mutate(payload, {
-                onSuccess: () => {
-                    toast.success("تمت الإضافة بنجاح");
-                    onClose();
-                },
-                onError: () => toast.error("حدث خطأ أثناء الإضافة"),
-                onSettled: () => setSubmitting(false),
-            });
-        }
-    };
+        addMutation.mutate(payload, {
+          onSuccess: (data) => {
+            if (data?.success === false) {
+              toast.error(data?.message || "فشلت العملية");
+            } else {
+              toast.success(data?.message || "تمت الإضافة بنجاح");
+            }
+          },
+          onError: (error) => {
+            toast.error(error?.response?.data?.message || "حدث خطأ أثناء الإضافة");
+          },
+          onSettled: () => setSubmitting(false),
+        });
+      }}
+    >
+      {({ isSubmitting, setFieldValue, values }) => {
+        // Queries بعد اختيار الفورم
+        const { data: levelsRes } = useGetAllLevelsOfCourse(values.CourseId);
+        const levels = Array.isArray(levelsRes?.data) ? levelsRes.data : [];
 
-    return (
-        <Formik
-            initialValues={{
-                StudentName: "",
-                PhoneNumber: "",
-                Email: "",
-                City: "",
-                Gender: "",
-                ClassId: "",
-                bouquetName: "",
-                bouquetNumber: 0,
-                courseName: "",
-                levelName: "",
-                levelNumber: 0,
-                classTime: "",
-                currentStudentsCount: 0,
-                IsPaid: false,
-                ...initialValues,
-            }}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-        >
-            {({ isSubmitting, setFieldValue, values }) => {
-                const filteredStudents = waitingStudents.filter((student) =>
-                    (student.studentName || "")
-                        .toLowerCase()
-                        .includes((studentSearch || "").toLowerCase())
-                );
+        const { data: bouquetsRes } = useGetBouquetsOfLevel(values.LevelId);
+        const bouquets = Array.isArray(bouquetsRes) ? bouquetsRes : [];
 
-                const filteredClasses = classes.filter((cls) =>
-                    (
-                        (cls.bouquetName || "") +
-                        " " +
-                        (cls.courseName || "") +
-                        " " +
-                        (cls.levelName || "")
+        const { data: classesRes } = useGetAllClassesOfBouquet(values.BouquetId);
+        const classes = classesRes?.data || [];
+
+        return (
+          <Form className="flex flex-col gap-4">
+            {/* اختيار الطالب من قائمة الانتظار */}
+            <div className="relative">
+              <label>اختر طالب من قائمة الانتظار:</label>
+              <input
+                type="text"
+                value={studentSearch}
+                onChange={(e) => {
+                  setStudentSearch(e.target.value);
+                  setShowStudentDropdown(true);
+                }}
+                placeholder="ابحث باسم الطالب..."
+                className="border px-2 py-1 w-full"
+              />
+              {showStudentDropdown && (
+                <ul
+                  id="student-dropdown"
+                  className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto"
+                >
+                  {waitingStudents
+                    .filter((s) =>
+                      s.studentName?.toLowerCase().includes(studentSearch.toLowerCase())
                     )
-                        .toLowerCase()
-                        .includes(classSearch.toLowerCase())
-                );
+                    .map((student) => (
+                      <li
+                        key={student.id}
+                        className="px-2 py-1 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => handleSelectStudent(student, setFieldValue)}
+                      >
+                        {student.studentName} 
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
 
-                return (
-                    <Form className="flex flex-col gap-4">
-                        {/* Student Dropdown */}
-                        <div className="relative" id="student-dropdown">
-                            <label>الاسم:</label>
-                            <input
-                                type="text"
-                                className="border px-2 py-1 w-full"
-                                value={values.StudentName} // بدل studentSearch
-                                onChange={(e) => {
-                                    setFieldValue("StudentName", e.target.value); // تحديث الفورم
-                                    setStudentSearch(e.target.value); // لا زال للفلترة
-                                    setShowStudentDropdown(true);
-                                }}
-                                placeholder="اكتب الاسم للاختيار من الانتظار"
-                            />
+            {/* Email */}
+            <div>
+              <label>البريد الإلكتروني:</label>
+              <Field
+                type="email"
+                name="Email"
+                placeholder="example@mail.com"
+                className="border px-2 py-1 w-full"
+              />
+              <ErrorMessage name="Email" component="div" className="text-red-500 text-sm" />
+            </div>
 
-                            {showStudentDropdown && filteredStudents.length > 0 && (
-                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
-                                    {filteredStudents.map((student) => (
-                                        <li
-                                            key={student.id}
-                                            className="px-2 py-1 hover:bg-gray-100 cursor-pointer"
-                                            onClick={() =>
-                                                handleSelectStudent(student, setFieldValue)
-                                            }
-                                        >
-                                            {student.studentName || "لا يوجد اسم"}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            <ErrorMessage
-                                name="StudentName"
-                                component="div"
-                                className="text-red-500 text-sm"
-                            />
-                        </div>
+            {/* Phone */}
+            <div>
+              <label>رقم الهاتف:</label>
+              <Field
+                type="text"
+                name="PhoneNumber"
+                placeholder="010xxxxxxxx"
+                className="border px-2 py-1 w-full"
+              />
+              <ErrorMessage name="PhoneNumber" component="div" className="text-red-500 text-sm" />
+            </div>
 
-                        {/* Phone */}
-                        <div>
-                            <label>رقم الهاتف:</label>
-                            <Field name="PhoneNumber" className="border px-2 py-1 w-full" />
-                            <ErrorMessage
-                                name="PhoneNumber"
-                                component="div"
-                                className="text-red-500 text-sm"
-                            />
-                        </div>
+            {/* City */}
+            <div>
+              <label>المدينة:</label>
+              <Field
+                type="text"
+                name="City"
+                placeholder="اسم المدينة"
+                className="border px-2 py-1 w-full"
+              />
+              <ErrorMessage name="City" component="div" className="text-red-500 text-sm" />
+            </div>
 
-                        {/* Email */}
-                        <div>
-                            <label>البريد الإلكتروني:</label>
-                            <Field
-                                name="Email"
-                                type="email"
-                                className="border px-2 py-1 w-full"
-                                placeholder="أدخل البريد الإلكتروني"
-                            />
-                            <ErrorMessage
-                                name="Email"
-                                component="div"
-                                className="text-red-500 text-sm"
-                            />
-                        </div>
+            {/* Gender */}
+            <div>
+              <label>النوع:</label>
+              <Field as="select" name="Gender" className="border px-2 py-1 w-full">
+                <option value="">اختر النوع</option>
+                <option value="Male">ذكر</option>
+                <option value="Female">أنثى</option>
+              </Field>
+              <ErrorMessage name="Gender" component="div" className="text-red-500 text-sm" />
+            </div>
 
-                        {/* City */}
-                        <div>
-                            <label>المدينة:</label>
-                            <Field name="City" className="border px-2 py-1 w-full" />
-                        </div>
+            {/* IsPaid */}
+            <div className="flex items-center gap-2">
+              <Field type="checkbox" name="IsPaid" />
+              <label>تم الدفع</label>
+            </div>
 
-                        {/* Gender */}
-                        <div>
-                            <label>النوع:</label>
-                            <Field name="Gender" className="border px-2 py-1 w-full" />
-                        </div>
+            {/* Course */}
+            <Field as="select" name="CourseId" className="border p-2 w-full">
+              <option value="">اختر الكورس</option>
+              {courses?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="CourseId" component="div" className="text-red-500 text-sm" />
 
-                        {/* Class Dropdown */}
-                        <div className="relative">
-                            <label>الحصة:</label>
-                            <input
-                                type="text"
-                                className="border px-2 py-1 w-full"
-                                value={classSearch}
-                                onChange={(e) => setClassSearch(e.target.value)}
-                                placeholder="ابحث عن الحصة"
-                            />
-                            <select
-                                name="ClassId"
-                                value={values.ClassId}
-                                onChange={(e) => {
-                                    const cls = classes.find((c) => c.id === e.target.value);
-                                    handleSelectClass(cls, setFieldValue);
-                                }}
-                                className="border px-2 py-1 w-full mt-1"
-                            >
-                                <option value="">اختر الحصة</option>
-                                {filteredClasses.map((cls) => (
-                                    <option key={cls.id} value={cls.id}>
-                                        {cls.bouquetName} | {cls.courseName} | {cls.levelName} | الوقت:{" "}
-                                        {cls.classTime} | الطلاب الحاليين: {cls.currentStudentsCount}
-                                    </option>
-                                ))}
-                            </select>
+            {/* Level */}
+            <Field as="select" name="LevelId" className="border p-2 w-full">
+              <option value="">اختر المستوى</option>
+              {levels.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}-{l.levelNumber}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="LevelId" component="div" className="text-red-500 text-sm" />
 
-                            <ErrorMessage
-                                name="ClassId"
-                                component="div"
-                                className="text-red-500 text-sm"
-                            />
-                        </div>
+            {/* Bouquet */}
+            <Field as="select" name="BouquetId" className="border p-2 w-full">
+              <option value="">اختر الباقة</option>
+              {bouquets.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.bouquetName}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="BouquetId" component="div" className="text-red-500 text-sm" />
 
-                        {/* IsPaid */}
-                        <div className="flex items-center gap-2">
-                            <Field type="checkbox" name="IsPaid" />
-                            <label>تم الدفع</label>
-                        </div>
+            {/* Class */}
+            <Field as="select" name="ClassId" className="border p-2 w-full">
+              <option value="">اختر الحصة</option>
+              {classes.map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.classTime}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="ClassId" component="div" className="text-red-500 text-sm" />
 
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-primary text-white px-4 py-2 rounded"
-                        >
-                            {isEdit ? "تعديل" : "إضافة"}
-                        </button>
-                    </Form>
-                );
-            }}
-        </Formik>
-    );
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-primary text-white px-4 py-2 rounded"
+            >
+              حفظ
+            </button>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
 }

@@ -84,6 +84,7 @@ export default function NewStudentsTable() {
               <th className="p-4">#</th>
               <th className="px-4 py-3">اسم الطالب</th>
               <th className="px-4 py-3">رقم الهاتف</th>
+              <th className="px-4 py-3">البريد الالكتروني</th>
               <th className="px-4 py-3">المدينة</th>
               <th className="px-4 py-3">اليوم</th>
               <th className="px-4 py-3">الوقت</th>
@@ -99,6 +100,7 @@ export default function NewStudentsTable() {
                 <td className="p-4">{index + 1}</td>
                 <td>{student.studentName}</td>
                 <td>{student.phoneNumber}</td>
+                <td>{student.email || "-"}</td>
                 <td>{student.city}</td>
                 <td>{student.date}</td>
                 <td>{student.time}</td>

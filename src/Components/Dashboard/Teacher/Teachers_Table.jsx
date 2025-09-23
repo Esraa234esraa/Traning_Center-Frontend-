@@ -1,173 +1,233 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { useGetAllTeachers } from "../../../Hooks/Teacher/useQueryTeacher";
+import { useDeleteTeacher } from "../../../Hooks/Teacher/useMutationTeacher";
+import DeleteModal from "./DeleteModal";
+import { useNavigate } from "react-router-dom";
+import Loading from "../../Loading";
+import { toast } from "react-toastify";
 
 export default function TeachersTable() {
+  const { data: teachers = [], isLoading } = useGetAllTeachers();
+  const deleteTeacherMutation = useDeleteTeacher();
+  const navigate = useNavigate();
+  const [deleteId, setDeleteId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  // 🔹 البحث والفلترة
   const [searchTerm, setSearchTerm] = useState("");
-  const [teacherToDelete, setTeacherToDelete] = useState(null); // ✅ لحفظ المعلّم اللي هيتحذف
-  const [teachers, setTeachers] = useState([
-    { id: 1, name: "علي", email: "michelle.rivera@example.com", city: "السعودية, الاحساء", subject: "Maths", phone: "0111111111", booked: 4, total: 7 },
-    { id: 2, name: "احمد", email: "debbie.baker@example.com", city: "اسم المدينة", subject: "اعراب", phone: "0111111111", booked: 5, total: 7 },
-    { id: 3, name: "حسن", email: "nathan.roberts@example.com", city: "اسم المدينة", subject: "English", phone: "0111111111", booked: 2, total: 7 },
-    { id: 4, name: "محمود", email: "felicia.reid@example.com", city: "اسم المدينة", subject: "قراءة", phone: "0111111111", booked: 7, total: 7 },
-    { id: 5, name: "ايمان", email: "tim.jennings@example.com", city: "اسم المدينة", subject: "قراءة", phone: "0111111111", booked: 0, total: 7 },
-  ]);
+  const [filterCity, setFilterCity] = useState("");
+  const [filterCourse, setFilterCourse] = useState("");
 
-  // 🔍 دالة لتطبيع النص للبحث
-  const normalizeText = (text) => {
-    return text
-      .toLowerCase()
-      .replace(/[\u064B-\u0652]/g, "")
-      .replace(/[أإآا]/g, "ا")
-      .replace(/\s+/g, " ")
-      .trim();
+  // 🔹 Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // عدد المعلمين لكل صفحة
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setShowModal(true);
   };
 
-  const normalizedSearch = normalizeText(searchTerm);
-
-  const filteredTeachers = teachers.filter(
-    (teacher) =>
-      normalizeText(teacher.name).includes(normalizedSearch) ||
-      normalizeText(teacher.email).includes(normalizedSearch) ||
-      normalizeText(teacher.subject).includes(normalizedSearch)
-  );
-
-  // ✅ دالة تأكيد الحذف
-  const handleDelete = () => {
-    if (teacherToDelete) {
-      const updated = teachers.filter((t) => t.id !== teacherToDelete.id);
-      setTeachers(updated);
-      setTeacherToDelete(null);
-    }
+  const confirmDelete = () => {
+    deleteTeacherMutation.mutate(deleteId, {
+      onSuccess: () => {
+        toast.success("تم حذف المعلم بنجاح");
+        setShowModal(false);
+      },
+      onError: (error) => {
+        const errorMsg = error?.response?.data?.message || "حدث خطأ أثناء الحذف";
+        toast.error(errorMsg);
+      },
+    });
   };
+
+  // 🔹 فلترة المعلمين حسب البحث والمدينة والدورة
+  const filteredTeachers = useMemo(() => {
+    if (!teachers) return [];
+    return teachers.filter((teacher) => {
+      const term = searchTerm.toLowerCase();
+      const matchesSearch =
+        teacher.fullName.toLowerCase().includes(term) ||
+        teacher.email.toLowerCase().includes(term) ||
+        teacher.courseName?.toLowerCase().includes(term);
+
+      const matchesCity = filterCity ? teacher.city === filterCity : true;
+      const matchesCourse = filterCourse ? teacher.courseName === filterCourse : true;
+
+      return matchesSearch && matchesCity && matchesCourse;
+    });
+  }, [teachers, searchTerm, filterCity, filterCourse]);
+
+  const currentTeachers = useMemo(() => {
+    if (!filteredTeachers) return [];  // ✅ إضافة افتراضية
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredTeachers.slice(start, end);
+  }, [filteredTeachers, currentPage]);
+
+  const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
+
+  if (isLoading) return <Loading />;
+
+  // // 🔹 قيم المدن والدورات للفلتر
+  const cities = teachers ? Array.from(new Set(teachers.map((t) => t.city))).filter(Boolean) : [];
+  const courses = teachers ? Array.from(new Set(teachers.map((t) => t.courseName))).filter(Boolean) : [];
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-5xl mx-auto">
-      <div className="flex justify-between items-center p-4">
-        <h3 className="text-text_color font-cairo text-basemobile md:text-lg">المعلمين</h3>
-        <Link
-          to="/dashboard/add-teacher"
-          className="px-4 py-2 bg-background text-white rounded-lg shadow hover:bg-[#0f8392] transition"
-        >
-          إضافة معلم
-        </Link>
+    <div className="p-6 bg-white rounded shadow max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+        <h2 className="text-xl font-bold">قائمة المعلمين</h2>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/dashboard/add-teacher")}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            إضافة معلم جديد
+          </button>
+          <button
+            onClick={() => navigate("/dashboard/add-teacherToClass")}
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-teal-600"
+          >
+            إضافة معلم لحصة
+          </button>
+        </div>
       </div>
 
-      {/* مربع البحث */}
-      <div className="p-4 bg-white dark:bg-gray-800">
+      {/* 🔹 البحث والفلترة */}
+      <div className="flex flex-col md:flex-row gap-2 mb-4">
         <input
           type="text"
-          placeholder="🔍 بحث بالاسم أو البريد الإلكتروني"
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white"
+          placeholder="ابحث بالاسم أو البريد أو الدورة..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/3 border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:border-teal-500"
         />
+
+        <select
+          value={filterCity}
+          onChange={(e) => {
+            setFilterCity(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/6 border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:border-teal-500"
+        >
+          <option value="">المدينة</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filterCourse}
+          onChange={(e) => {
+            setFilterCourse(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/6 border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:border-teal-500"
+        >
+          <option value="">الدورة</option>
+          {courses.map((course) => (
+            <option key={course} value={course}>
+              {course}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Empty State */}
-      {filteredTeachers.length === 0 ? (
-        <div className="text-center py-12">
-          <img
-            src="/images/no-teachers.png"
-            alt="لا يوجد معلمين"
-            className="mx-auto mb-4 w-40 h-40 object-contain"
-          />
-          <h2 className="text-lg font-cairo text-gray-600 mb-2">لا يوجد معلمين في الوقت الحالي</h2>
-          <p className="text-gray-500">سوف يظهر هنا جدول للمعلمين المتاحين بالمركز التدريبي</p>
-        </div>
-      ) : (
-        <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th className="p-4">#</th>
-              <th className="px-4 py-3">الاسم</th>
-              <th className="px-6 py-3">البريد الإلكتروني</th>
-              <th className="px-5 py-3">المدينة</th>
-              <th className="px-4 py-3">المادة التدريبية</th>
-              <th className="px-4 py-3">رقم الهاتف</th>
-              <th className="px-6 py-3">الحصص المتوفرة</th>
-              <th className="px-6 py-3">الإجراء</th>
+      {/* ✅ الجدول مع Scroll أفقي للشاشات الصغيرة */}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 whitespace-nowrap">الاسم</th>
+              <th className="border p-2 whitespace-nowrap">البريد</th>
+              <th className="border p-2 whitespace-nowrap">الهاتف</th>
+              <th className="border p-2 whitespace-nowrap">المدينة</th>
+              <th className="border p-2 whitespace-nowrap">الدورة</th>
+              <th className="border p-2 whitespace-nowrap">إجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {filteredTeachers.map((teacher, index) => {
-              const remaining = teacher.total - teacher.booked;
-              let statusText =
-                remaining === 0
-                  ? "اكتمل العدد"
-                  : remaining === teacher.total
-                  ? "متوفرة بالكامل"
-                  : `متوفر ${remaining} حصص`;
-
-              return (
-                <tr
-                  key={teacher.id}
-                  className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
-                >
-                  <td className="p-4">{index + 1}</td>
-                  <td>
-                    <Link to={`/dashboard/teacher-sessions/${teacher.id}/${encodeURIComponent(teacher.name)}`}>
-                      {teacher.name}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-4">{teacher.email}</td>
-                  <td className="px-4 py-4">{teacher.city}</td>
-                  <td className="px-4 py-4">{teacher.subject}</td>
-                  <td className="px-2 py-4">{teacher.phone}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-block px-1 py-2 w-full flex items-center justify-center rounded-full text-white text-xs 
-                      ${remaining === 0 ? "bg-red-500" : remaining === teacher.total ? "bg-green-500" : "bg-yellow-500"}`}
-                    >
-                      {statusText}
-                    </span>
-                  </td>
-                  <td className="flex items-center px-6 py-4">
-                    <Link
-                      to={`/dashboard/edit-teacher/${teacher.id}`}
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            {currentTeachers?.length > 0 ? (
+              currentTeachers.map((teacher) => (
+                <tr key={teacher.id} className="text-center">
+                  <td className="border p-2">{teacher.fullName}</td>
+                  <td className="border p-2">{teacher.email}</td>
+                  <td className="border p-2">{teacher.phoneNumber}</td>
+                  <td className="border p-2">{teacher.city}</td>
+                  <td className="border p-2">{teacher.courseName}</td>
+                  <td className="border p-2 flex justify-center gap-2 flex-wrap">
+                    <button
+                      onClick={() =>
+                        navigate(`/dashboard/edit-teacher/${teacher.id}`)
+                      }
+                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
                     >
                       تعديل
-                    </Link>
+                    </button>
                     <button
-                      onClick={() => setTeacherToDelete(teacher)} // ✅ فتح البوب أب
-                      className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                      onClick={() => handleDelete(teacher.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded text-sm"
                     >
                       حذف
                     </button>
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center p-4 text-gray-500">
+                  لا توجد نتائج
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-      )}
+      </div>
 
-      {/* ✅ بوب أب الحذف */}
-      {teacherToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-            <h2 className="text-lg font-bold mb-4">تأكيد الحذف</h2>
-            <p className="text-gray-600 mb-6">
-              هل أنت متأكد أنك تريد حذف المعلم{" "}
-              <span className="font-bold text-red-500">{teacherToDelete.name}</span>؟
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                نعم، احذف
-              </button>
-              <button
-                onClick={() => setTeacherToDelete(null)}
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
+      {/* 🔹 Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4 gap-2 flex-wrap">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            السابق
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 border rounded ${currentPage === i + 1 ? "bg-teal-500 text-white" : ""
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            التالي
+          </button>
         </div>
       )}
+
+      {showModal && (
+        <DeleteModal
+          onClose={() => setShowModal(false)}
+          onConfirm={confirmDelete}
+          message="هل أنت متأكد من حذف هذا المعلم؟"
+        />
+      )}
     </div>
+
   );
 }

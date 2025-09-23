@@ -20,9 +20,9 @@ function Home() {
       <section id="courses">
         <Courses />
       </section>
-      <section id="reviews">
+      {/* <section id="reviews">
         <ReviewSection />
-      </section>
+      </section> */}
       <section id="activities">
         <Activites />
       </section>

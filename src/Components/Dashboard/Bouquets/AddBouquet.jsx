@@ -28,6 +28,7 @@ export default function AddBouquet() {
   // 🟢 جلب الكورسات والمستويات
   const { data: courses, isLoading: loadingCourses } = useGetAllCourses();
   const { data: levels, isLoading: loadingLevels } = useGetAllLevels();
+console.log(levels);
 
   if (loadingCourses || loadingLevels) return <Loading />;
 
@@ -118,7 +119,7 @@ export default function AddBouquet() {
                 <option value="">اختر المستوى</option>
                 {levels?.data?.map((level) => (
                   <option key={level.id} value={level.id}>
-                    {level.levelName} (رقم {level.levelNumber})
+                    {level.name} (رقم {level.levelNumber})
                   </option>
                 ))}
               </Field>

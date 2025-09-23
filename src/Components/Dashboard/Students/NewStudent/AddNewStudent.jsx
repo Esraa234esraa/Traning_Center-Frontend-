@@ -15,6 +15,7 @@ const validationSchema = Yup.object({
     .matches(/^[0-9]+$/, "يجب إدخال أرقام فقط")
     .min(11, "رقم الهاتف يجب ألا يقل عن 11 رقم")
     .max(15, "رقم الهاتف يجب ألا يزيد عن 15 رقم"),
+    email: Yup.string().email("البريد الإلكتروني غير صالح"),
   time: Yup.string().required("الرجاء اختيار الوقت"),
 });
 
@@ -56,6 +57,7 @@ export default function AddStudentPopup({ isOpen, onClose }) {
       gender: values.gender,
       city: values.city,
       phoneNumber: values.phone,
+      email: values.email,
       date: values.day,
       time: normalizeTime(values.time),
       status: 0,
@@ -102,6 +104,7 @@ export default function AddStudentPopup({ isOpen, onClose }) {
             day: "",
             city: "",
             phone: "",
+            email: "",
             time: "",
           }}
           validationSchema={validationSchema}
@@ -151,11 +154,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     type="text"
                     name="name"
                     placeholder="اسم الطالب"
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.name && errors.name
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.name && errors.name
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   />
                   <ErrorMessage
                     name="name"
@@ -163,17 +165,32 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     className="text-red-500 text-sm mt-1"
                   />
                 </div>
-
+{/* البريد الالكتروني */}
+                <div>
+                  <Field
+                    type="email"
+                    name="email"
+                    placeholder="البريد الالكتروني"
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.Email && errors.name
+                        ? "border-red-500"
+                        : "border-gray-300"
+                      }`}
+                  />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
                 {/* الجنس */}
                 <div>
                   <Field
                     as="select"
                     name="gender"
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.gender && errors.gender
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.gender && errors.gender
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   >
                     <option value="">الجنس</option>
                     <option value="ذكر">ذكر</option>
@@ -193,11 +210,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     name="day"
                     min={today}
                     onChange={(e) => setFieldValue("day", e.target.value)}
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.day && errors.day
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.day && errors.day
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   />
                   <ErrorMessage
                     name="day"
@@ -217,11 +233,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     as="select"
                     name="time"
                     disabled={isWeekend}
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.time && errors.time
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.time && errors.time
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   >
                     <option value="">اختر الوقت</option>
                     {Array.from({ length: (22 - 8) * 4 }, (_, i) => {
@@ -256,11 +271,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     type="text"
                     name="city"
                     placeholder="المدينة"
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.city && errors.city
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.city && errors.city
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   />
                   <ErrorMessage
                     name="city"
@@ -275,11 +289,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                     type="text"
                     name="phone"
                     placeholder="رقم الهاتف"
-                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${
-                      touched.phone && errors.phone
+                    className={`w-full p-2 border rounded-lg focus:ring focus:ring-blue-200 ${touched.phone && errors.phone
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                   />
                   <ErrorMessage
                     name="phone"
@@ -298,11 +311,10 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                 <button
                   type="submit"
                   disabled={isSubmitting || isWeekend || duplicateWarning}
-                  className={`w-full py-2 rounded-lg transition ${
-                    isSubmitting || isWeekend || duplicateWarning
+                  className={`w-full py-2 rounded-lg transition ${isSubmitting || isWeekend || duplicateWarning
                       ? "bg-gray-400 cursor-not-allowed text-gray-200"
                       : "bg-background text-white hover:bg-[#0f8392]"
-                  }`}
+                    }`}
                 >
                   {isSubmitting ? "جارٍ الإضافة..." : "إضافة الطالب"}
                 </button>

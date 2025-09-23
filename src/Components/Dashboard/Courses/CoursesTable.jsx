@@ -89,12 +89,12 @@ export default function CoursesTable() {
             placeholder="🔍 ابحث عن دورة..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border px-3 py-2 rounded-lg"
+            className="border  px-5 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="border px-3 py-2 rounded-lg"
+            className="border px-5 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
           >
             <option value="all">الكل</option>
             <option value="visible">الظاهرة</option>

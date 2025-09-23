@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getAllClasses,
   getClassById,
-  getAllClassesOfBouquet,
+  getAllClassesOfBouquet,getAllClassesEmptyFromTeacher
 } from "../../APIs/Classes/ClassesApis";
 
 // ✅ Get all classes
@@ -28,5 +28,12 @@ export const useGetAllClassesOfBouquet = (bouquetId) => {
     queryKey: ["bouquet-classes", bouquetId],
     queryFn: () => getAllClassesOfBouquet(bouquetId),
     enabled: !!bouquetId,
+  });
+};
+export const useGetAllClassesEmptyFromTeacher = () => {
+  return useQuery({
+    queryKey: ["classesEmpty"],
+    queryFn: getAllClassesEmptyFromTeacher,
+    select: (res) => res.data, // مصفوفة الحصص الفارغة
   });
 };

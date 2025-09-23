@@ -58,6 +58,8 @@ import ClassesTable from './Components/Dashboard/Classes/ClassesTable';
 import AddClass from './Components/Dashboard/Classes/AddClass';
 import AddCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/AddCurrentStudentForm';
 import EditCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/EditCurrentStudentForm';
+import AddTeacherToClass from './Components/Dashboard/Teacher/AddTeacherToClass';
+
 
 
 function App() {
@@ -94,8 +96,10 @@ function App() {
               <Route path="admins/edit-admin/:id" element={<EditAdminPage />} />
               <Route path="admins_table" element={<AdminsTable />} />
               <Route path="admins/change-password/:id" element={<ChangeAdminPassword />} />
-              <Route path='teacher_table' element={<Teachers_Table />}> </Route>
+              <Route path='teacher_table' element={<Teachers_Table/>}> </Route>
               <Route path='add-teacher' element={<AddTeacher />}></Route>
+              <Route path='add-teacherToClass' element={<AddTeacherToClass />}></Route>
+
               <Route path="edit-teacher/:id" element={<EditTeacher />} />
               <Route path="teacher-sessions/:teacherId/:teacherName" element={<TeacherSessions />} />
               <Route

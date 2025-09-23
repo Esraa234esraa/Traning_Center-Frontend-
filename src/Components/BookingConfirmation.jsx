@@ -19,7 +19,7 @@ export default function BookingConfirmation({ date, time }) {
                     <p className="text-gray-700 text-base mb-1">
                         الساعة <span className="font-bold">{time}</span>
                     </p>
-                    <p className="text-green-700 text-sm mt-3">هتوصلك رسالة على رقمك بالتفاصيل.</p>
+                    <p className="text-green-700 text-sm mt-3">هتوصلك رسالة على بريدك بالتفاصيل.</p>
                     <NavLink to="/" onClick={handleClose}>
                         <button
                             className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition-colors"

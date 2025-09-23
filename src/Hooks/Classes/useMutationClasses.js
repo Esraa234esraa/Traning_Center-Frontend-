@@ -17,15 +17,17 @@ export const useAddClass = () => {
 };
 
 // ✅ Update class
+// useMutationClasses.js
 export const useUpdateClass = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, updatedClass }) => updateClass(id, updatedClass),
+    mutationFn: ({ id, data }) => updateClass(id, data), // بدل updatedClass بـ data
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
     },
   });
 };
+
 
 // ✅ Delete class
 export const useDeleteClass = () => {

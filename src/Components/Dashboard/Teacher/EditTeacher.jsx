@@ -1,105 +1,184 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetTeacherById } from "../../../Hooks/Teacher/useQueryTeacher";
+import { useUpdateTeacher } from "../../../Hooks/Teacher/useMutationTeacher";
+import { toast } from "react-toastify";
+import Loading from "../../Loading";
+import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
+
+const validationSchema = Yup.object({
+  fullName: Yup.string().required("الاسم مطلوب"),
+  email: Yup.string()
+    .email("البريد الإلكتروني غير صالح")
+    .required("البريد الإلكتروني مطلوب"),
+  city: Yup.string().required("المدينة مطلوبة"),
+  phoneNumber: Yup.string().required("رقم الهاتف مطلوب"),
+  courseId: Yup.string().required("اسم الدورة مطلوب"),
+});
 
 export default function EditTeacher() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { data: teacher, isLoading } = useGetTeacherById(id);
+  const updateTeacherMutation = useUpdateTeacher();
+  const { data: courses } = useGetAllCourses();
+console.log(teacher);
 
-  const teachers = [
-    { name: "علي", email: "michelle.rivera@example.com", city: "السعودية, الاحساء", subject: "Maths", phone: "0111111111", booked: 4, total: 7 },
-    { name: "احمد", email: "debbie.baker@example.com", city: "اسم المدينة", subject: "اعراب", phone: "0111111111", booked: 5, total: 7 },
-    { name: "حسن", email: "nathan.roberts@example.com", city: "اسم المدينة", subject: "English", phone: "0111111111", booked: 2, total: 7 },
-  ];
-
-  const teacher = teachers[id];
-
-  const subjectsList = ["Maths", "English", "اعراب", "قراءة", "علوم", "برمجة"];
-
-  const validationSchema = Yup.object({
-    name: Yup.string().required("الاسم مطلوب"),
-    email: Yup.string().email("بريد إلكتروني غير صالح").required("البريد الإلكتروني مطلوب"),
-    city: Yup.string().required("المدينة مطلوبة"),
-    subject: Yup.string().required("المادة مطلوبة"),
-    phone: Yup.string().matches(/^[0-9]{10,15}$/, "رقم الهاتف غير صحيح").required("رقم الهاتف مطلوب"),
-    booked: Yup.number().min(0, "لا يمكن أن يكون أقل من 0").max(7, "الحد الأقصى 7 حصص").required("عدد الحصص المحجوزة مطلوب"),
-  });
+  if (isLoading || !teacher) return <Loading />;
 
   const handleSubmit = (values) => {
-    console.log("✅ بيانات بعد التعديل:", values);
-    navigate("/dashboard/teacher_table");
+    const payload = {
+      teacherDto: {
+        fullName: values.fullName,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        city: values.city,
+        courseId: values.courseId,
+      },
+    };
+
+    updateTeacherMutation.mutate(
+      { teacherId: id, data: payload.teacherDto },
+      {
+        onSuccess: () => {
+          toast.success("تم تعديل بيانات المعلم بنجاح");
+          navigate("/dashboard/teacher_table");
+        },
+        onError: (error) => {
+          const errorMsg =
+            error?.response?.data?.message || "حدث خطأ أثناء التعديل";
+          toast.error(errorMsg);
+        },
+      }
+    );
   };
 
   return (
-    <div className="max-w-xl mx-auto  mt-10 p-6 bg-white shadow-lg rounded-xl">
-      <h2 className="text-xl font-bold mb-6 text-center">تعديل بيانات المعلم</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="bg-white shadow rounded-lg p-6 w-full max-w-2xl">
+        <h2 className="text-2xl font-bold mb-6 text-center">تعديل بيانات المعلم</h2>
 
-      <Formik initialValues={teacher} validationSchema={validationSchema} onSubmit={handleSubmit}>
-        {({ values, isSubmitting }) => {
-          const remaining = values.total - values.booked;
-
-          return (
-            <Form className="space-y-4">
+        <Formik
+          initialValues={{
+            fullName: teacher?.fullName || "",
+            email: teacher?.email || "",
+            city: teacher?.city || "",
+            phoneNumber: teacher?.phoneNumber || "",
+            courseId: teacher?.courseId || "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({ isSubmitting }) => (
+            <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* الاسم */}
-              <div>
-                <Field name="name" className="w-full p-2 border rounded" placeholder="الاسم" />
-                <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">الاسم الكامل</label>
+                <Field
+                  name="fullName"
+                  placeholder="الاسم بالكامل"
+                  className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <ErrorMessage
+                  name="fullName"
+                  component="p"
+                  className="text-red-500 text-sm mt-1"
+                />
               </div>
 
               {/* البريد */}
-              <div>
-                <Field name="email" className="w-full p-2 border rounded" placeholder="البريد الإلكتروني" />
-                <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">البريد الإلكتروني</label>
+                <Field
+                  name="email"
+                  type="email"
+                  placeholder="البريد الإلكتروني"
+                  className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <ErrorMessage
+                  name="email"
+                  component="p"
+                  className="text-red-500 text-sm mt-1"
+                />
               </div>
 
               {/* المدينة */}
-              <div>
-                <Field name="city" className="w-full p-2 border rounded" placeholder="المدينة" />
-                <ErrorMessage name="city" component="div" className="text-red-500 text-sm mt-1" />
-              </div>
-
-              {/* المادة */}
-              <div>
-                <Field as="select" name="subject" className="w-full p-2 border rounded bg-white">
-                  <option value="">اختر المادة</option>
-                  {subjectsList.map((subj, i) => (
-                    <option key={i} value={subj}>
-                      {subj}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">المدينة</label>
+                <Field
+                  name="city"
+                  as="select"
+                  className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="">اختر المدينة</option>
+                  {["الرياض", "جدة", "مكة المكرمة"].map((c) => (
+                    <option key={c} value={c}>
+                      {c}
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="subject" component="div" className="text-red-500 text-sm mt-1" />
+                <ErrorMessage
+                  name="city"
+                  component="p"
+                  className="text-red-500 text-sm mt-1"
+                />
               </div>
 
               {/* الهاتف */}
-              <div>
-                <Field name="phone" className="w-full p-2 border rounded" placeholder="رقم الهاتف" />
-                <ErrorMessage name="phone" component="div" className="text-red-500 text-sm mt-1" />
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">رقم الهاتف</label>
+                <Field
+                  name="phoneNumber"
+                  type="tel"
+                  placeholder="رقم الهاتف"
+                  className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <ErrorMessage
+                  name="phoneNumber"
+                  component="p"
+                  className="text-red-500 text-sm mt-1"
+                />
               </div>
 
-              {/* الحصص المحجوزة */}
-              {/* <div>
-                <Field type="number" name="booked" className="w-full p-2 border rounded" placeholder="عدد الحصص المحجوزة" />
-                <ErrorMessage name="booked" component="div" className="text-red-500 text-sm mt-1" />
-                <p className="text-sm mt-1 text-gray-600">
-                  متبقي: <span className="font-bold">{remaining}</span> من {values.total} حصص
-                </p>
-              </div> */}
+              {/* الدورة */}
+              <div className="flex flex-col md:col-span-2">
+                <label className="mb-1 font-medium">الدورة</label>
+                <Field
+                  as="select"
+                  name="courseId"
+                  className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="">اختر الدورة</option>
+                  {courses?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="courseId"
+                  component="p"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
 
-              {/* الأزرار */}
-              <div className="flex justify-between mt-6">
-                <button type="button" onClick={() => navigate("/dashboard/teacher_table")} className="px-4 py-2 bg-gray-500 text-white rounded">
-                  رجوع
-                </button>
-                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-background text-white rounded disabled:opacity-50">
-                  {isSubmitting ? "جارٍ الحفظ..." : "حفظ التعديلات"}
+              {/* زر الحفظ */}
+              <div className="md:col-span-2 flex justify-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || updateTeacherMutation.isLoading}
+                  className="bg-teal-500 text-white px-6 py-2 rounded hover:bg-teal-600 transition disabled:opacity-50"
+                >
+                  {updateTeacherMutation.isLoading ? "جاري التعديل..." : "تعديل"}
                 </button>
               </div>
             </Form>
-          );
-        }}
-      </Formik>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 }

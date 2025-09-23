@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useGetAllBouquets } from "../../../Hooks/Bouquets/useQueryBouquet";
 import Loading from "../../Loading";
 import DeleteBouquetModal from "./DeleteBouquetModal";
+import { toast } from "react-toastify";
 
 export default function BouquetsTable() {
   const navigate = useNavigate();
@@ -31,18 +32,18 @@ export default function BouquetsTable() {
   const handleShowClasses = async (bouquetId, bouquetName) => {
     try {
       setCurrentBouquetName(bouquetName);
-      const res = await fetch(`https://localhost:7051/api/Classes/AllClassesOfBouquet?bouquetId=${bouquetId}`);
+      const res = await fetch(`http://traning-center.runasp.net/api/Classes/AllClassesOfBouquet?bouquetId=${bouquetId}`);
       const data = await res.json();
       if (data.success && data.data) {
         setSelectedBouquetClasses(data.data);
       } else {
         setSelectedBouquetClasses([]);
-        alert(data.message || "لا توجد حصص لهذه الباقة");
+        toast(data.message || "لا توجد حصص لهذه الباقة");
       }
       setShowClassesModal(true);
     } catch (err) {
       console.error(err);
-      alert("حدث خطأ أثناء جلب الحصص");
+      toast("حدث خطأ أثناء جلب الحصص");
     }
   };
   // 🔹 حالة البوب أب

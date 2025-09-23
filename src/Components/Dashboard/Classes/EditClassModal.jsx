@@ -7,7 +7,7 @@ import { useGetAllBouquets } from "../../../Hooks/Bouquets/useQueryBouquet";
 import Loading from "../../Loading";
 
 export default function EditClassModal({ cls, onClose }) {
-  const { mutate, isLoading } = useUpdateClass();
+  const useUpdateClassMutation = useUpdateClass();
   const { data: bouquets, isLoading: isBouquetsLoading } = useGetAllBouquets();
 
   const formik = useFormik({
@@ -26,19 +26,19 @@ export default function EditClassModal({ cls, onClose }) {
       bouquetId: Yup.string().required("يجب اختيار الباقة"),
     }),
     onSubmit: (values) => {
-      mutate(
-        { id: cls.id, updatedClass: values },
+      useUpdateClassMutation.mutate(
         {
-          onSuccess: (res) => {
-            if (res.success) {
-              toast.success(" تم تعديل الحصة بنجاح");
-              onClose();
-            } else {
-              toast.error(res.message || " حدث خطأ أثناء التعديل");
-            }
+          id: cls.id,  
+          data: values,  },
+        {
+          onSuccess: () => {
+            toast.success("تم تعديل بيانات الحصة بنجاح");
+            onClose();
           },
-          onError: () => {
-            toast.error(" فشل في تعديل الحصة");
+          onError: (error) => {
+            const errorMsg =
+              error?.response?.data?.message || "حدث خطأ أثناء التعديل";
+            toast.error(errorMsg);
           },
         }
       );
@@ -50,7 +50,7 @@ export default function EditClassModal({ cls, onClose }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
       <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-lg font-bold mb-4"> تعديل الحصة</h2>
+        <h2 className="text-lg font-bold mb-4">تعديل الحصة</h2>
 
         <form onSubmit={formik.handleSubmit} className="space-y-3">
           {/* تاريخ البداية */}
@@ -135,9 +135,9 @@ export default function EditClassModal({ cls, onClose }) {
             <button
               type="submit"
               className="bg-primary text-white px-3 py-1 rounded"
-              disabled={isLoading}
+              disabled={useUpdateClassMutation.isLoading}
             >
-              {isLoading ? " جاري الحفظ..." : " حفظ"}
+              {useUpdateClassMutation.isLoading ? "جاري الحفظ..." : "حفظ"}
             </button>
           </div>
         </form>

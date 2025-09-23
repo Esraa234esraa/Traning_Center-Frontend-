@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://localhost:7051/api/CurrentStudent";
+const BASE_URL = "http://traning-center.runasp.net/api/CurrentStudent";
 
 export const getAllCurrentStudents = async () => {
   const response = await axios.get(`${BASE_URL}/GetAllCurrentStudent`);
