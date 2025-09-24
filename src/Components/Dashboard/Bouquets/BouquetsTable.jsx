@@ -21,6 +21,7 @@ export default function BouquetsTable() {
 
   const { data: selectedBouquetClasses = [], isLoading: isClassesLoading, isError: isClassesError, refetch } =
     useGetAllClassesOfBouquet(currentBouquetId, showClassesModal);
+console.log(selectedBouquetClasses);
 
   const handleOpenClassesModal = (bouquetId, bouquetName) => {
     setCurrentBouquetId(bouquetId);
@@ -145,7 +146,7 @@ export default function BouquetsTable() {
             <h2 className="text-lg font-bold mb-4">حصص الباقة: {currentBouquetName}</h2>
 
             {isClassesLoading ? (
-              <p>جاري التحميل...</p>
+              <Loading />
             ) : isClassesError ? (
               <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>
             ) : selectedBouquetClasses.length > 0 ? (
