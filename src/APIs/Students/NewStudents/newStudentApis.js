@@ -37,7 +37,7 @@ export const moveNewStudentToWatingStudent = (id) => {
 };
 
 export const updateWaitingStudent = async ({id, data }) => {
-  const response = await axios.put(`${API_URL}/PutNewStudent/${id}`, data, {
+  const response = await axios.put(`${API_URL}/PutWaitingStudent/${id}`, data, {
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
