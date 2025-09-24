@@ -15,10 +15,6 @@ export default function ClassesTable() {
   const [editClass, setEditClass] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
-
-  if (isLoading) return <Loading />;
-  if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>;
-
   const filteredClasses = useMemo(() => {
     const classesData = data?.data || [];
     return classesData.filter((cls) => {
@@ -29,6 +25,10 @@ export default function ClassesTable() {
       return matchStatus && matchSearch;
     });
   }, [data?.data, statusFilter, search]);
+
+  if (isLoading) return <Loading />;
+  if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>;
+
 
   return (
     <div className="p-6">

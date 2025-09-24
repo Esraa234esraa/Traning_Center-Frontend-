@@ -2,8 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAddBouquet } from "../../../Hooks/Bouquets/useMutationBouquet";
 import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
-import { useGetAllLevels } from "../../../Hooks/Levels/useQueryLevel";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useGetAllLevelsOfCourse } from "../../../Hooks/Levels/useGetAllLevelsOfCourse";
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import Loading from "../../Loading";
@@ -21,16 +21,48 @@ const validationSchema = Yup.object({
     .required("السعر مطلوب"),
 });
 
+// 🟢 كومبوننت المستويات المتغيرة حسب الكورس
+function LevelsSelect() {
+  const { values } = useFormikContext(); // ناخد قيم الفورم
+  const courseId = values.courseId;
+
+  // لو لسه مفيش كورس مختار، نرجّع null
+  const { data: levelsRes, isLoading } = useGetAllLevelsOfCourse(courseId, {
+    enabled: !!courseId, // ما يشتغلش غير لما يتحدد الكورس
+  });
+
+  const levels = Array.isArray(levelsRes?.data) ? levelsRes.data : [];
+
+  if (!courseId) {
+    return (
+      <Field as="select" name="levelId" className="w-full border p-2 rounded">
+        <option value="">اختر المستوى (حدد الكورس أولاً)</option>
+      </Field>
+    );
+  }
+
+  if (isLoading) return <p className="text-gray-500">جاري تحميل المستويات...</p>;
+
+  return (
+    <Field as="select" name="levelId" className="w-full border p-2 rounded">
+      <option value="">اختر المستوى</option>
+      {levels.map((level) => (
+        <option key={level.id} value={level.id}>
+          {level.name} (رقم {level.levelNumber})
+        </option>
+      ))}
+    </Field>
+  );
+}
+
 export default function AddBouquet() {
   const navigate = useNavigate();
   const { mutate: addBouquet } = useAddBouquet();
 
-  // 🟢 جلب الكورسات والمستويات
+  // 🟢 جلب الكورسات
   const { data: courses, isLoading: loadingCourses } = useGetAllCourses();
-  const { data: levels, isLoading: loadingLevels } = useGetAllLevels();
-console.log(levels);
 
-  if (loadingCourses || loadingLevels) return <Loading />;
+  if (loadingCourses) return <Loading />;
 
   return (
     <div className="p-6 max-w-md mx-auto">
@@ -90,11 +122,7 @@ console.log(levels);
 
             {/* اختيار الكورس */}
             <div>
-              <Field
-                as="select"
-                name="courseId"
-                className="w-full border p-2 rounded"
-              >
+              <Field as="select" name="courseId" className="w-full border p-2 rounded">
                 <option value="">اختر الكورس</option>
                 {courses?.map((course) => (
                   <option key={course.id} value={course.id}>
@@ -109,20 +137,9 @@ console.log(levels);
               />
             </div>
 
-            {/* اختيار المستوى */}
+            {/* اختيار المستوى حسب الكورس */}
             <div>
-              <Field
-                as="select"
-                name="levelId"
-                className="w-full border p-2 rounded"
-              >
-                <option value="">اختر المستوى</option>
-                {levels?.data?.map((level) => (
-                  <option key={level.id} value={level.id}>
-                    {level.name} (رقم {level.levelNumber})
-                  </option>
-                ))}
-              </Field>
+              <LevelsSelect />
               <ErrorMessage
                 name="levelId"
                 component="div"
