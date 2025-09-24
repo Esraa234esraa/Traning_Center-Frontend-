@@ -88,7 +88,7 @@ export default function EditStudentPopup({ isOpen, onClose, studentData }) {
               { id: values.id, data: payload },
               {
                 onSuccess: (res) => {
-                  if (!res?.data?.success) {
+                  if (!res?.success) {
                     toast.error(res.message || "حدث خطأ أثناء تعديل الطالب", {
                       toastId: `${res.message}-${Date.now()}`,
                     });
@@ -99,7 +99,7 @@ export default function EditStudentPopup({ isOpen, onClose, studentData }) {
                   resetForm();
                   setSubmitting(false);
                   onClose();
-                  toast.success(res.data.message || "تم تعديل الطالب بنجاح");
+                  toast.success(res?.message || "تم تعديل الطالب بنجاح");
                 },
                 onError: (error) => {
                   const errorMsg =
