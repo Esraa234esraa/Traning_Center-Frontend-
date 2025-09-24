@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetAllBouquets } from "../../../Hooks/Bouquets/useQueryBouquet";
-import { useGetAllClassesOfBouquet } from "../../../Hooks/Bouquets/useQueryClasses";
+import { useGetAllClassesOfBouquet } from "../../../Hooks/Classes/useQueryClasses";
 import Loading from "../../Loading";
 import DeleteBouquetModal from "./DeleteBouquetModal";
 
