@@ -116,59 +116,62 @@ export default function CoursesTable() {
           <p className="text-gray-600 text-lg">لا توجد دورات تدريبية</p>
         </div>
       ) : (
-        <table className="w-full border border-gray-300 shadow-md">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">الصورة</th>
-              <th className="p-2 border">اسم الدورة</th>
-              <th className="p-2 border">الوصف</th>
-              <th className="p-2 border">الحالة</th>
-              <th className="p-2 border">المستويات</th>
-              <th className="p-2 border">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCourses.map((course) => (
-              <tr key={course.id} className="text-center">
-                <td className="border p-2">
-                  <img
-                    src={course.filePath ? getImageUrl(course.filePath) : "/placeholder.png"}
-                    alt={course.name}
-                    className="w-20 h-14 object-cover rounded-md mx-auto"
-                  />
-                </td>
-                <td className="border p-2">{course.name}</td>
-                <td className="border p-2">{course.description}</td>
-                <td className="border p-2">{course.isVisible ? "ظاهر" : "مخفي"}</td>
-                <td className="border p-2">
-                  <button
-                    onClick={() => handleShowLevels(course.id, course.name)}
-                    className="px-2 py-1  text-primary rounded"
-                  >
-                    عرض المستويات
-                  </button>
-                </td>
-                <td className="border p-2 space-x-2">
-                  <button
-                    onClick={() => navigate(`edit-course/${course.id}`)}
-                    className="text-blue-500 px-2 py-1 rounded"
-                  >
-                    تعديل
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedCourseId(course.id);
-                      setShowDeleteModal(true);
-                    }}
-                    className="text-red-500 px-2 py-1 rounded"
-                  >
-                    حذف
-                  </button>
-                </td>
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-[700px] border border-gray-300 shadow-md">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">الصورة</th>
+                <th className="p-2 border">اسم الدورة</th>
+                <th className="p-2 border">الوصف</th>
+                <th className="p-2 border">الحالة</th>
+                <th className="p-2 border">المستويات</th>
+                <th className="p-2 border">الإجراءات</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredCourses.map((course) => (
+                <tr key={course.id} className="text-center">
+                  <td className="border p-2">
+                    <img
+                      src={course.filePath ? getImageUrl(course.filePath) : "/placeholder.png"}
+                      alt={course.name}
+                      className="w-20 h-14 object-cover rounded-md mx-auto"
+                    />
+                  </td>
+                  <td className="border p-2 min-w-[120px]">{course.name}</td>
+                  <td className="border p-2 min-w-[150px]">{course.description}</td>
+                  <td className="border p-2 min-w-[80px]">{course.isVisible ? "ظاهر" : "مخفي"}</td>
+                  <td className="border p-2 min-w-[120px]">
+                    <button
+                      onClick={() => handleShowLevels(course.id, course.name)}
+                      className="px-2 py-1 text-primary rounded"
+                    >
+                      عرض المستويات
+                    </button>
+                  </td>
+                  <td className="border p-2 min-w-[150px] space-x-2">
+                    <button
+                      onClick={() => navigate(`edit-course/${course.id}`)}
+                      className="text-blue-500 px-2 py-1 rounded"
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedCourseId(course.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="text-red-500 px-2 py-1 rounded"
+                    >
+                      حذف
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       )}
 
       {/* مودال المستويات */}
