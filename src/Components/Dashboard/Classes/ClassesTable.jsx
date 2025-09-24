@@ -18,20 +18,15 @@ export default function ClassesTable() {
 
   if (isLoading) return <Loading />;
   if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>;
-  if (!data?.success || !data?.data?.length)
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-        <p>لا توجد حصص</p>
-      </div>
-    );
 
   const filteredClasses = useMemo(() => {
-    return data.data.filter((cls) => {
+    const classesData = data?.data || [];
+    return classesData.filter((cls) => {
       const matchStatus = statusFilter === "all" || cls.status === statusFilter;
       const matchSearch = cls.bouquetName.toLowerCase().includes(search.toLowerCase());
       return matchStatus && matchSearch;
     });
-  }, [data.data, statusFilter, search]);
+  }, [data?.data, statusFilter, search]);
 
   return (
     <div className="p-6">
@@ -66,7 +61,7 @@ export default function ClassesTable() {
         </div>
       </div>
 
-      {/* الجدول */}
+      {/* عرض الرسالة لو مفيش بيانات */}
       {filteredClasses.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-gray-500">
           <svg
@@ -86,6 +81,7 @@ export default function ClassesTable() {
           <p className="text-lg font-medium">لا توجد حصص مطابقة 🔍</p>
         </div>
       ) : (
+        // الجدول
         <div className="overflow-x-auto w-full">
           <table className="min-w-[700px] border border-gray-300 rounded-lg text-center">
             <thead>
