@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import ConfirmDeletePopup from "../NewStudent/ConfirmDeletePopup";
-import EditStudentPopup from "../NewStudent/EditStudentPopup";
+import ConfirmDeletePopup from "../WaitingStudent/ConfirmDeletePopup";
+import EditWaitingStudentPop from "../WaitingStudent/EditWaitingStudentPop";
 import { useGetAllWaitingStudents } from "../../../../Hooks/Students/NewStudents/useQueryNewStudent";
 import Loading from "../../../Loading";
 import EmptyImg from "../../../../assets/images/Empty.png";
@@ -134,7 +134,7 @@ export default function WaitingStudentsTable() {
 
 
             {editPopup.isOpen && (
-                <EditStudentPopup
+                <EditWaitingStudentPop
                     isOpen={editPopup.isOpen}
                     onClose={() => setEditPopup({ isOpen: false, student: null })}
                     studentData={editPopup.student}
