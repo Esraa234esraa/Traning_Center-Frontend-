@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetAllClasses } from "../../../Hooks/Classes/useQueryClasses";
 import { useDeleteClass } from "../../../Hooks/Classes/useMutationClasses";
@@ -13,36 +13,50 @@ export default function ClassesTable() {
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [editClass, setEditClass] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all"); // فلتر الحالة
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   if (isLoading) return <Loading />;
-  if (isError) return <p>حدث خطأ أثناء جلب الحصص</p>;
-  if (!data?.success) return <p>{data?.message || "لا توجد حصص"}</p>;
+  if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>;
+  if (!data?.success || !data?.data?.length)
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+        <p>لا توجد حصص</p>
+      </div>
+    );
 
-  // ✅ فلترة حسب الحالة
-  const filteredClasses =
-    statusFilter === "all"
-      ? data.data
-      : data.data.filter((cls) => cls.status === statusFilter);
+  const filteredClasses = useMemo(() => {
+    return data.data.filter((cls) => {
+      const matchStatus = statusFilter === "all" || cls.status === statusFilter;
+      const matchSearch = cls.bouquetName.toLowerCase().includes(search.toLowerCase());
+      return matchStatus && matchSearch;
+    });
+  }, [data.data, statusFilter, search]);
 
   return (
     <div className="p-6">
-      {/* 🔹 العنوان وزر إضافة */}
-      <div className="flex justify-between items-center mb-4">
+      {/* عنوان + زر إضافة + فلترة */}
+      <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
         <h2 className="text-xl font-bold">📚 جدول الحصص</h2>
-        <div className="flex items-center space-x-3">
-          {/* 🔹 فلترة */}
+
+        <div className="flex flex-wrap gap-3 items-center">
+          <input
+            type="text"
+            placeholder="ابحث بالباقة..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border p-2 rounded"
+          />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border px-2 py-1 rounded"
+            className="border p-2 rounded"
           >
             <option value="all">الكل</option>
             <option value="Active">نشطة</option>
             <option value="Cancelled">ملغية</option>
             <option value="Completed">مكتملة</option>
           </select>
-
           <button
             onClick={() => navigate("/dashboard/classes/add-classes")}
             className="bg-primary text-white px-4 py-2 rounded-lg"
@@ -52,62 +66,72 @@ export default function ClassesTable() {
         </div>
       </div>
 
-      {/* 🔹 الجدول */}
-
-      <div className="overflow-x-auto w-full">
-        <table className="min-w-[700px] border border-gray-300 rounded-lg">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">#</th>
-              <th className="p-2 border">الباقة</th>
-              <th className="p-2 border">بداية</th>
-              <th className="p-2 border">نهاية</th>
-              <th className="p-2 border">الوقت</th>
-              <th className="p-2 border">عدد الطلاب</th>
-              <th className="p-2 border">الحالة</th>
-              <th className="p-2 border">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClasses.map((cls, index) => (
-              <tr key={cls.id} className="text-center">
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{cls.bouquetName}</td>
-                <td className="border p-2">
-                  {new Date(cls.startDate).toLocaleDateString()}
-                </td>
-                <td className="border p-2">
-                  {new Date(cls.endDate).toLocaleDateString()}
-                </td>
-                <td className="border p-2">{cls.classTime}</td>
-                <td className="border p-2">{cls.currentStudentsCount}</td>
-                <td className="border p-2">{cls.status}</td>
-                <td className="border p-2 space-x-2">
-                  <button
-                    className="bg-yellow-500 text-white px-2 py-1 rounded"
-                    onClick={() => setEditClass(cls)}
-                  >
-                    تعديل
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                    onClick={() => setSelectedClass(cls)}
-                  >
-                    حذف
-                  </button>
-                </td>
+      {/* الجدول */}
+      {filteredClasses.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-20 w-20 mb-4 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"
+            />
+          </svg>
+          <p className="text-lg font-medium">لا توجد حصص مطابقة 🔍</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-[700px] border border-gray-300 rounded-lg text-center">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">#</th>
+                <th className="p-2 border">الباقة</th>
+                <th className="p-2 border">بداية</th>
+                <th className="p-2 border">نهاية</th>
+                <th className="p-2 border">الوقت</th>
+                <th className="p-2 border">عدد الطلاب</th>
+                <th className="p-2 border">الحالة</th>
+                <th className="p-2 border">إجراءات</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {filteredClasses.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12">
-          <p className="text-gray-500 text-center">لا توجد حصص مطابقة</p>
+            </thead>
+            <tbody>
+              {filteredClasses.map((cls, index) => (
+                <tr key={cls.id} className="hover:bg-gray-50">
+                  <td className="border p-2">{index + 1}</td>
+                  <td className="border p-2">{cls.bouquetName}</td>
+                  <td className="border p-2">{new Date(cls.startDate).toLocaleDateString()}</td>
+                  <td className="border p-2">{new Date(cls.endDate).toLocaleDateString()}</td>
+                  <td className="border p-2">{cls.classTime}</td>
+                  <td className="border p-2">{cls.currentStudentsCount}</td>
+                  <td className="border p-2">{cls.status}</td>
+                  <td className="border p-2 space-x-2">
+                    <button
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                      onClick={() => setEditClass(cls)}
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      onClick={() => setSelectedClass(cls)}
+                    >
+                      حذف
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {/* 🔹 بوب أب الحذف */}
+      {/* بوب أب الحذف */}
       {selectedClass && (
         <DeleteClassModal
           cls={selectedClass}
@@ -120,10 +144,8 @@ export default function ClassesTable() {
         />
       )}
 
-      {/* 🔹 بوب أب التعديل */}
-      {editClass && (
-        <EditClassModal cls={editClass} onClose={() => setEditClass(null)} />
-      )}
+      {/* بوب أب التعديل */}
+      {editClass && <EditClassModal cls={editClass} onClose={() => setEditClass(null)} />}
     </div>
   );
 }
