@@ -21,7 +21,7 @@ export default function BouquetsTable() {
 
   const { data: selectedBouquetClasses = [], isLoading: isClassesLoading, isError: isClassesError, refetch } =
     useGetAllClassesOfBouquet(currentBouquetId, showClassesModal);
-console.log(selectedBouquetClasses);
+  console.log(selectedBouquetClasses);
 
   const handleOpenClassesModal = (bouquetId, bouquetName) => {
     setCurrentBouquetId(bouquetId);
@@ -84,23 +84,23 @@ console.log(selectedBouquetClasses);
       </div>
 
       {/* 🔹 الجدول */}
-      {filteredBouquets.length > 0 ? (
-        <div className="overflow-x-auto w-full">
-          <table className="min-w-[700px] border border-gray-300 rounded-lg">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 border">#</th>
-                <th className="p-2 border min-w-[120px]">اسم الباقة</th>
-                <th className="p-2 border min-w-[120px]">الكورس</th>
-                <th className="p-2 border min-w-[120px]">المستوى</th>
-                <th className="p-2 border min-w-[80px]">عدد الطلاب</th>
-                <th className="p-2 border min-w-[80px]">السعر</th>
-                <th className="p-2 border min-w-[150px]">إجراءات</th>
-                <th className="p-2 border min-w-[120px]">الحصص</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBouquets.map((b, index) => (
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-[700px] border border-gray-300 rounded-lg">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-2 border">#</th>
+              <th className="p-2 border min-w-[120px]">اسم الباقة</th>
+              <th className="p-2 border min-w-[120px]">الكورس</th>
+              <th className="p-2 border min-w-[120px]">المستوى</th>
+              <th className="p-2 border min-w-[80px]">عدد الطلاب</th>
+              <th className="p-2 border min-w-[80px]">السعر</th>
+              <th className="p-2 border min-w-[150px]">إجراءات</th>
+              <th className="p-2 border min-w-[120px]">الحصص</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredBouquets.length > 0 ? (
+              filteredBouquets.map((b, index) => (
                 <tr key={b.id} className="text-center">
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2">{b.bouquetName}</td>
@@ -131,69 +131,34 @@ console.log(selectedBouquetClasses);
                     </button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-center text-gray-500 py-10">لا توجد باقات مطابقة 🔍</p>
-      )}
-
-      {/* 🔹 مودال الحصص */}
-      {showClassesModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-auto">
-            <h2 className="text-lg font-bold mb-4">حصص الباقة: {currentBouquetName}</h2>
-
-            {isClassesLoading ? (
-              <Loading />
-            ) : isClassesError ? (
-              <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>
-            ) : selectedBouquetClasses.length > 0 ? (
-              <table className="w-full border">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border p-2">#</th>
-                    <th className="border p-2">تاريخ البداية</th>
-                    <th className="border p-2">تاريخ النهاية</th>
-                    <th className="border p-2">وقت الحصة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedBouquetClasses.map((cls, index) => (
-                    <tr key={cls.id} className="text-center">
-                      <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{cls.startDate.split("T")[0]}</td>
-                      <td className="border p-2">{cls.endDate.split("T")[0]}</td>
-                      <td className="border p-2">{cls.classTime}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              ))
             ) : (
-              <p className="text-center text-gray-500">لا توجد حصص لهذه الباقة</p>
+              <tr>
+                <td colSpan={8} className="text-center py-10">
+                  <div className="flex flex-col items-center justify-center text-gray-500">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-20 w-20 mb-4 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p className="text-lg font-medium">لا توجد باقات مطابقة 🔍</p>
+                  </div>
+                </td>
+              </tr>
             )}
-
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-gray-400 text-white px-3 py-1 rounded"
-                onClick={() => setShowClassesModal(false)}
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🔹 مودال الحذف */}
-      {selectedBouquet && (
-        <DeleteBouquetModal
-          bouquetId={selectedBouquet.id}
-          bouquetName={selectedBouquet.bouquetName}
-          onClose={() => setSelectedBouquet(null)}
-        />
-      )}
+          </tbody>
+        </table>
+      </div>
     </div>
+
   );
 }
