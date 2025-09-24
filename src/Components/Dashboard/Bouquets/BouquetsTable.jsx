@@ -108,63 +108,57 @@ export default function BouquetsTable() {
 
       {/* 🔹 لو فيه باقات */}
       {filteredBouquets.length > 0 ? (
-        <table className="w-full border border-gray-300 rounded-lg">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">#</th>
-              <th className="p-2 border">اسم الباقة</th>
-              <th className="p-2 border">الكورس</th>
-              <th className="p-2 border">المستوى</th>
-              <th className="p-2 border">عدد الطلاب</th>
-              <th className="p-2 border">السعر</th>
-              <th className="p-2 border">إجراءات</th>
-              <th className="p-2 border">الحصص</th>
-
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBouquets.map((b, index) => (
-              <tr key={b.id} className="text-center">
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{b.bouquetName}</td>
-                <td className="border p-2">{b.courseName}</td>
-                <td className="border p-2">
-                  {b.levelName} ({b.levelNumber})
-                </td>
-      
-
-                <td className="border p-2">{b.studentsPackageCount}</td>
-                
-                <td className="border p-2">{b.money} جنيه</td>
-                <td className="border p-2 space-x-2">
-                  <button
-                    className="bg-yellow-500 text-white px-2 py-1 rounded"
-                    onClick={() =>
-                      navigate(`/dashboard/bouquets/edit-bouquet/${b.id}`)
-                    }
-                  >
-                    تعديل
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                    onClick={() => setSelectedBouquet(b)}
-                  >
-                    حذف
-                  </button>
-                  
-                </td>
-                 <td className="border p-2">
-                  <button
-                    className="text-text_color  px-2 py-1 rounded"
-                    onClick={() => handleShowClasses(b.id, b.bouquetName)}
-                  >
-                    عرض الحصص
-                  </button>
-                </td>
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-[700px] border border-gray-300 rounded-lg">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">#</th>
+                <th className="p-2 border min-w-[120px]">اسم الباقة</th>
+                <th className="p-2 border min-w-[120px]">الكورس</th>
+                <th className="p-2 border min-w-[120px]">المستوى</th>
+                <th className="p-2 border min-w-[80px]">عدد الطلاب</th>
+                <th className="p-2 border min-w-[80px]">السعر</th>
+                <th className="p-2 border min-w-[150px]">إجراءات</th>
+                <th className="p-2 border min-w-[120px]">الحصص</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredBouquets.map((b, index) => (
+                <tr key={b.id} className="text-center">
+                  <td className="border p-2">{index + 1}</td>
+                  <td className="border p-2">{b.bouquetName}</td>
+                  <td className="border p-2">{b.courseName}</td>
+                  <td className="border p-2">{b.levelName} ({b.levelNumber})</td>
+                  <td className="border p-2">{b.studentsPackageCount}</td>
+                  <td className="border p-2">{b.money} جنيه</td>
+                  <td className="border p-2 space-x-2">
+                    <button
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                      onClick={() => navigate(`/dashboard/bouquets/edit-bouquet/${b.id}`)}
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      onClick={() => setSelectedBouquet(b)}
+                    >
+                      حذف
+                    </button>
+                  </td>
+                  <td className="border p-2">
+                    <button
+                      className="text-text_color px-2 py-1 rounded"
+                      onClick={() => handleShowClasses(b.id, b.bouquetName)}
+                    >
+                      عرض الحصص
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       ) : (
         // 🔹 SVG لو مفيش بيانات
         <div className="flex flex-col items-center justify-center py-10 text-gray-500">
