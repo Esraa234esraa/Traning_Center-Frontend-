@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://traning-center.runasp.net/api/CurrentStudent";
+const BASE_URL = import.meta.env.VITE_API_URL + "/api/CurrentStudent";
+
 
 export const getAllCurrentStudents = async () => {
   const response = await axios.get(`${BASE_URL}/GetAllCurrentStudent`);

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://traning-center.runasp.net/api/admins';
+const API_URL = import.meta.env.VITE_API_URL + "/api/admins";
 
 export const adminLogin = async (data) => {
   try {

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://traning-center.runasp.net/api/Level";
+const API_URL = import.meta.env.VITE_API_URL + "/api/Level";
 
 // ✅ Add Level
 export const addLevel = async (formData) => {

@@ -1,7 +1,7 @@
 // src/Apis/CoursesApi.js
 import axios from "axios";
 
-const API_URL = "http://traning-center.runasp.net/api/Course";
+const API_URL = import.meta.env.VITE_API_URL + "/api/Course";
 
 // ✅ Get all courses
 export const getAllCourses = () => {

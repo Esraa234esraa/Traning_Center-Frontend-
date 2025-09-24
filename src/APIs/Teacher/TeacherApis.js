@@ -1,7 +1,7 @@
 // src/APIs/TeacherApis.js
 import axios from "axios";
 
-const API_URL = "http://traning-center.runasp.net/api/Teacher"; // غيّري للـ backend النهائي
+const API_URL = import.meta.env.VITE_API_URL + "/api/Teacher";
 
 // ✅ Add new teacher
 export const addTeacher = async (teacherData) => {

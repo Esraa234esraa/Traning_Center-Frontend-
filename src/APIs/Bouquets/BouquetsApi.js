@@ -1,7 +1,7 @@
 // src/Services/PackedgesApi.js
 import axios from "axios";
 
-const API_URL = "http://traning-center.runasp.net/api/Bouquet";
+const API_URL = import.meta.env.VITE_API_URL + "/api/Bouquet";
 
 // ✅ Get All Bouquets
 export const getAllBouquets = async () => {
