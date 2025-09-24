@@ -96,7 +96,7 @@ export default function EditStudentPopup({ isOpen, onClose, studentData }) {
                     return; 
                   }
 
-                  resetForm();
+                //   resetForm();
                   setSubmitting(false);
                   onClose();
                   toast.success(res?.message || "تم تعديل الطالب بنجاح");
