@@ -53,51 +53,59 @@ export default function ClassesTable() {
       </div>
 
       {/* 🔹 الجدول */}
-      <table className="w-full border border-gray-300 rounded-lg">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2 border">#</th>
-            <th className="p-2 border">الباقة</th>
-            <th className="p-2 border">بداية</th>
-            <th className="p-2 border">نهاية</th>
-            <th className="p-2 border">الوقت</th>
-            <th className="p-2 border">عدد الطلاب</th>
-            <th className="p-2 border">الحالة</th>
-            <th className="p-2 border">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredClasses.map((cls, index) => (
-            <tr key={cls.id} className="text-center">
-              <td className="border p-2">{index + 1}</td>
-              <td className="border p-2">{cls.bouquetName}</td>
-              <td className="border p-2">
-                {new Date(cls.startDate).toLocaleDateString()}
-              </td>
-              <td className="border p-2">
-                {new Date(cls.endDate).toLocaleDateString()}
-              </td>
-              <td className="border p-2">{cls.classTime}</td>
-              <td className="border p-2">{cls.currentStudentsCount}</td>
-              <td className="border p-2">{cls.status}</td>
-              <td className="border p-2 space-x-2">
-                <button
-                  className="bg-yellow-500 text-white px-2 py-1 rounded"
-                  onClick={() => setEditClass(cls)}
-                >
-                  تعديل
-                </button>
-                <button
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => setSelectedClass(cls)}
-                >
-                  حذف
-                </button>
-              </td>
+
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-[700px] border border-gray-300 rounded-lg">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-2 border">#</th>
+              <th className="p-2 border">الباقة</th>
+              <th className="p-2 border">بداية</th>
+              <th className="p-2 border">نهاية</th>
+              <th className="p-2 border">الوقت</th>
+              <th className="p-2 border">عدد الطلاب</th>
+              <th className="p-2 border">الحالة</th>
+              <th className="p-2 border">إجراءات</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredClasses.map((cls, index) => (
+              <tr key={cls.id} className="text-center">
+                <td className="border p-2">{index + 1}</td>
+                <td className="border p-2">{cls.bouquetName}</td>
+                <td className="border p-2">
+                  {new Date(cls.startDate).toLocaleDateString()}
+                </td>
+                <td className="border p-2">
+                  {new Date(cls.endDate).toLocaleDateString()}
+                </td>
+                <td className="border p-2">{cls.classTime}</td>
+                <td className="border p-2">{cls.currentStudentsCount}</td>
+                <td className="border p-2">{cls.status}</td>
+                <td className="border p-2 space-x-2">
+                  <button
+                    className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    onClick={() => setEditClass(cls)}
+                  >
+                    تعديل
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-2 py-1 rounded"
+                    onClick={() => setSelectedClass(cls)}
+                  >
+                    حذف
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {filteredClasses.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <p className="text-gray-500 text-center">لا توجد حصص مطابقة</p>
+        </div>
+      )}
 
       {/* 🔹 بوب أب الحذف */}
       {selectedClass && (
