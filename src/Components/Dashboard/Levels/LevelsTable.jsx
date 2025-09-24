@@ -111,61 +111,63 @@ export default function LevelsTable() {
           <p className="text-gray-500 text-center">لا توجد مستويات مطابقة</p>
         </div>
       ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">#</th>
-              <th className="border p-2">رقم المستوى</th>
-              <th className="border p-2">الاسم</th>
-              <th className="border p-2">الكورس</th>
-              <th className="border p-2">الإجراءات</th>
-              <th className="border p-2">الباقات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLevels.map((level, index) => (
-              <tr key={level.id} className="hover:bg-gray-100">
-                <td className="border p-2 text-center">{index + 1}</td>
-                <td className="border p-2 text-center">{level.levelNumber}</td>
-                <td className="border p-2 text-center">{level.name}</td>
-                <td className="border p-2 text-center">{level.courseName}</td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() =>
-                      navigate(`/dashboard/levels/editlevel/${level.id}`)
-                    }
-                    className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
-                  >
-                    تعديل
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedLevelId(level.id);
-                      setShowDeleteModal(true);
-                    }}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    حذف
-                  </button>
-                </td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() => openClassesModal(level.id, level.name)}
-                    className=" text-primary px-3 py-1 rounded"
-                  >
-                    عرض الباقات
-                  </button>
-                </td>
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-[700px] border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border p-2">#</th>
+                <th className="border p-2 min-w-[80px]">رقم المستوى</th>
+                <th className="border p-2 min-w-[120px]">الاسم</th>
+                <th className="border p-2 min-w-[120px]">الكورس</th>
+                <th className="border p-2 min-w-[150px]">الإجراءات</th>
+                <th className="border p-2 min-w-[120px]">الباقات</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredLevels.map((level, index) => (
+                <tr key={level.id} className="hover:bg-gray-100 text-center">
+                  <td className="border p-2">{index + 1}</td>
+                  <td className="border p-2">{level.levelNumber}</td>
+                  <td className="border p-2">{level.name}</td>
+                  <td className="border p-2">{level.courseName}</td>
+                  <td className="border p-2 space-x-2">
+                    <button
+                      onClick={() =>
+                        navigate(`/dashboard/levels/editlevel/${level.id}`)
+                      }
+                      className="bg-yellow-500 text-white px-3 py-1 rounded"
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedLevelId(level.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      حذف
+                    </button>
+                  </td>
+                  <td className="border p-2">
+                    <button
+                      onClick={() => openClassesModal(level.id, level.name)}
+                      className="text-primary px-3 py-1 rounded"
+                    >
+                      عرض الباقات
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* مودال الباقات */}
       {classesModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[80vh] overflow-x-auto overflow-y-auto p-4">
             <h2 className="text-lg font-semibold mb-4">
               الباقات الخاصة بالمستوى {selectedLevelName}
             </h2>
@@ -174,28 +176,30 @@ export default function LevelsTable() {
             ) : !bouquetsData || bouquetsData.length === 0 ? (
               <p>لا توجد باقات لهذا المستوى</p>
             ) : (
-              <table className="w-full text-center border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border p-2">اسم الباقة</th>
-                    <th className="border p-2">اسم الكورس</th>
-                    <th className="border p-2">رقم المستوى</th>
-                    <th className="border p-2">عدد الطلاب</th>
-                    <th className="border p-2">السعر</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bouquetsData.map((b) => (
-                    <tr key={b.id} className="border hover:bg-gray-100">
-                      <td className="border p-2">{b.bouquetName}</td>
-                      <td className="border p-2">{b.courseName}</td>
-                      <td className="border p-2">{b.levelNumber}</td>
-                      <td className="border p-2">{b.studentsPackageCount}</td>
-                      <td className="border p-2">{b.money.toFixed(2)}</td>
+              <div className="overflow-x-auto">
+                <table className="min-w-[600px] w-full border-collapse border border-gray-300 text-center">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="border p-2 min-w-[120px]">اسم الباقة</th>
+                      <th className="border p-2 min-w-[120px]">اسم الكورس</th>
+                      <th className="border p-2 min-w-[80px]">رقم المستوى</th>
+                      <th className="border p-2 min-w-[100px]">عدد الطلاب</th>
+                      <th className="border p-2 min-w-[80px]">السعر</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {bouquetsData.map((b) => (
+                      <tr key={b.id} className="border hover:bg-gray-100">
+                        <td className="border p-2">{b.bouquetName}</td>
+                        <td className="border p-2">{b.courseName}</td>
+                        <td className="border p-2">{b.levelNumber}</td>
+                        <td className="border p-2">{b.studentsPackageCount}</td>
+                        <td className="border p-2">{b.money.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
             <button
               onClick={() => setClassesModalOpen(false)}
