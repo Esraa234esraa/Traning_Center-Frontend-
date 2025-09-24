@@ -9,6 +9,7 @@ export default function ConfirmDeletePopup({
   studentName = "",
 }) {
   const deleteStudentMutation = useDeleteWaitingStudent();
+console.log(deleteStudentMutation.response);
 
   if (!isOpen) return null;
 
