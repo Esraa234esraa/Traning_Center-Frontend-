@@ -4,7 +4,7 @@ import EditStudentPopup from "../NewStudent/EditStudentPopup";
 import { useGetAllWaitingStudents } from "../../../../Hooks/Students/NewStudents/useQueryNewStudent";
 import Loading from "../../../Loading";
 import EmptyImg from "../../../../assets/images/Empty.png";
-import { useDeleteStudent, useUpdateStudent } from "../../../../Hooks/Students/NewStudents/useMutationNewStudent";
+import { useDeleteWaitingStudent, useUpdateWaitingStudent } from "../../../../Hooks/Students/NewStudents/useMutationNewStudent";
 import { toast } from "react-toastify";
 
 
@@ -14,8 +14,8 @@ export default function WaitingStudentsTable() {
     const { data: studentsData, isLoading, isError } = useGetAllWaitingStudents();
 
     const students = studentsData ?? [];
-    const deleteMutation = useDeleteStudent();
-    const updateMutation = useUpdateStudent();
+    const deleteMutation = useDeleteWaitingStudent();
+    const updateMutation = useUpdateWaitingStudent();
 
     const [deletePopup, setDeletePopup] = useState({ isOpen: false, student: null });
     const [editPopup, setEditPopup] = useState({ isOpen: false, student: null });

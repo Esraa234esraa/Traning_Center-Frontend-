@@ -35,3 +35,21 @@ const response = await axios.delete(`${API_URL}/${id}`, {
 export const moveNewStudentToWatingStudent = (id) => {
   return axios.put(`${API_URL}/MoveNewStudentToWaitingStudent/${id}`, {}, { withCredentials: true });
 };
+
+export const updateWaitingStudent = async ({id, data }) => {
+  const response = await axios.put(`${API_URL}/PutNewStudent/${id}`, data, {
+    withCredentials: true,
+    headers: {
+        "Content-Type": "application/json"
+    },
+  }
+  );
+  return response.data;
+};
+
+export const deleteWaitingStudent = async(id) => {
+const response = await axios.delete(`${API_URL}/DeleteWaitingStudent/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+}

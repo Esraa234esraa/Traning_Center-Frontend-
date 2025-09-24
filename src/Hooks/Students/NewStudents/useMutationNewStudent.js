@@ -4,6 +4,8 @@ import {
   updateStudent,
   deleteStudent,
   moveNewStudentToWatingStudent,
+  updateWaitingStudent,
+  deleteWaitingStudent,
 } from "../../../APIs/Students/NewStudents/newStudentApis";
 
 export const useAddNewStudent = () => {
@@ -38,10 +40,32 @@ export const useDeleteStudent = () => {
   });
 };
 
+
 export const useMoveStudentToWaiting = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: moveNewStudentToWatingStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+      queryClient.invalidateQueries(["allWaitingStudents"]);
+    },
+  });
+};
+export const useUpdateWaitingStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateWaitingStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["allNewStudents"]);
+      queryClient.invalidateQueries(["allWaitingStudents"]);
+    },
+  });
+};
+
+export const useDeleteWaitingStudent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteWaitingStudent,
     onSuccess: () => {
       queryClient.invalidateQueries(["allNewStudents"]);
       queryClient.invalidateQueries(["allWaitingStudents"]);
