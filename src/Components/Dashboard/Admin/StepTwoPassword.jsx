@@ -93,13 +93,24 @@ export default function StepTwoPassword({ adminData }) {
                             </div>
 
                             {/* زر الإرسال */}
-                            <button
-                                type="submit"
-                                disabled={mutation.isLoading || isSubmitting}
-                                className="bg-background hover:bg-[#0f8a9a] text-white py-2 px-4 w-full rounded-lg text-sm sm:text-base transition duration-200"
-                            >
-                                {mutation.isLoading ? 'جاري التسجيل...' : 'تسجيل'}
-                            </button>
+                            <div className="flex space-x-2">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(-1)}
+                                    className="bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded-lg text-sm sm:text-base transition duration-200"
+                                >
+                                     رجوع
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={mutation.isLoading || isSubmitting}
+                                    className="bg-background hover:bg-[#0f8a9a] text-white py-2 px-4 w-full rounded-lg text-sm sm:text-base transition duration-200"
+                                >
+                                    {mutation.isLoading ? 'جاري التسجيل...' : 'تسجيل'}
+                                </button>
+                            </div>
+
                         </Form>
                     )}
                 </Formik>

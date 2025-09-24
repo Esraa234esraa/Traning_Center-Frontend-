@@ -10,7 +10,6 @@ const validationSchema = Yup.object({
     .email('البريد الإلكتروني غير صالح')
     .required('البريد الإلكتروني مطلوب'),
   phone: Yup.string()
-    .matches(/^[0-9]{10,15}$/, 'رقم الهاتف غير صالح')
     .required('رقم الهاتف مطلوب')
 });
 
