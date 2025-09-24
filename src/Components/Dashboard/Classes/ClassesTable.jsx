@@ -23,14 +23,16 @@ export default function ClassesTable() {
     const classesData = data?.data || [];
     return classesData.filter((cls) => {
       const matchStatus = statusFilter === "all" || cls.status === statusFilter;
-      const matchSearch = cls.bouquetName.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = cls.bouquetName
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
       return matchStatus && matchSearch;
     });
   }, [data?.data, statusFilter, search]);
 
   return (
     <div className="p-6">
-      {/* عنوان + زر إضافة + فلترة */}
+      {/* العنوان + زر إضافة + فلترة */}
       <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
         <h2 className="text-xl font-bold">📚 جدول الحصص</h2>
 
@@ -61,7 +63,7 @@ export default function ClassesTable() {
         </div>
       </div>
 
-      {/* عرض الرسالة لو مفيش بيانات */}
+      {/* لو مفيش بيانات */}
       {filteredClasses.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-gray-500">
           <svg
@@ -101,8 +103,12 @@ export default function ClassesTable() {
                 <tr key={cls.id} className="hover:bg-gray-50">
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2">{cls.bouquetName}</td>
-                  <td className="border p-2">{new Date(cls.startDate).toLocaleDateString()}</td>
-                  <td className="border p-2">{new Date(cls.endDate).toLocaleDateString()}</td>
+                  <td className="border p-2">
+                    {new Date(cls.startDate).toLocaleDateString()}
+                  </td>
+                  <td className="border p-2">
+                    {new Date(cls.endDate).toLocaleDateString()}
+                  </td>
                   <td className="border p-2">{cls.classTime}</td>
                   <td className="border p-2">{cls.currentStudentsCount}</td>
                   <td className="border p-2">{cls.status}</td>
@@ -141,7 +147,9 @@ export default function ClassesTable() {
       )}
 
       {/* بوب أب التعديل */}
-      {editClass && <EditClassModal cls={editClass} onClose={() => setEditClass(null)} />}
+      {editClass && (
+        <EditClassModal cls={editClass} onClose={() => setEditClass(null)} />
+      )}
     </div>
   );
 }
