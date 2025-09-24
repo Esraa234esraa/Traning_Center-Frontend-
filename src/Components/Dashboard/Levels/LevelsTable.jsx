@@ -170,8 +170,8 @@ export default function LevelsTable() {
               الباقات الخاصة بالمستوى {selectedLevelName}
             </h2>
             {loadingBouquets ? (
-              <p>جاري التحميل...</p>
-            ) : bouquetsData.length === 0 ? (
+              <Loading />
+            ) : !bouquetsData || bouquetsData.length === 0 ? (
               <p>لا توجد باقات لهذا المستوى</p>
             ) : (
               <table className="w-full text-center border-collapse border border-gray-300">

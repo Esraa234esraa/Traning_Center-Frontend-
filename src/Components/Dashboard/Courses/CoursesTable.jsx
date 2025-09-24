@@ -5,6 +5,7 @@ import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
 import { useDeleteCourse, useHideCourse, useVisibleCourse } from "../../../Hooks/Courses/useMutationCourses";
 import { getImageUrl } from "../../../Utils/getImageUrl";
 import { toast } from "react-toastify";
+import { Formik, Form } from "formik";
 import { useGetAllLevelsOfCourse } from "../../../Hooks/Levels/useQueryLevel";
 
 export default function CoursesTable() {
@@ -204,20 +205,42 @@ export default function CoursesTable() {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">تأكيد الحذف</h2>
             <p className="mb-6">هل أنت متأكد أنك تريد حذف هذه الدورة؟</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
-                إلغاء
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                حذف
-              </button>
-            </div>
+
+            <Formik
+              initialValues={{ courseId: selectedCourseId }}
+              enableReinitialize
+              onSubmit={() => {
+                deleteCourseMutation.mutate(selectedCourseId, {
+                  onSuccess: () => {
+                    toast.success("تم الحذف بنجاح");
+                    setShowDeleteModal(false);
+                    setSelectedCourseId(null);
+                  },
+                  onError: () => toast.error("فشل الحذف"),
+                });
+              }}
+            >
+              {({ isSubmitting }) => (
+                <Form className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="px-4 py-2 bg-gray-300 rounded-lg"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || deleteCourseMutation.isLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  >
+                    {isSubmitting || deleteCourseMutation.isLoading
+                      ? "جاري الحذف..."
+                      : "حذف"}
+                  </button>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       )}
