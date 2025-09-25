@@ -21,12 +21,7 @@ export default function DailyySession() {
           جدول حصص المعلم: {decodeURIComponent(teacherName)}
         </h3>
 
-        <Link
-          to="/dashboard/teacher_table"
-          className="px-4 py-2 bg-[#12A4B6] hover:bg-[#0e7f8d] text-white rounded-lg shadow transition"
-        >
-          رجوع للمعلمين
-        </Link>
+       
       </div>
 
       <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">

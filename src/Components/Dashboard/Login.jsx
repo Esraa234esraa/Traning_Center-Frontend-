@@ -28,44 +28,49 @@ function Login() {
     validationSchema,
     onSubmit: (values) => {
       loginMutation.mutate(values, {
-        onSuccess: (res) => {
-          const token = res.data.token;
+      onSuccess: (res) => {
+  const token = res.data.token;
 
-          // decode الـ JWT
-          const decoded = jwtDecode(token);
+  // decode الـ JWT
+  const decoded = jwtDecode(token);
 
-          // id موجود في claim اسمه nameidentifier
-          const userId = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+  // id موجود في claim اسمه nameidentifier
+  const userId =
+    decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
 
-          const userData = {
-            id: userId,                  // 👈 هنا الـ id
-            fullName: res.data.fullName,
-            role: res.data.role,
-            email: res.data.email,
-            token: token,
-            expiresAt: res.data.expiresAt,
-          };
+  // fullName موجود في claim اسمه FullName
+  const fullName = decoded["FullName"] || res.data.fullName;
 
-          login(userData);
-          toast.success("تم تسجيل الدخول بنجاح");
+  const userData = {
+    id: userId,
+    fullName: fullName,
+    role: res.data.role,
+    email: res.data.email,
+    token: token,
+    expiresAt: res.data.expiresAt,
+  };
+console.log(userData.id);
 
-          if (userData.role === "Admin") {
-            localStorage.setItem("role", "Admin");
+  login(userData);
 
-            navigate("/dashboard/dbhome", { replace: true });
-          }
-          else if (userData.role === "User") {
-            localStorage.setItem("role", "User");
-            localStorage.setItem("teacherId", res?.data.id);   // 👈 جاي من الـ API
-            localStorage.setItem("teacherName", res?.data.name); // 👈 جاي من الـ API
+  // خزّن القيم حسب الـ role
+  localStorage.setItem("role", userData.role);
+  if (userData.role === "User") {
+    localStorage.setItem("teacherId", userData.id);
+    localStorage.setItem("teacherName", userData.fullName);
 
-            navigate(
-              `/dashboard/dailysession/${res?.data.id}/${encodeURIComponent(res.data.name)}`,
-              { replace: true }
-            );
-          }
-        }
-        ,
+    navigate(
+      `/dashboard/dailysession/${userData.id}/${encodeURIComponent(userData.fullName)}`,
+      { replace: true }
+    );
+  } else if (userData.role === "Admin") {
+    navigate("/dashboard/dbhome", { replace: true });
+  }
+
+  toast.success("تم تسجيل الدخول بنجاح");
+},
+
+        
         onError: (error) => {
           const serverMessage = error.response?.data?.message || '';
           if (serverMessage.includes('البريد الإلكتروني')) toast.error('الإيميل غير صحيح، يرجى التحقق');

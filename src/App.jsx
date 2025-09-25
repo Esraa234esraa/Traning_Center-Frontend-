@@ -174,12 +174,19 @@ function App() {
 
             </Route>
             <Route
-              path="dailysession/:teacherId/:teacherName"
+              path="/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["User"]}>
-                  <DailyySession />
+                  <Dashboard_layout />
                 </ProtectedRoute>
-              } />
+              }
+            >
+              <Route
+                path="dailysession/:teacherId/:teacherName"
+                element={<DailyySession />}
+              />
+            </Route>
+
             {/* <Route path="/unauthorized" element={<UnAuthorized></UnAuthorized>} /> */}
             <Route path="*" element={<NotFoundPage />} />
 
