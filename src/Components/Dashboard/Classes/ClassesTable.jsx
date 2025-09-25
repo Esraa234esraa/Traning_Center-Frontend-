@@ -33,33 +33,35 @@ export default function ClassesTable() {
   return (
     <div className="p-6">
       {/* العنوان + زر إضافة + فلترة */}
-      <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
-        <h2 className="text-xl font-bold">📚 جدول الحصص</h2>
-
-        <div className="flex flex-wrap gap-3 items-center">
-          <input
-            type="text"
-            placeholder="ابحث بالباقة..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border p-2 rounded"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="all">الكل</option>
-            <option value="Active">نشطة</option>
-            <option value="Cancelled">ملغية</option>
-            <option value="Completed">مكتملة</option>
-          </select>
+      <div className="flex flex-col flex-wrap justify-between items-center mb-4 gap-3">
+        <div className="flex flex-wrap gap-3 items-center justify-between w-[100%]">
+          <h2 className="text-xl font-bold">📚 جدول الحصص</h2>
           <button
             onClick={() => navigate("/dashboard/classes/add-classes")}
             className="bg-primary text-white px-4 py-2 rounded-lg"
           >
             إضافة حصة
           </button>
+        </div>
+        <div className="flex gap-3 items-center w-[100%] justify-center md:justify-start">
+          <input
+            type="text"
+            placeholder="ابحث بالباقة..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border w-[50%] p-2 rounded"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border w-[50%] p-2 rounded"
+          >
+            <option value="all">الكل</option>
+            <option value="Active">نشطة</option>
+            <option value="Cancelled">ملغية</option>
+            <option value="Completed">مكتملة</option>
+          </select>
+
         </div>
       </div>
 

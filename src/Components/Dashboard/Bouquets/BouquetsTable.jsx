@@ -19,8 +19,15 @@ export default function BouquetsTable() {
   const [currentBouquetName, setCurrentBouquetName] = useState("");
   const [showClassesModal, setShowClassesModal] = useState(false);
 
-  const { data: selectedBouquetClasses = [], isLoading: isClassesLoading, isError: isClassesError, refetch } =
-    useGetAllClassesOfBouquet(currentBouquetId, showClassesModal);
+  const {
+    data: classesResponse,
+    isLoading: isClassesLoading,
+    isError: isClassesError,
+    refetch,
+  } = useGetAllClassesOfBouquet(currentBouquetId, showClassesModal);
+
+  // نتأكد إن اللي داخل هو Array مش object
+  const selectedBouquetClasses = classesResponse?.data || [];
 
   const handleOpenClassesModal = (bouquetId, bouquetName) => {
     setCurrentBouquetId(bouquetId);
@@ -67,16 +74,28 @@ export default function BouquetsTable() {
           onChange={(e) => setSearch(e.target.value)}
           className="border p-2 rounded w-64"
         />
-        <select value={filterCourse} onChange={(e) => setFilterCourse(e.target.value)} className="border p-2 rounded">
+        <select
+          value={filterCourse}
+          onChange={(e) => setFilterCourse(e.target.value)}
+          className="border p-2 rounded"
+        >
           <option value="">كل الكورسات</option>
           {[...new Set(bouquets.map((b) => b.courseName))].map((course) => (
-            <option key={course} value={course}>{course}</option>
+            <option key={course} value={course}>
+              {course}
+            </option>
           ))}
         </select>
-        <select value={filterLevel} onChange={(e) => setFilterLevel(e.target.value)} className="border p-2 rounded">
+        <select
+          value={filterLevel}
+          onChange={(e) => setFilterLevel(e.target.value)}
+          className="border p-2 rounded"
+        >
           <option value="">كل المستويات</option>
           {[...new Set(bouquets.map((b) => b.levelName))].map((level) => (
-            <option key={level} value={level}>{level}</option>
+            <option key={level} value={level}>
+              {level}
+            </option>
           ))}
         </select>
       </div>
@@ -101,8 +120,19 @@ export default function BouquetsTable() {
               <tr>
                 <td colSpan={8} className="text-center py-12">
                   <div className="flex flex-col items-center justify-center text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-20 w-20 mb-4 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"
+                      />
                     </svg>
                     <p className="text-lg font-medium">لا توجد باقات مطابقة 🔍</p>
                   </div>
@@ -114,13 +144,17 @@ export default function BouquetsTable() {
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2">{b.bouquetName}</td>
                   <td className="border p-2">{b.courseName}</td>
-                  <td className="border p-2">{b.levelName} ({b.levelNumber})</td>
+                  <td className="border p-2">
+                    {b.levelName} ({b.levelNumber})
+                  </td>
                   <td className="border p-2">{b.studentsPackageCount}</td>
-                  <td className="border p-2">{b.money} جنيه</td>
+                  <td className="border p-2">{b.money} ريال سعودي</td>
                   <td className="border p-2 space-x-2">
                     <button
                       className="bg-yellow-500 text-white px-2 py-1 rounded"
-                      onClick={() => navigate(`/dashboard/bouquets/edit-bouquet/${b.id}`)}
+                      onClick={() =>
+                        navigate(`/dashboard/bouquets/edit-bouquet/${b.id}`)
+                      }
                     >
                       تعديل
                     </button>
@@ -134,7 +168,9 @@ export default function BouquetsTable() {
                   <td className="border p-2">
                     <button
                       className="text-text_color px-2 py-1 rounded"
-                      onClick={() => handleOpenClassesModal(b.id, b.bouquetName)}
+                      onClick={() =>
+                        handleOpenClassesModal(b.id, b.bouquetName)
+                      }
                     >
                       عرض الحصص
                     </button>
@@ -150,7 +186,9 @@ export default function BouquetsTable() {
       {showClassesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-auto">
-            <h2 className="text-lg font-bold mb-4">حصص الباقة: {currentBouquetName}</h2>
+            <h2 className="text-lg font-bold mb-4">
+              حصص الباقة: {currentBouquetName}
+            </h2>
 
             {isClassesLoading ? (
               <Loading />
@@ -158,8 +196,19 @@ export default function BouquetsTable() {
               <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>
             ) : selectedBouquetClasses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-20 w-20 mb-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2v-8l-6-6-6 6v8a2 2 0 002 2z"
+                  />
                 </svg>
                 <p className="text-lg font-medium">لا توجد حصص لهذه الباقة</p>
               </div>
@@ -177,8 +226,12 @@ export default function BouquetsTable() {
                   {selectedBouquetClasses.map((cls, index) => (
                     <tr key={cls.id} className="text-center">
                       <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{cls.startDate.split("T")[0]}</td>
-                      <td className="border p-2">{cls.endDate.split("T")[0]}</td>
+                      <td className="border p-2">
+                        {cls.startDate?.split("T")[0]}
+                      </td>
+                      <td className="border p-2">
+                        {cls.endDate?.split("T")[0]}
+                      </td>
                       <td className="border p-2">{cls.classTime}</td>
                     </tr>
                   ))}
