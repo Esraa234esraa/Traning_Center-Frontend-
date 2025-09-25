@@ -24,7 +24,6 @@ export default function EditTeacher() {
   const { data: teacher, isLoading } = useGetTeacherById(id);
   const updateTeacherMutation = useUpdateTeacher();
   const { data: courses } = useGetAllCourses();
-console.log(teacher);
 
   if (isLoading || !teacher) return <Loading />;
 
