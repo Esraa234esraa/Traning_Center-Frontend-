@@ -6,7 +6,7 @@ import chat from '../../assets/images/chat.png';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../Context/useAuth';
-import  jwtDecode  from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 
 function Login() {
@@ -56,10 +56,13 @@ function Login() {
           }
           else if (userData.role === "User") {
             localStorage.setItem("role", "User");
-            localStorage.setItem("teacherId", res.data.id);   // 👈 جاي من الـ API
-            localStorage.setItem("teacherName", res.data.name); // 👈 جاي من الـ API
+            localStorage.setItem("teacherId", res?.data.id);   // 👈 جاي من الـ API
+            localStorage.setItem("teacherName", res?.data.name); // 👈 جاي من الـ API
 
-            navigate("/user/home", { replace: true });
+            navigate(
+              `/dashboard/dailysession/${res?.data.id}/${encodeURIComponent(res.data.name)}`,
+              { replace: true }
+            );
           }
         }
         ,
