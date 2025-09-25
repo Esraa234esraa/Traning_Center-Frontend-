@@ -1,20 +1,15 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-
+import { useGetTeacherProfile } from "../../Hooks/Teachers/useGetTeacherProfile";
+import { useState } from "react";
 
 export default function DailyySession() {
     const { teacherId, teacherName } = useParams();
+    const { data: teacherProfile, isLoading, isError } = useGetTeacherProfile(teacherId);
+    const [selectedSession, setSelectedSession] = useState(null);
 
-    // البيانات الأولى اللي في وصفك
-    const sessions = [
-        { id: 1, packageSize: "طالب واحد", students: "محمد - احمد", time: "10:00 - 10:45" },
-        { id: 2, packageSize: "3 طلاب", students: "علي - اسماء", time: "11:00 - 11:45" },
-        { id: 3, packageSize: "طالبين", students: "مصطفي", time: "12:00 - 12:45" },
-        { id: 4, packageSize: "طالب واحد", students: "--", time: "01:00 - 01:45" },
-        { id: 5, packageSize: "5 طلاب", students: "--", time: "03:00 - 03:45" },
-        { id: 6, packageSize: "طالب واحد", students: "--", time: "04:00 - 04:45" },
-        { id: 7, packageSize: "فارغه", students: "--", time: "05:00 - 05:45" },
-    ];
+    if (isLoading) return <p className="text-center p-4">جاري تحميل الحصص...</p>;
+    if (isError) return <p className="text-center p-4 text-red-500">فشل تحميل الحصص</p>;
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-4xl mx-auto">
@@ -23,7 +18,6 @@ export default function DailyySession() {
                     جدول حصص المعلم: {decodeURIComponent(teacherName)}
                 </h3>
 
-                {/* زر الرجوع للمعلمين */}
                 <Link
                     to="/dashboard/teacher_table"
                     className="px-4 py-2 bg-[#12A4B6] hover:bg-[#0e7f8d] text-white rounded-lg shadow transition"
@@ -43,20 +37,49 @@ export default function DailyySession() {
                     </tr>
                 </thead>
                 <tbody>
-                    {sessions.map((session, index) => (
+                    {teacherProfile?.classes?.map((session, index) => (
                         <tr
                             key={session.id}
                             className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
                         >
-                            <td className="p-3">{session.id}</td>
-                            <td className="p-3">المستوى {index + 1}</td>
-                            <td className="p-3">{session.packageSize}</td>
-                            <td className="p-3">{session.students}</td>
+                            <td className="p-3">{index + 1}</td>
+                            <td className="p-3">{session.levelName}</td>
+                            <td className="p-3">{session.packageSize || "--"}</td>
+                            <td
+                                className="p-3 cursor-pointer text-blue-600 hover:underline"
+                                onClick={() => setSelectedSession(session)}
+                            >
+                                {session.students?.length > 0
+                                    ? session.students.map((s) => s.fullName).join(" - ")
+                                    : "--"}
+                            </td>
                             <td className="p-3">{session.time}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            {selectedSession && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 w-96">
+                        <h4 className="text-lg font-bold mb-4">
+                            طلاب الحصة رقم {selectedSession.id}
+                        </h4>
+                        <ul className="space-y-2">
+                            {selectedSession.students.map((s) => (
+                                <li key={s.id} className="p-2 border rounded">
+                                    {s.fullName} - {s.phoneNumber}
+                                </li>
+                            ))}
+                        </ul>
+                        <button
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+                            onClick={() => setSelectedSession(null)}
+                        >
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

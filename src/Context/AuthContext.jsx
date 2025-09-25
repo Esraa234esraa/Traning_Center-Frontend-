@@ -1,15 +1,22 @@
 import { createContext, useState, useEffect } from "react";
 
- const AuthContext = createContext();
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
-  // لما يفتح الموقع أول مرة يشيك لو فيه بيانات متخزنة
+  // لما يفتح الموقع أول مرة يشيك لو فيه بيانات متخزنة وصالحة
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsed = JSON.parse(savedUser);
+      const now = new Date().getTime();
+
+      if (!parsed.expiresAt || new Date(parsed.expiresAt).getTime() > now) {
+        setUser(parsed); // لسه التوكن شغال
+      } else {
+        localStorage.removeItem("user"); // انتهت الصلاحية
+      }
     }
   }, []);
 

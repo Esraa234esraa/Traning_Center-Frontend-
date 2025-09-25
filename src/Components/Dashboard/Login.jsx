@@ -6,6 +6,8 @@ import chat from '../../assets/images/chat.png';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../Context/useAuth';
+import jwtDecode from "jwt-decode";
+
 
 function Login() {
   const loginMutation = useAdminLogin();
@@ -27,17 +29,30 @@ function Login() {
     onSubmit: (values) => {
       loginMutation.mutate(values, {
         onSuccess: (res) => {
+          const token = res.data.token;
+
+          // decode الـ JWT
+          const decoded = jwtDecode(token);
+
+          // id موجود في claim اسمه nameidentifier
+          const userId = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
           const userData = {
+            id: userId,                  // 👈 هنا الـ id
+            fullName: res.data.fullName,
             role: res.data.role,
             email: res.data.email,
+            token: token,
             expiresAt: res.data.expiresAt,
           };
+
           login(userData);
           toast.success("تم تسجيل الدخول بنجاح");
 
           if (userData.role === "Admin") navigate("/dashboard/dbhome", { replace: true });
-          else if (userData.role === "Teacher") navigate("/teacher/home", { replace: true });
-        },
+          else if (userData.role === "User") navigate("/user/home", { replace: true });
+        }
+        ,
         onError: (error) => {
           const serverMessage = error.response?.data?.message || '';
           if (serverMessage.includes('البريد الإلكتروني')) toast.error('الإيميل غير صحيح، يرجى التحقق');
@@ -71,9 +86,8 @@ function Login() {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full p-3 rounded border focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full p-3 rounded border focus:outline-none focus:ring-2 focus:ring-teal-400 ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
             />
             {formik.touched.email && formik.errors.email && (
               <div className="text-red-500 text-sm mt-1">{formik.errors.email}</div>
@@ -88,9 +102,8 @@ function Login() {
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={`w-full p-3 rounded border focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full p-3 rounded border focus:outline-none focus:ring-2 focus:ring-teal-400 ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
             />
             {formik.touched.password && formik.errors.password && (
               <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div>

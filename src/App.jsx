@@ -86,8 +86,8 @@ function App() {
             <Route path="/dashboard"
               element={
                 <ProtectedRoute allowedRoles={['Admin']}>
-                <Dashboard_layout />
-                 </ProtectedRoute>
+                  <Dashboard_layout />
+                </ProtectedRoute>
               }>
               <Route
                 path="/dashboard" element={<Home />} />
@@ -96,7 +96,7 @@ function App() {
               <Route path="admins/edit-admin/:id" element={<EditAdminPage />} />
               <Route path="admins_table" element={<AdminsTable />} />
               <Route path="admins/change-password/:id" element={<ChangeAdminPassword />} />
-              <Route path='teacher_table' element={<Teachers_Table/>}> </Route>
+              <Route path='teacher_table' element={<Teachers_Table />}> </Route>
               <Route path='add-teacher' element={<AddTeacher />}></Route>
               <Route path='add-teacherToClass' element={<AddTeacherToClass />}></Route>
 
@@ -111,10 +111,7 @@ function App() {
                 element={<SessionStudents />}
               />
               <Route path="teacher-students/:teacherId/:teacherName" element={<TeacherStudentsTable />} />
-              <Route
-                path="dailysession/:teacherId/:teacherName"
-                element={<DailyySession />}
-              />
+
               <Route path="students">
                 <Route path="new-students" element={<NewStudents />} />
                 <Route path="add-new-student" element={<AddNewStudent />} />
@@ -176,7 +173,16 @@ function App() {
 
 
             </Route>
+            <Route
+              path="dailysession/:teacherId/:teacherName"
+              element={
+                <ProtectedRoute allowedRoles={["User"]}>
+                  <DailyySession />
+                </ProtectedRoute>
+              } />
+            {/* <Route path="/unauthorized" element={<UnAuthorized></UnAuthorized>} /> */}
             <Route path="*" element={<NotFoundPage />} />
+
 
           </Routes>
 

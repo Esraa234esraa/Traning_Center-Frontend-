@@ -34,7 +34,7 @@ export function useAdminLogout() {
     onSuccess: (res) => {
       if (res?.data?.success) {
         queryClient.invalidateQueries(["adminProfile"]);
-        localStorage.removeItem("userToken"); // هنا التغيير ✅
+        localStorage.removeItem("user"); // هنا التغيير ✅
 
         toast.success("تم تسجيل الخروج بنجاح");
         navigate("/login", { replace: true });
