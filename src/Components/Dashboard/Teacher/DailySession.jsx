@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import { useGetTeacherProfile } from "../../Hooks/Teachers/useGetTeacherProfile";
+import { useGetTeacherProfile } from "../../../Hooks/Teacher/useQueryTeacher";
 import { useState } from "react";
 
 export default function DailyySession() {
