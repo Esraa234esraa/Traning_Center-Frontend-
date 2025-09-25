@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGetTeacherProfile } from "../../../Hooks/Teacher/useQueryTeacher";
 import SessionStudentsModal from "./SessionStudentsModal";
+import Loading from "../../Loading";
 
 export default function DailyySession() {
   const { teacherId, teacherName } = useParams();
@@ -9,7 +10,7 @@ export default function DailyySession() {
     useGetTeacherProfile(teacherId);
   const [selectedSession, setSelectedSession] = useState(null);
 
-  if (isLoading) return <p className="text-center p-4">جاري تحميل الحصص...</p>;
+  if (isLoading) return <Loading/>;
   if (isError)
     return <p className="text-center p-4 text-red-500">فشل تحميل الحصص</p>;
 

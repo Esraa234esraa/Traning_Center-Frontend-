@@ -17,10 +17,7 @@ export default function Sidebar() {
 
 
   const logoutMutation = useAdminLogout();
-  // بعد ما تخزن بيانات المعلم عند تسجيل الدخول
-  const teacherId = localStorage.getItem("teacherId");
-  const teacherName = localStorage.getItem("teacherName");
-
+ 
 
   // لما يضغط على زرار تسجيل الخروج 
   const handleLogout = (e) => {
