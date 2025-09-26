@@ -8,12 +8,11 @@ export default function EditCurrentStudentForm() {
   const { id } = useParams();
   const { data, isLoading } = useGetAllCurrentStudents();
 
-  console.log(data?.data);
-  console.log("route id:", id);
+ 
 
   if (isLoading) return <Loading />;
 
-  const student = data?.data?.find((s) => s.id === id);
+  const student = data?.data?.data.find((s) => s.id === id);
 
   if (!student) return <div>الطالب غير موجود</div>;
 

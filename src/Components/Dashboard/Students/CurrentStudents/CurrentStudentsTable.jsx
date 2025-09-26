@@ -9,6 +9,8 @@ import Loading from "../../../Loading";
 export default function CurrentStudentTable() {
   const navigate = useNavigate();
   const { data, isLoading } = useGetAllCurrentStudents();
+  console.log(data);
+  
   const deleteMutation = useDeleteCurrentStudent();
 
   const [deleteStudent, setDeleteStudent] = useState(null);
@@ -18,7 +20,8 @@ export default function CurrentStudentTable() {
   const [filterPaid, setFilterPaid] = useState("all"); // all, paid, unpaid
 
   const filteredStudents = useMemo(() => {
-    const students = Array.isArray(data?.data) ? data.data : [];
+    const students = Array.isArray(data?.data?.data) ? data.data?.data : [];
+console.log(students);
 
     return students.filter((student) => {
       const matchesSearch =
