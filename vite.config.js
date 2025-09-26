@@ -7,10 +7,11 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://traning-center.runasp.net",
+        target: "https://traning-center.runasp.net", // أو http://localhost:5000 لو محلي
         changeOrigin: true,
         secure: false,
       },
+      
     },
   },
   build: {
@@ -18,7 +19,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
-          vendor: ["axios", "lodash"], // أي مكتبات تقيلة
+          vendor: ["axios", "lodash"],
         },
       },
     },

@@ -3,7 +3,7 @@ import {
   addNewStudent,
   updateStudent,
   deleteStudent,
-  moveNewStudentToWatingStudent,
+  moveNewStudentToWaitingStudent,
   updateWaitingStudent,
   deleteWaitingStudent,
 } from "../../../APIs/Students/NewStudents/newStudentApis";
@@ -44,7 +44,7 @@ export const useDeleteStudent = () => {
 export const useMoveStudentToWaiting = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: moveNewStudentToWatingStudent,
+    mutationFn: moveNewStudentToWaitingStudent,
     onSuccess: () => {
       queryClient.invalidateQueries(["allNewStudents"]);
       queryClient.invalidateQueries(["allWaitingStudents"]);

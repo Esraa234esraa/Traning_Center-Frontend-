@@ -21,7 +21,9 @@ export default function LevelsTable() {
   const [classesModalOpen, setClassesModalOpen] = useState(false);
   const [selectedLevelName, setSelectedLevelName] = useState("");
 
-  const levels = data?.data || [];
+  const levels = Array.isArray(data?.data?.data) ? data?.data?.data : [];
+  console.log(levels);
+  
   const courses = [...new Set(levels.map((l) => l.courseName))];
 
   const filteredLevels = useMemo(() => {

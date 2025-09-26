@@ -31,7 +31,7 @@ function LevelsSelect() {
     enabled: !!courseId, // ما يشتغلش غير لما يتحدد الكورس
   });
 
-  const levels = Array.isArray(levelsRes?.data) ? levelsRes.data : [];
+  const levels = Array.isArray(levelsRes?.data?.data) ? levelsRes.data?.data : [];
 
   if (!courseId) {
     return (
@@ -46,7 +46,7 @@ function LevelsSelect() {
   return (
     <Field as="select" name="levelId" className="w-full border p-2 rounded">
       <option value="">اختر المستوى</option>
-      {levels.map((level) => (
+      {levels?.map((level) => (
         <option key={level.id} value={level.id}>
           {level.name} (رقم {level.levelNumber})
         </option>
@@ -87,8 +87,8 @@ export default function AddBouquet() {
 
           addBouquet(form, {
             onSuccess: (res) => {
-              if (res.success) {
-                toast.success(res.message || "تمت إضافة الباقة بنجاح ✅");
+              if (res?.success) {
+                toast.success(res?.message || "تمت إضافة الباقة بنجاح ✅");
                 resetForm();
                 navigate("/dashboard/bouquets");
               } else {

@@ -15,8 +15,8 @@ export default function ConfirmDeletePopup({
   const handleDelete = () => {
     deleteStudentMutation.mutate(studentId, {
       onSuccess: (res) => {
-        if (!res?.success) {
-          toast.error(res?.message || "حدث خطأ أثناء حذف الطالب", {
+        if (!res?.data?.success) {
+          toast.error(res?.data?.message || "حدث خطأ أثناء حذف الطالب", {
             toastId: `${res?.data?.message}-${Date.now()}`,
           });
           return; 

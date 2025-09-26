@@ -1,44 +1,29 @@
-import axios from "axios";
+// src/Apis/LevelAPI.js
+import api from "../axios"; // بدل axios العادي
 
-const API_URL = import.meta.env.VITE_API_URL + "/api/Level";
+const LEVEL_URL = "/Level";
 
 // ✅ Add Level
-export const addLevel = async (formData) => {
-  const response = await axios.post(`${API_URL}/AddLevel`, formData, {
+export const addLevel = (formData) =>
+  api.post(`${LEVEL_URL}/AddLevel`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data;
-};
 
 // ✅ Get All Levels
-export const getAllLevels = async () => {
-  const response = await axios.get(`${API_URL}/GetAllLevels`);
-  return response.data;
-};
+export const getAllLevels = () => api.get(`${LEVEL_URL}/GetAllLevels`);
 
 // ✅ Get All Levels of Course
-export const getAllLevelsOfCourse = async (courseId) => {
-  const response = await axios.get(`${API_URL}/GetAllLevelsOfCourse/${courseId}`);
-  return response.data;
-};
-
+export const getAllLevelsOfCourse = (courseId) =>
+  api.get(`${LEVEL_URL}/GetAllLevelsOfCourse/${courseId}`);
 
 // ✅ Get Level by Id
-export const getLevelById = async (id) => {
-  const response = await axios.get(`${API_URL}/GetLevelById/${id}`);
-  return response.data;
-};
+export const getLevelById = (id) => api.get(`${LEVEL_URL}/GetLevelById/${id}`);
 
 // ✅ Update Level
-export const updateLevel = async ({ id, formData }) => {
-  const response = await axios.put(`${API_URL}/UpdateLevel/${id}`, formData, {
+export const updateLevel = ({ id, formData }) =>
+  api.put(`${LEVEL_URL}/UpdateLevel/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data;
-};
 
 // ✅ Delete Level
-export const deleteLevel = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
-};
+export const deleteLevel = (id) => api.delete(`${LEVEL_URL}/${id}`);

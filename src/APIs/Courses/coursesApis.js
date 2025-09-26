@@ -1,50 +1,34 @@
 // src/Apis/CoursesApi.js
-import axios from "axios";
+import api from "../axios"; // بدل axios العادي
 
-const API_URL = import.meta.env.VITE_API_URL + "/api/Course";
+const COURSES_URL = "/Course";
 
 // ✅ Get all courses
-export const getAllCourses = () => {
-  return axios.get(`${API_URL}/GetAllCourses`, { withCredentials: true });
-};
+export const getAllCourses = () => api.get(`${COURSES_URL}/GetAllCourses`);
 
 // ✅ Get only visible courses
-export const getVisibleCourses = () => {
-  return axios.get(`${API_URL}/GetOnlyVisibleCourses`, { withCredentials: true });
-};
+export const getVisibleCourses = () => api.get(`${COURSES_URL}/GetOnlyVisibleCourses`);
 
 // ✅ Get course by Id
-export const getCourseById = (id) => {
-  return axios.get(`${API_URL}/GetCourseById/${id}`, { withCredentials: true });
-};
+export const getCourseById = (id) => api.get(`${COURSES_URL}/GetCourseById/${id}`);
 
 // ✅ Add new course
-export const addCourse = (formData) => {
-  return axios.post(`${API_URL}/AddCourse`, formData, {
-    withCredentials: true,
+export const addCourse = (formData) =>
+  api.post(`${COURSES_URL}/AddCourse`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-};
 
 // ✅ Update course
-export const updateCourse = (id, formData) => {
-  return axios.put(`${API_URL}/UpdateCourse/${id}`, formData, {
-  withCredentials: true,
-  headers: { "Content-Type": "multipart/form-data" },
-});
-};
+export const updateCourse = (id, formData) =>
+  api.put(`${COURSES_URL}/UpdateCourse/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
 // ✅ Delete course
-export const deleteCourse = (id) => {
-  return axios.delete(`${API_URL}/${id}`, { withCredentials: true });
-};
+export const deleteCourse = (id) => api.delete(`${COURSES_URL}/${id}`);
 
 // ✅ Hide course
-export const hideCourse = (id) => {
-  return axios.put(`${API_URL}/HideCourse/${id}`, {}, { withCredentials: true });
-};
+export const hideCourse = (id) => api.put(`${COURSES_URL}/HideCourse/${id}`, {});
 
 // ✅ Show (make visible) course
-export const visibleCourse = (id) => {
-  return axios.put(`${API_URL}/VisibleCourse/${id}`, {}, { withCredentials: true });
-};
+export const visibleCourse = (id) => api.put(`${COURSES_URL}/VisibleCourse/${id}`, {});

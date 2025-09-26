@@ -26,7 +26,7 @@ export default function CoursesTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const { data: levelsRes, isLoading: loadingLevels, refetch } = useGetAllLevelsOfCourse(selectedCourseId);
-  const levelsData = levelsRes?.data || [];
+  const levelsData = levelsRes?.data?.data || [];
   const handleShowLevels = (courseId, courseName) => {
     setSelectedCourseId(courseId);
     setSelectedCourseName(courseName);

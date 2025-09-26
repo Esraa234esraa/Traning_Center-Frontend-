@@ -1,12 +1,11 @@
-// src/utils/getImageUrl.js
-import { API_BASE } from "../APIs/axios";
+import api from "../APIs/axios";
 
 export const getImageUrl = (path) => {
   if (!path) return "/placeholder.png";
 
-  // نحذف أي wwwroot زيادة من المسار
   const cleanedPath = path.replace(/^\/?wwwroot\//, "");
-
-  // لازم نضيف / بين الدومين والمسار
-  return `https://traning-center.runasp.net/${cleanedPath}`;
+  
+  // استخدام baseURL من axios بدل القيمة الثابتة
+  const baseURL = api.defaults.baseURL.replace(/\/$/, ""); // نتأكد من عدم وجود / في النهاية
+  return `${baseURL}/${cleanedPath}`;
 };

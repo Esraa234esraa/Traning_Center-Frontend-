@@ -33,11 +33,11 @@ export default function EditLevel() {
       { id, formData: form },
       {
         onSuccess: (res) => {
-          if (res.success) {
-            toast.success(res.message || "تم التحديث بنجاح 🎉");
+          if (res?.data?.success) {
+            toast.success(res?.data?.message || "تم التحديث بنجاح 🎉");
             navigate("/dashboard/levels");
           } else {
-            toast.error(res.message || "حدث خطأ في التحديث");
+            toast.error(res?.data?.message || "حدث خطأ في التحديث");
           }
         },
         onError: () => toast.error("فشل الاتصال بالسيرفر 🚨"),
@@ -54,9 +54,9 @@ export default function EditLevel() {
       <Formik
         enableReinitialize
         initialValues={{
-          levelNumber: levelData?.data?.levelNumber || "",
-          name: levelData?.data?.name || "",
-          courseId: levelData?.data?.courseId || "",
+          levelNumber: levelData?.data?.data?.levelNumber || "",
+          name: levelData?.data?.data?.name || "",
+          courseId: levelData?.data?.data?.courseId || "",
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}

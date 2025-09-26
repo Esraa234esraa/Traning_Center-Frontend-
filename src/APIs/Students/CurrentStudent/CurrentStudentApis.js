@@ -1,28 +1,22 @@
-import axios from "axios";
+// src/Apis/CurrentStudentAPI.js
+import api from "../../axios"; // بدل axios العادي
 
-const BASE_URL = import.meta.env.VITE_API_URL + "/api/CurrentStudent";
+const CURRENT_STUDENT_URL = "/CurrentStudent";
 
+// ✅ Get All Current Students
+export const getAllCurrentStudents = () => api.get(`${CURRENT_STUDENT_URL}/GetAllCurrentStudent`);
 
-export const getAllCurrentStudents = async () => {
-  const response = await axios.get(`${BASE_URL}/GetAllCurrentStudent`);
-  return response.data;
-};
-
-export const addCurrentStudent = async (formData) => {
-  const response = await axios.post(`${BASE_URL}/AddCurrentStudent`, formData, {
+// ✅ Add Current Student
+export const addCurrentStudent = (formData) =>
+  api.post(`${CURRENT_STUDENT_URL}/AddCurrentStudent`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data;
-};
 
-export const updateCurrentStudent = async (id, formData) => {
-  const response = await axios.put(`${BASE_URL}/UpdateCurrentStudent/${id}`, formData, {
+// ✅ Update Current Student
+export const updateCurrentStudent = (id, formData) =>
+  api.put(`${CURRENT_STUDENT_URL}/UpdateCurrentStudent/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data;
-};
 
-export const deleteCurrentStudent = async (id) => {
-  const response = await axios.delete(`${BASE_URL}/${id}`);
-  return response.data;
-};
+// ✅ Delete Current Student
+export const deleteCurrentStudent = (id) => api.delete(`${CURRENT_STUDENT_URL}/${id}`);

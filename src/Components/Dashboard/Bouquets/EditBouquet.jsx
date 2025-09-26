@@ -114,7 +114,7 @@ export default function EditBouquet() {
           className="border p-2 rounded w-full"
         >
           <option value="">اختر المستوى</option>
-          {levels?.data?.map((level) => (
+          {levels?.data?.data.map((level) => (
             <option key={level.id} value={level.id}>
               {level.levelName} (رقم {level.levelNumber})
             </option>

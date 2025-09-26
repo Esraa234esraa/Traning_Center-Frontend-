@@ -10,7 +10,6 @@ export default function CurrentStudentTable() {
   const navigate = useNavigate();
   const { data, isLoading } = useGetAllCurrentStudents();
   const deleteMutation = useDeleteCurrentStudent();
-    console.log(data);
 
   const [deleteStudent, setDeleteStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,8 +18,9 @@ export default function CurrentStudentTable() {
   const [filterPaid, setFilterPaid] = useState("all"); // all, paid, unpaid
 
   const filteredStudents = useMemo(() => {
-    
-    return data?.data?.filter((student) => {
+    const students = Array.isArray(data?.data) ? data.data : [];
+
+    return students.filter((student) => {
       const matchesSearch =
         student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -32,7 +32,7 @@ export default function CurrentStudentTable() {
         (filterPaid === "unpaid" && !student.isPaid);
 
       return matchesSearch && matchesFilter;
-    }) || [];
+    });
   }, [data, searchTerm, filterPaid]);
 
   if (isLoading) return <Loading />;

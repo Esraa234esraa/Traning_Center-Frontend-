@@ -29,11 +29,11 @@ export default function AddLevel() {
 
     addLevel(data, {
       onSuccess: (res) => {
-        if (res.success) {
-          toast.success(res.message || "تمت الإضافة بنجاح 🎉");
+        if (res?.data.success) {
+          toast.success(res?.data.message || "تمت الإضافة بنجاح 🎉");
           navigate("/dashboard/levels");
         } else {
-          toast.error(res.message || "حدث خطأ ما");
+          toast.error(res?.data.message || "حدث خطأ ما");
         }
       },
       onError: () => toast.error("فشل الاتصال بالسيرفر 🚨"),

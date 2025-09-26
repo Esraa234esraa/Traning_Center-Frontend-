@@ -88,8 +88,8 @@ export default function EditStudentPopup({ isOpen, onClose, studentData }) {
               { id: values.id, data: payload },
               {
                 onSuccess: (res) => {
-                  if (!res?.success) {
-                    toast.error(res.message || "حدث خطأ أثناء تعديل الطالب", {
+                  if (!res?.data?.success) {
+                    toast.error(res?.data?.message || "حدث خطأ أثناء تعديل الطالب", {
                       toastId: `${res.message}-${Date.now()}`,
                     });
                     setSubmitting(false);

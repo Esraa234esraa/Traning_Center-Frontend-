@@ -1,55 +1,36 @@
-import axios from 'axios';
+// src/Apis/NewStudentsAPI.js
+import api from "../../axios";
 
-const API_URL = import.meta.env.VITE_API_URL + "/api/NewStudents";
-export const getAllStudents = () => {
+const NEW_STUDENTS_URL = "/NewStudents";
 
-  return axios.get(`${API_URL}/GetAllNewStudent`, { withCredentials: true });
-};
+// ✅ Get All Students
+export const getAllStudents = () => api.get(`${NEW_STUDENTS_URL}/GetAllNewStudent`);
 
-export const gettAllWaitingStudents = () => {
+// ✅ Get All Waiting Students
+export const getAllWaitingStudents = () => api.get(`${NEW_STUDENTS_URL}/GetAllWaitingNewStudent`);
 
-  return axios.get(`${API_URL}/GetAllWaitingNewStudent`, { withCredentials: true });
-};
+// ✅ Add New Student
+export const addNewStudent = (data) => api.post(`${NEW_STUDENTS_URL}/AddNewStudent`, data);
 
-export const addNewStudent = (data) => {
-  return axios.post(`${API_URL}/AddNewStudent`, data, { withCredentials: true });
-};
-export const updateStudent = async ({id, data }) => {
-  const response = await axios.put(`${API_URL}/PutNewStudent/${id}`, data, {
-    withCredentials: true,
-    headers: {
-        "Content-Type": "application/json"
-    },
-  }
-  );
-  return response.data;
-};
-
-export const deleteStudent = async(id) => {
-const response = await axios.delete(`${API_URL}/${id}`, {
-    withCredentials: true,
+// ✅ Update Student
+export const updateStudent = ({ id, data }) =>
+  api.put(`${NEW_STUDENTS_URL}/PutNewStudent/${id}`, data, {
+    headers: { "Content-Type": "application/json" },
   });
-  return response.data;
-}
 
-export const moveNewStudentToWatingStudent = (id) => {
-  return axios.put(`${API_URL}/MoveNewStudentToWaitingStudent/${id}`, {}, { withCredentials: true });
-};
+// ✅ Delete Student
+export const deleteStudent = (id) => api.delete(`${NEW_STUDENTS_URL}/${id}`);
 
-export const updateWaitingStudent = async ({id, data }) => {
-  const response = await axios.put(`${API_URL}/PutWaitingStudent/${id}`, data, {
-    withCredentials: true,
-    headers: {
-        "Content-Type": "application/json"
-    },
-  }
-  );
-  return response.data;
-};
+// ✅ Move New Student To Waiting Student
+export const moveNewStudentToWaitingStudent = (id) =>
+  api.put(`${NEW_STUDENTS_URL}/MoveNewStudentToWaitingStudent/${id}`, {});
 
-export const deleteWaitingStudent = async(id) => {
-const response = await axios.delete(`${API_URL}/DeleteWaitingStudent/${id}`, {
-    withCredentials: true,
+// ✅ Update Waiting Student
+export const updateWaitingStudent = ({ id, data }) =>
+  api.put(`${NEW_STUDENTS_URL}/PutWaitingStudent/${id}`, data, {
+    headers: { "Content-Type": "application/json" },
   });
-  return response.data;
-}
+
+// ✅ Delete Waiting Student
+export const deleteWaitingStudent = (id) =>
+  api.delete(`${NEW_STUDENTS_URL}/DeleteWaitingStudent/${id}`);

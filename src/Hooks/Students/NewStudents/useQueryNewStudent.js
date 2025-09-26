@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getAllStudents,
-  gettAllWaitingStudents,
+  getAllWaitingStudents,
 } from "../../../APIs/Students/NewStudents/newStudentApis";
 
 export const useGetAllStudents = () => {
@@ -15,7 +15,7 @@ export const useGetAllStudents = () => {
 export const useGetAllWaitingStudents = () => {
   return useQuery({
     queryKey: ["allWaitingStudents"],
-    queryFn: gettAllWaitingStudents,
+    queryFn: getAllWaitingStudents,
      select: (res) => res.data?.data,
   });
 };
