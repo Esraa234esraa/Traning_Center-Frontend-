@@ -1,54 +1,42 @@
-import axios from 'axios';
+// adminApi.js
+import api from "./axios";  // بدل axios العادي
 
-const API_URL = import.meta.env.VITE_API_URL + "/api/admins";
+const ADMIN_URL = "/admins";
 
 export const adminLogin = async (data) => {
-  try {
-    const response = await axios.post(
-      `${API_URL}/login`,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json"
-        },
-        withCredentials: true
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Login error:", error.response?.data || error.message);
-    throw error;
-  }
+  const response = await api.post(`${ADMIN_URL}/login`, data);
+  return response.data;
 };
 
 export const adminRegister = (data) => {
-  return axios.post(`${API_URL}/register`, data, { withCredentials: true });
+  return api.post(`${ADMIN_URL}/register`, data);
 };
 
 export const getAdminProfile = () => {
-  return axios.get(`${API_URL}/me`, { withCredentials: true });
+  return api.get(`${ADMIN_URL}/me`);
 };
 
 export const getAllAdmins = () => {
-  return axios.get(`${API_URL}`, { withCredentials: true });
+  return api.get(`${ADMIN_URL}`);
 };
 
 export const updateAdmin = ({ id, data }) => {
-  return axios.put(`${API_URL}/${id}`, data, { withCredentials: true });
+  return api.put(`${ADMIN_URL}/${id}`, data);
 };
 
 export const deactivateAdmin = (id) => {
-  return axios.delete(`${API_URL}/${id}`, { withCredentials: true });
+  return api.delete(`${ADMIN_URL}/${id}`);
 };
+
 export const fetchAdminById = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`, { withCredentials: true });
+  const response = await api.get(`${ADMIN_URL}/${id}`);
   return response.data;
 };
 
 export const changePassword = (id, data) => {
-  return axios.put(`${API_URL}/change-password/${id}`, data, { withCredentials: true });
+  return api.put(`${ADMIN_URL}/change-password/${id}`, data);
 };
 
 export const adminLogout = () => {
-  return axios.post(`${API_URL}/logout`, { withCredentials: true });
+  return api.post(`${ADMIN_URL}/logout`);
 };

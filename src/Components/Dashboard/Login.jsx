@@ -28,49 +28,50 @@ function Login() {
     validationSchema,
     onSubmit: (values) => {
       loginMutation.mutate(values, {
-      onSuccess: (res) => {
-  const token = res.data.token;
+        onSuccess: (res) => {
+          const token = res.data.token;
 
-  // decode الـ JWT
-  const decoded = jwtDecode(token);
+          // decode الـ JWT
+          const decoded = jwtDecode(token);
 
-  // id موجود في claim اسمه nameidentifier
-  const userId =
-    decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+          // id موجود في claim اسمه nameidentifier
+          const userId =
+            decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+          const expiresAt = decoded.exp ? decoded.exp * 1000 : null;
 
-  // fullName موجود في claim اسمه FullName
-  const fullName = decoded["FullName"] || res.data.fullName;
+          // fullName موجود في claim اسمه FullName
+          const fullName = decoded["FullName"] || res.data.fullName;
 
-  const userData = {
-    id: userId,
-    fullName: fullName,
-    role: res.data.role,
-    email: res.data.email,
-    token: token,
-    expiresAt: res.data.expiresAt,
-  };
-console.log(userData.id);
+          const userData = {
+            id: userId,
+            fullName: fullName,
+            role: res.data.role,
+            email: res.data.email,
+            token: token,
+            expiresAt: expiresAt,
+          };
+          console.log(userData.id);
 
-  login(userData);
+          login(userData);
 
-  // خزّن القيم حسب الـ role
-  localStorage.setItem("role", userData.role);
-  if (userData.role === "User") {
-    localStorage.setItem("teacherId", userData.id);
-    localStorage.setItem("teacherName", userData.fullName);
+          // خزّن القيم حسب الـ role
+          localStorage.setItem("role", userData.role);
+          if (userData.role === "User") {
+            localStorage.setItem("teacherId", userData.id);
+            localStorage.setItem("teacherName", userData.fullName);
 
-    navigate(
-      `/dashboard/dailysession/${userData.id}/${encodeURIComponent(userData.fullName)}`,
-      { replace: true }
-    );
-  } else if (userData.role === "Admin") {
-    navigate("/dashboard/dbhome", { replace: true });
-  }
+            navigate(
+              `/dashboard/dailysession/${userData.id}/${encodeURIComponent(userData.fullName)}`,
+              { replace: true }
+            );
+          } else if (userData.role === "Admin") {
+            navigate("/dashboard/dbhome", { replace: true });
+          }
 
-  toast.success("تم تسجيل الدخول بنجاح");
-},
+          toast.success("تم تسجيل الدخول بنجاح");
+        },
 
-        
+
         onError: (error) => {
           const serverMessage = error.response?.data?.message || '';
           if (serverMessage.includes('البريد الإلكتروني')) toast.error('الإيميل غير صحيح، يرجى التحقق');

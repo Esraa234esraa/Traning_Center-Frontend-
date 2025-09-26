@@ -1,5 +1,5 @@
 // src/utils/getImageUrl.js
-import { API_BASE } from "../APIs/config";
+import { API_BASE } from "../APIs/axios";
 
 export const getImageUrl = (path) => {
   if (!path) return "/placeholder.png";
