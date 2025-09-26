@@ -5,6 +5,7 @@ import DeleteModal from "./DeleteModal";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../Loading";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 export default function TeachersTable() {
   const { data: teachers = [], isLoading } = useGetAllTeachers();
@@ -156,7 +157,15 @@ export default function TeachersTable() {
             {currentTeachers?.length > 0 ? (
               currentTeachers.map((teacher) => (
                 <tr key={teacher.id} className="text-center">
-                  <td className="border p-2">{teacher.fullName}</td>
+                  <td className="border p-2 text-blue-600 hover:underline cursor-pointer">
+                    <Link
+                      to={`/dashboard/teacher-sessions/${teacher.id}/${encodeURIComponent(
+                        teacher.fullName
+                      )}`}
+                    >
+                      {teacher.fullName}
+                    </Link>
+                  </td>
                   <td className="border p-2">{teacher.email}</td>
                   <td className="border p-2">{teacher.phoneNumber}</td>
                   <td className="border p-2">{teacher.city}</td>

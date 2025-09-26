@@ -59,6 +59,7 @@ import AddClass from './Components/Dashboard/Classes/AddClass';
 import AddCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/AddCurrentStudentForm';
 import EditCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/EditCurrentStudentForm';
 import AddTeacherToClass from './Components/Dashboard/Teacher/AddTeacherToClass';
+import UnAuthorized from './Components/Unauthorized';
 
 
 
@@ -187,7 +188,7 @@ function App() {
               />
             </Route>
 
-            {/* <Route path="/unauthorized" element={<UnAuthorized></UnAuthorized>} /> */}
+            <Route path="/unauthorized" element={<UnAuthorized></UnAuthorized>} />
             <Route path="*" element={<NotFoundPage />} />
 
 

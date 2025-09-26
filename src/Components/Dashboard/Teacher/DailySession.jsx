@@ -9,8 +9,9 @@ export default function DailyySession() {
   const { data: teacherProfile, isLoading, isError } =
     useGetTeacherProfile(teacherId);
   const [selectedSession, setSelectedSession] = useState(null);
+  console.log(teacherProfile);
 
-  if (isLoading) return <Loading/>;
+  if (isLoading) return <Loading />;
   if (isError)
     return <p className="text-center p-4 text-red-500">فشل تحميل الحصص</p>;
 
@@ -20,8 +21,8 @@ export default function DailyySession() {
         <h3 className="text-text_color font-cairo text-basemobile md:text-lg">
           جدول حصص المعلم: {decodeURIComponent(teacherName)}
         </h3>
+        <p className="text-primary font-cairo ">المادة التدربية : <span className="text-secondary bold ">{teacherProfile.courseName}</span></p>
 
-       
       </div>
 
       <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
@@ -29,9 +30,16 @@ export default function DailyySession() {
           <tr>
             <th className="p-3">رقم الحصة</th>
             <th className="p-3">المستوى</th>
+            <th className="p-3">رقم المستوى</th>
+
             <th className="p-3">الباقة</th>
             <th className="p-3">الطلاب</th>
+            <th className="p-3">عدد الطلاب الحاليين</th>
+
             <th className="p-3">الوقت</th>
+            <th className="p-3"> تاريخ البداية</th>
+            <th className="p-3"> تاريخ الانتهاء</th>
+
           </tr>
         </thead>
 
@@ -44,16 +52,44 @@ export default function DailyySession() {
               >
                 <td className="p-3">{index + 1}</td>
                 <td className="p-3">{session.levelName || "--"}</td>
+                <td className="p-3">{session.levelNumber || "--"}</td>
                 <td className="p-3">{session.packageSize || "--"}</td>
                 <td
-                  className="p-3 cursor-pointer text-blue-600 hover:underline"
+                  className="p-3 cursor-pointer text-primary hover:underline"
                   onClick={() => setSelectedSession(session)}
                 >
                   {session.students?.length > 0
                     ? session.students.map((s) => s.fullName).join(" - ")
                     : "--"}
                 </td>
-                <td className="p-3">{session.time || "--"}</td>
+
+                <td className="p-3">{session.currentStudentsCount || "--"}</td>
+                <td className="p-3">
+                  {session.classTime
+                    ? new Date(`${session.startDate.split("T")[0]}T${session.classTime}`).toLocaleTimeString("ar-EG", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                    : "--"}
+                </td>
+                <td className="p-3">
+                  {session.startDate
+                    ? new Date(session.startDate).toLocaleDateString("ar-EG", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    : "--"}
+                </td>
+                <td className="p-3">
+                  {session.startDate
+                    ? new Date(session.endDate).toLocaleDateString("ar-EG", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    : "--"}
+                </td>
               </tr>
             ))}
           </tbody>
