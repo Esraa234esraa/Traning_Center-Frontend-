@@ -175,33 +175,63 @@ export default function CoursesTable() {
       )}
 
       {/* مودال المستويات */}
+      {/* مودال المستويات */}
       {levelsModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto p-4">
-            <h2 className="text-lg font-semibold mb-4">المستويات الخاصة بـ {selectedCourseName}</h2>
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          onClick={() => setLevelsModalOpen(false)} // إغلاق عند الضغط على الخلفية
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl w-[90%] md:w-[600px] max-h-[80vh] overflow-y-auto p-6 relative animate-fadeIn"
+            onClick={(e) => e.stopPropagation()} // يمنع غلق المودال عند الضغط داخله
+          >
+            {/* زر الإغلاق (X) */}
+            <button
+              onClick={() => setLevelsModalOpen(false)}
+              className="absolute top-3 left-3 text-gray-500 hover:text-red-500 transition text-xl font-bold"
+            >
+              ✕
+            </button>
+
+            {/* العنوان */}
+            <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+              المستويات الخاصة بـ <span className="text-teal-600">{selectedCourseName}</span>
+            </h2>
+
+            {/* المحتوى */}
             {loadingLevels ? (
-              <p>جاري التحميل...</p>
+              <p className="text-gray-500">جاري التحميل...</p>
             ) : levelsData.length === 0 ? (
-              <p>لا توجد مستويات لهذه الدورة</p>
+              <p className="text-gray-500">لا توجد مستويات لهذه الدورة</p>
             ) : (
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="space-y-3">
                 {levelsData.map((level) => (
-                  <li key={level.id}>
-                    {level.name} | رقم المستوى: {level.levelNumber} | الدورة: {level.courseName}
+                  <li
+                    key={level.id}
+                    className="bg-gray-50 border rounded-lg p-3 text-right hover:bg-gray-100 transition"
+                  >
+                    <p className="font-medium text-gray-800">{level.name}</p>
+                    <p className="text-sm text-gray-600">
+                      رقم المستوى: {level.levelNumber} | الدورة: {level.courseName}
+                    </p>
                   </li>
                 ))}
               </ul>
-
             )}
-            <button
-              onClick={() => setLevelsModalOpen(false)}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-            >
-              إغلاق
-            </button>
+
+            {/* زر إغلاق سفلي */}
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setLevelsModalOpen(false)}
+                className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              >
+                إغلاق
+              </button>
+            </div>
           </div>
         </div>
       )}
+
 
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
