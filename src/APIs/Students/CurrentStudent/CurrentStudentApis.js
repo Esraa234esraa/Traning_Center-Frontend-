@@ -4,7 +4,15 @@ import api from "../../axios"; // بدل axios العادي
 const CURRENT_STUDENT_URL = "/CurrentStudent";
 
 // ✅ Get All Current Students
-export const getAllCurrentStudents = () => api.get(`${CURRENT_STUDENT_URL}/GetAllCurrentStudent`);
+export const getAllCurrentStudents = ({ searchWord = "", pageNumber = 1, pageSize = 10 }) => {
+  return api.get(`${CURRENT_STUDENT_URL}/GetAllCurrentStudent`, {
+    params: {
+      SearchWord: searchWord,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    },
+  });
+};
 
 // ✅ Add Current Student
 export const addCurrentStudent = (formData) =>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useGetAllCurrentStudents } from "../../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
 import { useDeleteCurrentStudent } from "../../../../Hooks/Students/CurrentStudent/useMutationCurrentStudent";
 import DeleteModal from "./ConfirmDeleteModal";
@@ -8,9 +8,7 @@ import Loading from "../../../Loading";
 
 export default function CurrentStudentTable() {
   const navigate = useNavigate();
-  const { data, isLoading } = useGetAllCurrentStudents();
-  console.log(data);
-  
+
   const deleteMutation = useDeleteCurrentStudent();
 
   const [deleteStudent, setDeleteStudent] = useState(null);
@@ -18,10 +16,22 @@ export default function CurrentStudentTable() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPaid, setFilterPaid] = useState("all"); // all, paid, unpaid
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // عدد الصفوف لكل صفحة
 
+  const { data, isLoading } = useGetAllCurrentStudents(searchTerm, page, pageSize);
+
+  // Debug: اطبع الرد
+  useEffect(() => {
+    console.log("Hook Response:", data);
+    if (data?.data?.data?.result) {
+      console.log("Updated Result:", data?.data?.data.result);
+    }
+  }, [data]);
+
+  // الطلاب بعد الفلترة
   const filteredStudents = useMemo(() => {
-    const students = Array.isArray(data?.data?.data) ? data.data?.data : [];
-console.log(students);
+    const students = data?.data?.data?.result || [];
 
     return students.filter((student) => {
       const matchesSearch =
@@ -56,6 +66,7 @@ console.log(students);
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">طلاب الصف الحالي</h1>
 
+      {/* البحث والفلاتر */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
         <button
           className="px-4 py-2 bg-primary text-white rounded hover:bg-text_color transition"
@@ -84,62 +95,114 @@ console.log(students);
         </div>
       </div>
 
+      {/* جدول الطلاب */}
       <div className="overflow-x-auto bg-white shadow rounded">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المدينة</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الباقة</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الكورس</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المستوى</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الدفع</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredStudents.map((student, idx) => {
-              const firstClass = student.classes?.[0] || {}; // ناخد الحصة الأولى لو موجودة
-              return (
-                <tr
-                  key={student.id}
-                  className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.studentName}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.phoneNumber}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.city}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {firstClass.bouquetName || "-"} #{firstClass.bouquetNumber || "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{firstClass.courseName || "-"}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {firstClass.levelName || "-"} ({firstClass.levelNumber || "-"})
-                  </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${student.isPaid ? "text-green-600" : "text-red-600"}`}>
-                    {student.isPaid ? "نعم" : "لا"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    <button
-                      className="mr-2 px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
-                      onClick={() => navigate(`/dashboard/students/edit/${student.id}`)}
+        {filteredStudents.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">لا يوجد طلاب</div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المدينة</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الباقة</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الكورس</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">المستوى</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الدفع</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredStudents.map((student, idx) => {
+                const firstClass = student.classes?.[0] || {};
+                return (
+                  <tr
+                    key={student.id}
+                    className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.studentName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.phoneNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.city}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {firstClass.bouquetName || "-"} #{firstClass.bouquetNumber || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{firstClass.courseName || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {firstClass.levelName || "-"} ({firstClass.levelNumber || "-"})
+                    </td>
+                    <td
+                      className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${
+                        student.isPaid ? "text-green-600" : "text-red-600"
+                      }`}
                     >
-                      تعديل
-                    </button>
-                    <button
-                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                      onClick={() => { setDeleteStudent(student); setIsModalOpen(true); }}
-                    >
-                      حذف
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+                      {student.isPaid ? "نعم" : "لا"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <button
+                        className="mr-2 px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
+                        onClick={() => navigate(`/dashboard/students/edit/${student.id}`)}
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                        onClick={() => {
+                          setDeleteStudent(student);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        حذف
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
 
+        {/* الباجينيشن */}
+        <div className="flex items-center justify-between mt-4">
+          {/* Page Size Selector */}
+          <div>
+            <label className="mr-2">عدد الصفوف:</label>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="border rounded px-2 py-1"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
 
-        </table>
+          {/* Pagination Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              السابق
+            </button>
+            <span>
+              صفحة {page} من {data?.data?.totalPages || 1}
+            </span>
+            <button
+              disabled={page >= (data?.data?.totalPages || 1)}
+              onClick={() => setPage((prev) => prev + 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              التالي
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Delete Modal */}

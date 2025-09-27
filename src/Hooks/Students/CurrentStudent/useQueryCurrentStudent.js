@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllCurrentStudents } from "./../../../APIs/Students/CurrentStudent/CurrentStudentApis";
+import { getAllCurrentStudents } from "../../../APIs/Students/CurrentStudent/CurrentStudentApis";
 
-export const useGetAllCurrentStudents = () => {
+export const useGetAllCurrentStudents = (searchWord, pageNumber, pageSize) => {
   return useQuery({
-    queryKey: ["currentStudents"],
-    queryFn: getAllCurrentStudents,
+    queryKey: ["currentStudents", searchWord, pageNumber, pageSize],
+    queryFn: () => getAllCurrentStudents({ searchWord, pageNumber, pageSize }),
+    keepPreviousData: true,
   });
 };
