@@ -4,8 +4,9 @@ export const getImageUrl = (path) => {
   if (!path) return "/placeholder.png";
 
   const cleanedPath = path.replace(/^\/?wwwroot\//, "");
-  
-  // استخدام baseURL من axios بدل القيمة الثابتة
-  const baseURL = api.defaults.baseURL.replace(/\/$/, ""); // نتأكد من عدم وجود / في النهاية
+
+  // نشيل /api من الرابط الأساسي
+  const baseURL = api.defaults.baseURL.replace(/\/api$/, "").replace(/\/$/, "");
+
   return `${baseURL}/${cleanedPath}`;
 };
