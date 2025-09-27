@@ -50,7 +50,7 @@ export default function AddTeacher() {
 
       onSuccess: () => {
         console.log("Teacher added successfully", payload);
-        
+
         toast.success("تم إضافة المعلم بنجاح");
         navigate("/dashboard/teacher_table");
         resetForm();
@@ -69,21 +69,48 @@ export default function AddTeacher() {
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
         <Form className="flex flex-wrap gap-5 max-w-3xl">
           <div className="w-full">
-            <Field name="fullName" placeholder="الاسم بالكامل" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400"/>
-            <ErrorMessage name="fullName" component="div" className="text-red-500 text-xs mt-1"/>
+            <Field name="fullName" placeholder="الاسم بالكامل" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400" />
+            <ErrorMessage name="fullName" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-full">
-            <Field type="email" name="email" placeholder="البريد الالكتروني" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400"/>
-            <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1"/>
+            <Field type="email" name="email" placeholder="البريد الالكتروني" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400" />
+            <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-1/3">
-            <Field as="select" name="city" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 bg-white focus:outline-none focus:border-blue-400">
+            <Field
+              as="select"
+              name="city"
+              className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 bg-white focus:outline-none focus:border-blue-400"
+            >
               <option value="">المدينة</option>
-              {["الرياض","جدة","مكة المكرمة","الدمام","الخبر"].map((city)=>(<option key={city} value={city}>{city}</option>))}
+              {[
+                "الرياض",
+                "جدة",
+                "مكة المكرمة",
+                "المدينة المنورة",
+                "الدمام",
+                "الخبر",
+                "الأحساء",
+                "القطيف",
+                "الظهران",
+                "حائل",
+                "تبوك",
+                "أبها",
+                "خميس مشيط",
+                "جازان",
+                "نجران",
+                "الباحة",
+                "الطائف"
+              ].map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
             </Field>
-            <ErrorMessage name="city" component="div" className="text-red-500 text-xs mt-1"/>
+
+            <ErrorMessage name="city" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-1/3">
@@ -92,17 +119,17 @@ export default function AddTeacher() {
               <option value="ذكر">ذكر</option>
               <option value="أنثى">أنثى</option>
             </Field>
-            <ErrorMessage name="gender" component="div" className="text-red-500 text-xs mt-1"/>
+            <ErrorMessage name="gender" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-1/3">
-            <Field type="tel" name="phone" placeholder="رقم الهاتف" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400"/>
-            <ErrorMessage name="phone" component="div" className="text-red-500 text-xs mt-1"/>
+            <Field type="tel" name="phone" placeholder="رقم الهاتف" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400" />
+            <ErrorMessage name="phone" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-1/2">
-            <Field type="password" name="password" placeholder="كلمة السر" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400"/>
-            <ErrorMessage name="password" component="div" className="text-red-500 text-xs mt-1"/>
+            <Field type="password" name="password" placeholder="كلمة السر" className="w-full h-9 text-sm border border-gray-300 rounded px-3 text-gray-500 focus:outline-none focus:border-blue-400" />
+            <ErrorMessage name="password" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-1/2">
@@ -111,11 +138,11 @@ export default function AddTeacher() {
               {coursesLoading
                 ? <option disabled>جاري التحميل...</option>
                 : courses?.map((course) => (
-                    <option key={course.id} value={course.id}>{course.name}</option>
-                  ))
+                  <option key={course.id} value={course.id}>{course.name}</option>
+                ))
               }
             </Field>
-            <ErrorMessage name="trainingCourse" component="div" className="text-red-500 text-xs mt-1"/>
+            <ErrorMessage name="trainingCourse" component="div" className="text-red-500 text-xs mt-1" />
           </div>
 
           <div className="w-full mt-5">
