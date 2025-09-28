@@ -1,6 +1,6 @@
 // src/Hooks/Teacher/useMutationTeacher.js
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addTeacher, addClassToTeacher, updateTeacher, deleteTeacher } from "../../APIs/Teacher/TeacherApis";
+import { addTeacher, resetTeacherPassword, addClassToTeacher, updateTeacher, deleteTeacher } from "../../APIs/Teacher/TeacherApis";
 
 import { toast } from "react-toastify";
 // ✅ Mutation add teacher
@@ -49,3 +49,16 @@ export const useDeleteTeacher = () => {
     },
   });
 };
+export const useResetTeacherPassword = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ teacherId, password }) =>
+      resetTeacherPassword(teacherId, password),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["teacherProfile"] });
+    },
+  });
+};
+
+

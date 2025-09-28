@@ -176,11 +176,7 @@ export default function AddStudentPopup({ isOpen, onClose }) {
                         : "border-gray-300"
                       }`}
                   />
-                  <ErrorMessage
-                    name="name"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
+                 
                 </div>
                 {/* الجنس */}
                 <div>

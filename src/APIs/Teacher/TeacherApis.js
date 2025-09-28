@@ -55,3 +55,15 @@ export const deleteTeacher = async (teacherId) => {
     throw error;
   }
 };
+export const resetTeacherPassword = async (teacherId, password) => {
+  try {
+    const response = await api.put(
+      `${TEACHER_URL}/ResetPassword/${teacherId}?password=${encodeURIComponent(password)}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("خطأ في تغيير باسورد المعلم:", error);
+    throw error;
+  }
+};
+

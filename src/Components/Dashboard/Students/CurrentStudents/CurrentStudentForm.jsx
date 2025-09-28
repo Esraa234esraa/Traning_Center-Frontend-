@@ -153,7 +153,6 @@ export default function CurrentStudentForm({ initialValues, isEdit }) {
 
           {/* بقية الحقول */}
           <Field type="email" name="Email" placeholder="example@mail.com" className="border px-2 py-1 w-full" />
-          <ErrorMessage name="Email" component="div" className="text-red-500 text-sm" />
 
           <Field type="text" name="PhoneNumber" placeholder="010xxxxxxxx" className="border px-2 py-1 w-full" />
           <ErrorMessage name="PhoneNumber" component="div" className="text-red-500 text-sm" />

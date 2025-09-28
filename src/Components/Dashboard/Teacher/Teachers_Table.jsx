@@ -13,6 +13,7 @@ export default function TeachersTable() {
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+console.log(teachers);
 
   // 🔹 البحث والفلترة
   const [searchTerm, setSearchTerm] = useState("");
