@@ -156,10 +156,10 @@ export default function TeachersTable() {
           <tbody>
             {currentTeachers?.length > 0 ? (
               currentTeachers.map((teacher) => (
-                <tr key={teacher.id} className="text-center">
+                <tr key={teacher.userId} className="text-center">
                   <td className="border p-2 text-blue-600 hover:underline cursor-pointer">
                     <Link
-                      to={`/dashboard/teacher-sessions/${teacher.id}/${encodeURIComponent(
+                      to={`/dashboard/teacher-sessions/${teacher.userId}/${encodeURIComponent(
                         teacher.fullName
                       )}`}
                     >
