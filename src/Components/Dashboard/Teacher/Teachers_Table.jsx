@@ -13,7 +13,7 @@ export default function TeachersTable() {
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState(null);
   const [showModal, setShowModal] = useState(false);
-console.log(teachers);
+  console.log(teachers);
 
   // 🔹 البحث والفلترة
   const [searchTerm, setSearchTerm] = useState("");
@@ -151,6 +151,8 @@ console.log(teachers);
               <th className="border p-2 whitespace-nowrap">الهاتف</th>
               <th className="border p-2 whitespace-nowrap">المدينة</th>
               <th className="border p-2 whitespace-nowrap">الدورة</th>
+              <th className="border p-2 whitespace-nowrap">الحصص المتوفرة</th>
+
               <th className="border p-2 whitespace-nowrap">إجراءات</th>
             </tr>
           </thead>
@@ -171,6 +173,23 @@ console.log(teachers);
                   <td className="border p-2">{teacher.phoneNumber}</td>
                   <td className="border p-2">{teacher.city}</td>
                   <td className="border p-2">{teacher.courseName}</td>
+                  <td className="border p-2">
+                    {teacher.availableClasses === 0 ? (
+                      <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-700 border border-red-300">
+                        غير متوفر (0)
+                      </span>
+                    ) : teacher.availableClasses < 7 ? (
+                      <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300">
+                        متوفر {teacher.availableClasses} حصص
+                      </span>
+                    ) : (
+                      <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-700 border border-green-300">
+                        متوفر {teacher.availableClasses} حصص
+                      </span>
+                    )}
+                  </td>
+
+
                   <td className="border p-2 flex justify-center gap-2 flex-wrap">
                     <button
                       onClick={() =>
