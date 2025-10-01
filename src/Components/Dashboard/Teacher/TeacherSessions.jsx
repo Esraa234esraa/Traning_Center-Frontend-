@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useGetTeacherProfile } from "../../../Hooks/Teacher/useQueryTeacher";
+import { useGetProfileTeacherWithClassesAsyncByAdmin } from "../../../Hooks/Teacher/useQueryTeacher";
 import SessionStudentsModal from "./SessionStudentsModal";
 import Loading from "../../Loading";
 import { useResetTeacherPassword } from "../../../Hooks/Teacher/useMutationTeacher";
 import { toast } from "react-toastify";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function TeacherSessions() {
   const { teacherId, teacherName } = useParams();
   const navigate = useNavigate();
 
   const { data: teacherProfile, isLoading, isError } =
-    useGetTeacherProfile(teacherId);
+    useGetProfileTeacherWithClassesAsyncByAdmin(teacherId);
+  console.log(teacherProfile);
 
   const { mutate: resetPassword, isLoading: isResetting } =
     useResetTeacherPassword();
@@ -63,14 +70,24 @@ export default function TeacherSessions() {
         </div>
       </div>
 
+   
       <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             <th className="p-3">رقم الحصة</th>
             <th className="p-3">المستوى</th>
+            <th className="p-3">رقم المستوى</th>
+
             <th className="p-3">الباقة</th>
             <th className="p-3">الطلاب</th>
+            <th className="p-3">عدد الطلاب الحاليين</th>
+            <th className="p-3">عدد الطلاب المتبقية</th>
+
+
             <th className="p-3">الوقت</th>
+            <th className="p-3"> تاريخ البداية</th>
+            <th className="p-3"> تاريخ الانتهاء</th>
+
           </tr>
         </thead>
 
@@ -83,16 +100,58 @@ export default function TeacherSessions() {
               >
                 <td className="p-3">{index + 1}</td>
                 <td className="p-3">{session.levelName || "--"}</td>
+                <td className="p-3">{session.levelNumber || "--"}</td>
                 <td className="p-3">{session.packageSize || "--"}</td>
                 <td
-                  className="p-3 cursor-pointer text-blue-600 hover:underline"
+                  className="p-3 cursor-pointer text-primary hover:underline"
                   onClick={() => setSelectedSession(session)}
                 >
                   {session.students?.length > 0
                     ? session.students.map((s) => s.fullName).join(" - ")
                     : "--"}
                 </td>
-                <td className="p-3">{session.time || "--"}</td>
+
+                <td className="p-3">{session.currentStudentsCount || "--"}</td>
+                <td className="p-3">
+                  {session.currentStudentsCount >= session.packageSize ? (
+                    <span className="text-red-500 font-bold">0</span>   // مكتملة
+                  ) : session.currentStudentsCount === 0 ? (
+                    <span className="text-green-500 font-bold">
+                      {session.packageSize}
+                    </span>   // كلها متاحة
+                  ) : (
+                    <span className="text-yellow-500 font-bold">
+                      {session.packageSize - session.currentStudentsCount}
+                    </span>   // لسه في انتظار
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {session.classTime
+                    ? new Date(`${session.startDate.split("T")[0]}T${session.classTime}`).toLocaleTimeString("ar-EG", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                    : "--"}
+                </td>
+                <td className="p-3">
+                  {session.startDate
+                    ? new Date(session.startDate).toLocaleDateString("ar-EG", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    : "--"}
+                </td>
+                <td className="p-3">
+                  {session.startDate
+                    ? new Date(session.endDate).toLocaleDateString("ar-EG", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    : "--"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -106,7 +165,6 @@ export default function TeacherSessions() {
           </tbody>
         )}
       </table>
-
       {selectedSession && (
         <SessionStudentsModal
           session={selectedSession}

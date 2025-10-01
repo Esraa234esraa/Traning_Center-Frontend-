@@ -15,7 +15,7 @@ export default function SessionStudentsModal({ session, onClose }) {
                 key={s.id}
                 className="p-2 border rounded bg-gray-50 hover:bg-gray-100"
               >
-                <span className="font-medium">{s.fullName}</span> -{" "}
+                <span className="font-medium">{s.fullName}</span> {" "}
                 <span className="text-gray-600">{s.phoneNumber}</span>
               </li>
             ))}

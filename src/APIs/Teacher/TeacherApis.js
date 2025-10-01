@@ -67,3 +67,16 @@ export const resetTeacherPassword = async (teacherId, password) => {
   }
 };
 
+export const GetProfileTeacherWithClassesAsyncByAdmin=async(teacherId)=>{
+  try{
+    const response=await api.get(
+      `${TEACHER_URL}/GetProfileTeacherWithClassesAsyncByAdmin/${teacherId}`
+    );
+    return response.data;
+  }
+  catch(error){
+    console.error("حدث خطأ اثناء جلب حصص المعلم",error);
+    throw error;
+  }
+};
+
