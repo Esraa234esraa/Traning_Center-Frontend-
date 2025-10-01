@@ -5,12 +5,6 @@ import SessionStudentsModal from "./SessionStudentsModal";
 import Loading from "../../Loading";
 import { useResetTeacherPassword } from "../../../Hooks/Teacher/useMutationTeacher";
 import { toast } from "react-toastify";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export default function TeacherSessions() {
   const { teacherId, teacherName } = useParams();
