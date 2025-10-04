@@ -129,7 +129,6 @@ export default function CoursesTable() {
                 <th className="p-2 border">الصورة</th>
                 <th className="p-2 border">اسم الدورة</th>
                 <th className="p-2 border">الوصف</th>
-                <th className="p-2 border">الحالة</th>
                 <th className="p-2 border">المستويات</th>
                 <th className="p-2 border">الإجراءات</th>
               </tr>
@@ -146,7 +145,6 @@ export default function CoursesTable() {
                   </td>
                   <td className="border p-2 min-w-[120px]">{course.name}</td>
                   <td className="border p-2 min-w-[150px]">{course.description}</td>
-                  <td className="border p-2 min-w-[80px]">{course.isVisible ? "ظاهر" : "مخفي"}</td>
                   <td className="border p-2 min-w-[120px]">
                     <button
                       onClick={() => handleShowLevels(course.id, course.name)}
