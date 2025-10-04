@@ -5,26 +5,43 @@ import { useDeleteClass } from "../../../Hooks/Classes/useMutationClasses";
 import Loading from "../../Loading";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
+import { toast } from "react-toastify";
+import ClassStudentsModal from "./ClassStudentsModal";
+import { useGetAllTeachers, useGetAllClassesForTeacher } from "../../../Hooks/Teacher/useQueryTeacher";
 
 export default function ClassesTable() {
   const navigate = useNavigate();
-  const { data, isLoading, isError } = useGetAllClasses();
+  const { data: allClasses, isLoading, isError } = useGetAllClasses();
   const deleteMutation = useDeleteClass();
+  const [selectedClassId, setSelectedClassId] = useState(null);
+  const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+  const { data: teachersData, isLoading: isLoadingTeachers } = useGetAllTeachers();
+  const teachers = teachersData || [];
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [editClass, setEditClass] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const filteredClasses = useMemo(() => {
-    const classesData = data?.data || [];
-    return classesData.filter((cls) => {
-      const matchStatus = statusFilter === "all" || cls.status === statusFilter;
-      const matchSearch = cls.bouquetName
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
-      return matchStatus && matchSearch;
-    });
-  }, [data?.data, statusFilter, search]);
+  const [selectedTeacherId, setSelectedTeacherId] = useState("all");
+  const { data: teacherClasses } = useGetAllClassesForTeacher(selectedTeacherId);
+  const classesToShow = selectedTeacherId === "all" ? allClasses?.data || [] : teacherClasses || [];
+
+
+ const filteredClasses = useMemo(() => {
+  return classesToShow.filter(cls => {
+    const matchSearch = cls.bouquetName?.toLowerCase().includes(search.toLowerCase());
+
+    const availableSeats = cls.bouquetCount - cls.currentStudentsCount;
+
+    let matchStatus = true;
+    if (statusFilter === "Completed") matchStatus = availableSeats === 0;
+    else if (statusFilter === "Active") matchStatus = availableSeats === cls.bouquetCount;
+    else if (statusFilter === "Cancelled") matchStatus = availableSeats < cls.bouquetCount && availableSeats > 0;
+
+    return matchSearch && matchStatus;
+  });
+}, [classesToShow, search, statusFilter]);
+
 
   if (isLoading) return <Loading />;
   if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب الحصص</p>;
@@ -49,20 +66,36 @@ export default function ClassesTable() {
             placeholder="ابحث بالباقة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border w-[50%] p-2 rounded"
+            className="border w-[30%] p-2 rounded"
           />
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border w-[50%] p-2 rounded"
+            className="border w-[30%] p-2 rounded"
           >
             <option value="all">الكل</option>
-            <option value="Active">نشطة</option>
-            <option value="Cancelled">ملغية</option>
             <option value="Completed">مكتملة</option>
+            <option value="Cancelled">انتظار</option>
+            <option value="Active">فارغة</option>
           </select>
 
+          <select
+            value={selectedTeacherId}
+            onChange={(e) => setSelectedTeacherId(e.target.value)}
+            className="border w-[30%] p-2 rounded"
+          >
+            <option value="all">كل المعلمين</option>
+            {teachers.map((t) => (
+              <option key={t.id} value={t.userId}>
+                {t.fullName}
+              </option>
+            ))}
+          </select>
+
+
         </div>
+
       </div>
 
       {/* لو مفيش بيانات */}
@@ -113,48 +146,63 @@ export default function ClassesTable() {
                   </td>
                   <td className="border p-2">{cls.classTime}</td>
                   <td className="border p-2">{cls.currentStudentsCount}</td>
-<td className="border p-2 text-center">
-  {(() => {
-    const availableSeats = cls.bouquetCount - cls.currentStudentsCount;
+                  <td className="border p-2 text-center">
+                    {(() => {
+                      const availableSeats = cls.bouquetCount - cls.currentStudentsCount;
 
-    // نحدد الحالة حسب عدد الأماكن
-    let statusText = "";
-    let statusColor = "";
+                      // نحدد الحالة حسب عدد الأماكن
+                      let statusText = "";
+                      let statusColor = "";
 
-    if (availableSeats === 0) {
-      statusText = "مكتملة";
-      statusColor = "bg-red-100 text-red-700 border border-red-300";
-    } else if (availableSeats < cls.bouquetCount && availableSeats > 0) {
-      statusText = `متوفر ${availableSeats} مكان`;
-      statusColor = "bg-yellow-100 text-yellow-700 border border-yellow-300";
-    } else if (availableSeats === cls.bouquetCount) {
-      statusText = "فارغة (كل الأماكن متاحة)";
-      statusColor = "bg-green-100 text-green-700 border border-green-300";
-    }
+                      if (availableSeats === 0) {
+                        statusText = "مكتملة";
+                        statusColor = "bg-red-100 text-red-700 border border-red-300";
+                      } else if (availableSeats < cls.bouquetCount && availableSeats > 0) {
+                        statusText = `متوفر ${availableSeats} مكان`;
+                        statusColor = "bg-yellow-100 text-yellow-700 border border-yellow-300";
+                      } else if (availableSeats === cls.bouquetCount) {
+                        statusText = "فارغة (كل الأماكن متاحة)";
+                        statusColor = "bg-green-100 text-green-700 border border-green-300";
+                      }
 
-    return (
-      <span
-        className={`inline-block px-3 py-1 rounded-full font-medium text-sm transition-all duration-200 ${statusColor}`}
-      >
-        {statusText}
-      </span>
-    );
-  })()}
-</td>
-                  <td className="border p-2 space-x-2">
+                      return (
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full font-medium text-sm transition-all duration-200 ${statusColor}`}
+                        >
+                          {statusText}
+                        </span>
+                      );
+                    })()}
+                  </td>
+                  <td className="border p-2 flex items-center justify-center gap-2">
                     <button
-                      className="bg-yellow-500 text-white px-2 py-1 rounded"
                       onClick={() => setEditClass(cls)}
+                      className="btn-soft btn-blue"
                     >
                       تعديل
                     </button>
+
                     <button
-                      className="bg-red-500 text-white px-2 py-1 rounded"
                       onClick={() => setSelectedClass(cls)}
-                    >
+                      className="btn-soft btn-red"                    >
                       حذف
                     </button>
+
+                    <button
+                      onClick={() => {
+                        if (cls.id) {
+                          setSelectedClassId(cls.id);
+                          setIsClassModalOpen(true);
+                        } else {
+                          toast.info("لم يتم العثور على بيانات هذه الحصة");
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition-all duration-200"
+                    >
+                      عرض الطلاب
+                    </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -174,6 +222,11 @@ export default function ClassesTable() {
           }
         />
       )}
+      <ClassStudentsModal
+        isOpen={isClassModalOpen}
+        onClose={() => setIsClassModalOpen(false)}
+        classId={selectedClassId}
+      />
 
       {/* بوب أب التعديل */}
       {editClass && (
@@ -182,3 +235,5 @@ export default function ClassesTable() {
     </div>
   );
 }
+
+

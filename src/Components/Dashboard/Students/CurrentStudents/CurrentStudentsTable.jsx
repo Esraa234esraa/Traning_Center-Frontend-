@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useGetAllCurrentStudents } from "../../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
 import { useDeleteCurrentStudent } from "../../../../Hooks/Students/CurrentStudent/useMutationCurrentStudent";
 import DeleteModal from "./ConfirmDeleteModal";
@@ -14,23 +14,21 @@ export default function CurrentStudentTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterPaid, setFilterPaid] = useState("all"); // all, paid, unpaid
+  const [filterPaid, setFilterPaid] = useState("all");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // عدد الصفوف لكل صفحة
+  const [pageSize, setPageSize] = useState(10);
+
+  const isPaidParam =
+    filterPaid === "all" ? undefined : filterPaid === "paid" ? 1 : 2;
 
   const { data, isLoading, isFetching } = useGetAllCurrentStudents(
     searchTerm,
     page,
-    pageSize
+    pageSize,
+    isPaidParam
   );
 
-  // Debug
-  useEffect(() => {
-    console.log("Hook Response:", data);
-    if (data?.data?.data?.result) {
-      console.log("Updated Result:", data?.data?.data.result);
-    }
-  }, [data]);
+
 
   const Spinner = () => (
     <svg
@@ -55,11 +53,14 @@ export default function CurrentStudentTable() {
     </svg>
   );
 
-  // الطلاب بعد الفلترة
-  const filteredStudents = useMemo(() => {
-    const students = data?.data?.data?.result || [];
+  // 🟩 نستخدم useMemo لتحسين الفلترة
+  const allStudents = useMemo(
+    () => data?.data?.data?.result || [],
+    [data?.data?.data?.result]
+  );
 
-    return students.filter((student) => {
+  const filteredStudents = useMemo(() => {
+    return allStudents.filter((student) => {
       const matchesSearch =
         student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,7 +73,13 @@ export default function CurrentStudentTable() {
 
       return matchesSearch && matchesFilter;
     });
-  }, [data, searchTerm, filterPaid]);
+  }, [allStudents, searchTerm, filterPaid]);
+
+  // 🟩 نحسب عدد الصفحات بشكل ميمو
+  const totalPages = useMemo(
+    () => data?.data?.data?.totalPages || 1,
+    [data?.data?.data?.totalPages]
+  );
 
   if (isLoading) return <Loading />;
 
@@ -133,46 +140,43 @@ export default function CurrentStudentTable() {
               </div>
             )}
 
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
+            <table className="w-full text-sm text-left rtl:text-center text-text_color dark:text-gray-400 border-collapse border border-gray-300">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-300">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الاسم
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الهاتف
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     المدينة
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الباقة
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الكورس
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     المستوى
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الدفع
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 border-r border-gray-300 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     الإجراءات
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-0">
                 {filteredStudents.map((student, idx) => {
                   const firstClass = student.classes?.[0] || {};
                   return (
                     <tr
                       key={student.id}
-                      className={
-                        idx % 2 === 0
-                          ? "bg-gray-50 hover:bg-gray-100"
-                          : "hover:bg-gray-100"
-                      }
+                      className="odd:bg-white even:bg-blue-50 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
+
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {student.studentName}
@@ -195,15 +199,14 @@ export default function CurrentStudentTable() {
                         {firstClass.levelNumber || "-"})
                       </td>
                       <td
-                        className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${
-                          student.isPaid ? "text-green-600" : "text-red-600"
-                        }`}
+                        className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${student.isPaid ? "text-green-600" : "text-red-600"
+                          }`}
                       >
                         {student.isPaid ? "نعم" : "لا"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <td className="px-6 py-4 text-center text-sm font-medium flex justify-center gap-3">
                         <button
-                          className="mr-2 px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
+                          className="btn-soft btn-blue"
                           onClick={() =>
                             navigate(`/dashboard/students/edit/${student.id}`)
                           }
@@ -211,7 +214,7 @@ export default function CurrentStudentTable() {
                           تعديل
                         </button>
                         <button
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                          className="btn-soft btn-red"
                           onClick={() => {
                             setDeleteStudent(student);
                             setIsModalOpen(true);
@@ -230,7 +233,6 @@ export default function CurrentStudentTable() {
 
         {/* الباجينيشن */}
         <div className="flex items-center justify-between mt-4">
-          {/* Page Size Selector */}
           <div>
             <label className="mr-2">عدد الصفوف:</label>
             <select
@@ -248,7 +250,6 @@ export default function CurrentStudentTable() {
             </select>
           </div>
 
-          {/* Pagination Buttons */}
           <div className="flex items-center gap-2">
             <button
               disabled={page === 1}
@@ -258,15 +259,14 @@ export default function CurrentStudentTable() {
               السابق
             </button>
             <span>
-              صفحة {page} من {data?.data?.data?.totalPages || 1}
+              صفحة {page} من {totalPages}
             </span>
             <button
-              disabled={page >= (data?.data?.data?.totalPages || 1)}
+              disabled={page >= totalPages}
               onClick={() => setPage((prev) => prev + 1)}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 flex items-center gap-2"
             >
-              {isFetching &&
-              page < (data?.data?.data?.totalPages || 1) ? (
+              {isFetching && page < totalPages ? (
                 <>
                   <Spinner /> تحميل...
                 </>
@@ -278,7 +278,7 @@ export default function CurrentStudentTable() {
         </div>
       </div>
 
-      {/* Delete Modal */}
+      {/* مودال الحذف */}
       <DeleteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

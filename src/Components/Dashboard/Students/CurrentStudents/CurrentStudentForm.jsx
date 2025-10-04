@@ -26,6 +26,13 @@ export default function CurrentStudentForm({ initialValues, isEdit }) {
   const { data: waitingRes } = useGetAllWaitingStudents();
   const waitingStudents = waitingRes || [];
 
+   useEffect(() => {
+    if (initialValues) {
+      setSelectedCourseId(initialValues.CourseId || "");
+      setSelectedLevelId(initialValues.LevelId || "");
+      setSelectedBouquetId(initialValues.BouquetId || "");
+    }
+  }, [initialValues]);
   const { data: coursesRes } = useGetAllCourses();
   const courses = coursesRes || [];
 
@@ -65,11 +72,15 @@ export default function CurrentStudentForm({ initialValues, isEdit }) {
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
+
   }, []);
+
+
 
   return (
     <Formik
       initialValues={initialValues}
+      enableReinitialize
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting }) => {
         const payload = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../Loading";
 import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
@@ -25,14 +25,19 @@ export default function CoursesTable() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+
   const { data: levelsRes, isLoading: loadingLevels, refetch } = useGetAllLevelsOfCourse(selectedCourseId);
-  const levelsData = levelsRes?.data?.data || [];
+
+  // استخدم useMemo لتخزين المستويات
+  const levelsData = useMemo(() => levelsRes?.data?.data || [], [levelsRes]);
+
   const handleShowLevels = (courseId, courseName) => {
     setSelectedCourseId(courseId);
     setSelectedCourseName(courseName);
     setLevelsModalOpen(true);
     refetch(); // يضمن جلب البيانات عند فتح المودال
   };
+
   const confirmDelete = () => {
     if (!selectedCourseId) return;
     deleteCourseMutation.mutate(selectedCourseId, {
@@ -57,22 +62,23 @@ export default function CoursesTable() {
     }
   };
 
+  // استخدم useMemo للفلترة
+  const filteredCourses = useMemo(() => {
+    return courses?.filter((course) => {
+      const matchesSearch =
+        course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.description.toLowerCase().includes(searchTerm.toLowerCase());
 
+      const matchesFilter =
+        filterStatus === "all"
+          ? true
+          : filterStatus === "visible"
+            ? course.isVisible
+            : !course.isVisible;
 
-  const filteredCourses = courses?.filter((course) => {
-    const matchesSearch =
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesFilter =
-      filterStatus === "all"
-        ? true
-        : filterStatus === "visible"
-          ? course.isVisible
-          : !course.isVisible;
-
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    }) || [];
+  }, [courses, searchTerm, filterStatus]);
 
   return (
     <div className="p-6">
@@ -90,7 +96,7 @@ export default function CoursesTable() {
             placeholder="🔍 ابحث عن دورة..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border  px-5 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
+            className="border px-5 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
           />
           <select
             value={filterStatus}
@@ -106,7 +112,7 @@ export default function CoursesTable() {
 
       {isLoading ? (
         <Loading />
-      ) : !filteredCourses || filteredCourses.length === 0 ? (
+      ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
           <img
             src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
@@ -152,7 +158,7 @@ export default function CoursesTable() {
                   <td className="border p-2 min-w-[150px] space-x-2">
                     <button
                       onClick={() => navigate(`edit-course/${course.id}`)}
-                      className="text-blue-500 px-2 py-1 rounded"
+                      className="btn-soft btn-blue"
                     >
                       تعديل
                     </button>
@@ -161,7 +167,7 @@ export default function CoursesTable() {
                         setSelectedCourseId(course.id);
                         setShowDeleteModal(true);
                       }}
-                      className="text-red-500 px-2 py-1 rounded"
+                      className="btn-soft btn-red"
                     >
                       حذف
                     </button>
@@ -171,34 +177,28 @@ export default function CoursesTable() {
             </tbody>
           </table>
         </div>
-
       )}
 
-      {/* مودال المستويات */}
       {/* مودال المستويات */}
       {levelsModalOpen && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-          onClick={() => setLevelsModalOpen(false)} // إغلاق عند الضغط على الخلفية
+          onClick={() => setLevelsModalOpen(false)}
         >
           <div
             className="bg-white rounded-xl shadow-2xl w-[90%] md:w-[600px] max-h-[80vh] overflow-y-auto p-6 relative animate-fadeIn"
-            onClick={(e) => e.stopPropagation()} // يمنع غلق المودال عند الضغط داخله
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* زر الإغلاق (X) */}
             <button
               onClick={() => setLevelsModalOpen(false)}
               className="absolute top-3 left-3 text-gray-500 hover:text-red-500 transition text-xl font-bold"
             >
               ✕
             </button>
-
-            {/* العنوان */}
             <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
               المستويات الخاصة بـ <span className="text-teal-600">{selectedCourseName}</span>
             </h2>
 
-            {/* المحتوى */}
             {loadingLevels ? (
               <p className="text-gray-500">جاري التحميل...</p>
             ) : levelsData.length === 0 ? (
@@ -219,7 +219,6 @@ export default function CoursesTable() {
               </ul>
             )}
 
-            {/* زر إغلاق سفلي */}
             <div className="flex justify-end mt-6">
               <button
                 onClick={() => setLevelsModalOpen(false)}
@@ -232,7 +231,7 @@ export default function CoursesTable() {
         </div>
       )}
 
-
+      {/* مودال الحذف */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -242,16 +241,7 @@ export default function CoursesTable() {
             <Formik
               initialValues={{ courseId: selectedCourseId }}
               enableReinitialize
-              onSubmit={() => {
-                deleteCourseMutation.mutate(selectedCourseId, {
-                  onSuccess: () => {
-                    toast.success("تم الحذف بنجاح");
-                    setShowDeleteModal(false);
-                    setSelectedCourseId(null);
-                  },
-                  onError: () => toast.error("فشل الحذف"),
-                });
-              }}
+              onSubmit={confirmDelete}
             >
               {({ isSubmitting }) => (
                 <Form className="flex justify-end space-x-4">

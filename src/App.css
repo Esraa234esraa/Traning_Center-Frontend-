@@ -227,3 +227,18 @@ select {
   border: .002px solid rgba(203, 203, 203, 0.694) !important;
   /* يخلي حدود الحقول رفيعة */
 }
+
+.btn-soft {
+  @apply px-3 py-1.5 rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 ;
+}
+
+.btn-blue {
+  @apply bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 ;
+}
+.btn-yellow {
+  @apply bg-yellow-50 text-yellow-600 border-yellow-200 hover:bg-yellow-100;
+}
+
+.btn-red {
+  @apply bg-red-50 text-red-600 border-red-200 hover:bg-red-100;
+}

@@ -22,10 +22,13 @@ export default function LevelsTable() {
   const [selectedLevelName, setSelectedLevelName] = useState("");
 
   const levels = Array.isArray(data?.data?.data) ? data?.data?.data : [];
-  console.log(levels);
-  
-  const courses = [...new Set(levels.map((l) => l.courseName))];
 
+  // useMemo لكورس الـ select
+  const courses = useMemo(() => {
+    return [...new Set(levels.map((l) => l.courseName))];
+  }, [levels]);
+
+  // useMemo للفلترة
   const filteredLevels = useMemo(() => {
     return levels.filter((level) => {
       const matchesSearch =
@@ -52,21 +55,54 @@ export default function LevelsTable() {
     });
   };
 
-  // ✅ useQuery لجلب الباقات الخاصة بالمستوى
+  // useQuery لجلب الباقات الخاصة بالمستوى
   const {
     data: bouquetsData = [],
     isLoading: loadingBouquets,
     refetch: refetchBouquets,
   } = useGetBouquetsOfLevel(selectedLevelId, {
-    enabled: !!selectedLevelId && classesModalOpen, // نشغل فقط عند فتح المودال
+    enabled: !!selectedLevelId && classesModalOpen,
   });
 
   const openClassesModal = (levelId, levelName) => {
     setSelectedLevelId(levelId);
     setSelectedLevelName(levelName);
     setClassesModalOpen(true);
-    refetchBouquets(); // نعيد جلب البيانات عند فتح المودال
+    refetchBouquets();
   };
+
+  // useMemo لجدول الباقات داخل المودال
+  const bouquetsTable = useMemo(() => {
+    if (!bouquetsData || bouquetsData.length === 0)
+      return <p>لا توجد باقات لهذا المستوى</p>;
+
+    return (
+      <div className="overflow-x-auto">
+        <table className="min-w-[600px] w-full border-collapse border border-gray-300 text-center">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2 min-w-[120px]">اسم الباقة</th>
+              <th className="border p-2 min-w-[120px]">اسم الكورس</th>
+              <th className="border p-2 min-w-[80px]">رقم المستوى</th>
+              <th className="border p-2 min-w-[100px]">عدد الطلاب</th>
+              <th className="border p-2 min-w-[80px]">السعر</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bouquetsData.map((b) => (
+              <tr key={b.id} className="border hover:bg-gray-100">
+                <td className="border p-2">{b.bouquetName}</td>
+                <td className="border p-2">{b.courseName}</td>
+                <td className="border p-2">{b.levelNumber}</td>
+                <td className="border p-2">{b.studentsPackageCount}</td>
+                <td className="border p-2">{b.money.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }, [bouquetsData]);
 
   if (isLoading) return <Loading />;
   if (isError) return <p className="text-red-500">حدث خطأ</p>;
@@ -137,7 +173,7 @@ export default function LevelsTable() {
                       onClick={() =>
                         navigate(`/dashboard/levels/editlevel/${level.id}`)
                       }
-                      className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      className="btn-soft btn-blue"
                     >
                       تعديل
                     </button>
@@ -146,7 +182,7 @@ export default function LevelsTable() {
                         setSelectedLevelId(level.id);
                         setShowDeleteModal(true);
                       }}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
+                      className="btn-soft btn-red"
                     >
                       حذف
                     </button>
@@ -173,36 +209,7 @@ export default function LevelsTable() {
             <h2 className="text-lg font-semibold mb-4">
               الباقات الخاصة بالمستوى {selectedLevelName}
             </h2>
-            {loadingBouquets ? (
-              <Loading />
-            ) : !bouquetsData || bouquetsData.length === 0 ? (
-              <p>لا توجد باقات لهذا المستوى</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-[600px] w-full border-collapse border border-gray-300 text-center">
-                  <thead>
-                    <tr className="bg-gray-200">
-                      <th className="border p-2 min-w-[120px]">اسم الباقة</th>
-                      <th className="border p-2 min-w-[120px]">اسم الكورس</th>
-                      <th className="border p-2 min-w-[80px]">رقم المستوى</th>
-                      <th className="border p-2 min-w-[100px]">عدد الطلاب</th>
-                      <th className="border p-2 min-w-[80px]">السعر</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bouquetsData.map((b) => (
-                      <tr key={b.id} className="border hover:bg-gray-100">
-                        <td className="border p-2">{b.bouquetName}</td>
-                        <td className="border p-2">{b.courseName}</td>
-                        <td className="border p-2">{b.levelNumber}</td>
-                        <td className="border p-2">{b.studentsPackageCount}</td>
-                        <td className="border p-2">{b.money.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            {loadingBouquets ? <Loading /> : bouquetsTable}
             <button
               onClick={() => setClassesModalOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
@@ -222,13 +229,13 @@ export default function LevelsTable() {
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="btn-soft btn-yellow"
               >
                 إلغاء
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                className="btn-soft btn-red"
               >
                 حذف
               </button>
@@ -239,6 +246,3 @@ export default function LevelsTable() {
     </div>
   );
 }
-
-
-

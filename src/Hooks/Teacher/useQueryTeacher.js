@@ -1,6 +1,6 @@
 // src/Hooks/Teacher/useQueryTeacher.js
 import { useQuery } from "@tanstack/react-query";
-import { getAllTeachers,getTeacherProfile, getTeacherProfileWithClasses,GetProfileTeacherWithClassesAsyncByAdmin } from "../../APIs/Teacher/TeacherApis";
+import { getAllTeachers,getTeacherProfile, getTeacherProfileWithClasses,GetProfileTeacherWithClassesAsyncByAdmin,GetAllClassesForTeacher } from "../../APIs/Teacher/TeacherApis";
 import { useAuth } from "../../Context/useAuth";
 
 // ✅ Get all teachers
@@ -36,6 +36,15 @@ export const useGetProfileTeacherWithClassesAsyncByAdmin = (teacherId) => {
   return useQuery({
     queryKey: ["teacherProfile", teacherId],
     queryFn: () => GetProfileTeacherWithClassesAsyncByAdmin(teacherId),
+    enabled: !!teacherId,
+    select: (res) => res.data,
+  });
+};
+
+export const useGetAllClassesForTeacher = (teacherId) => {
+  return useQuery({
+    queryKey: ["teacherProfile", teacherId],
+    queryFn: () => GetAllClassesForTeacher(teacherId),
     enabled: !!teacherId,
     select: (res) => res.data,
   });

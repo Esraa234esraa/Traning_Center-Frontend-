@@ -73,52 +73,54 @@ export default function ActivitiesTable() {
                     <p className="text-gray-600 text-lg">لا توجد اخبار او انشطة جديدة</p>
                 </div>
             ) : (
-                <table className="w-full border border-gray-300 shadow-md">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="p-2 border">العنوان</th>
-                            <th className="p-2 border">الوصف</th>
-                            <th className="p-2 border">الصورة</th>
-                            <th className="p-2 border">الوقت</th>
-                            <th className="p-2 border">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {activities.map((activity) => (
-                            <tr key={activity.id} className="text-center">
-                                <td className="border p-2">{activity.name}</td>
-                                <td className="border p-2">{activity.description}</td>
-                                <td className="border p-2">
-                                    <img
-                                        src={
-                                            activity.image instanceof File
-                                                ? URL.createObjectURL(activity.image) // في حالة الملف
-                                                : activity.image // في حالة الرابط
-                                        }
-                                        alt={activity.title}
-                                        className="w-20 h-20 object-cover rounded"
-                                    />
-
-                                </td>
-                                <td className="border p-2">{activity.date}</td>
-                                <td className="border p-2 space-x-2">
-                                    <button
-                                        onClick={() => navigate(`edit-activity/${activity.id}`)}
-                                        className="text-blue-500 px-2 py-1 rounded"
-                                    >
-                                        تعديل
-                                    </button>
-                                    <button
-                                        onClick={() => confirmDelete(activity.id)}
-                                        className="text-red-500 px-2 py-1 rounded"
-                                    >
-                                        حذف
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto px-6 py-4">
+                    <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-4 py-2 text-right">العنوان</th>
+                                <th className="px-4 py-2 text-right">الوصف</th>
+                                <th className="px-4 py-2 text-right">الصورة</th>
+                                <th className="px-4 py-2 text-right">الوقت</th>
+                                <th className="px-4 py-2 text-right">إجراءات</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {activities.map((activity) => (
+                                <tr key={activity.id} className="border-b hover:bg-gray-50 transition">
+                                    <td className="px-4 py-2">{activity.name}</td>
+                                    <td className="px-4 py-2">{activity.description}</td>
+                                    <td className="px-4 py-2">
+                                        <img
+                                            src={
+                                                activity.image instanceof File
+                                                    ? URL.createObjectURL(activity.image)
+                                                    : activity.image
+                                            }
+                                            alt={activity.name}
+                                            className="w-20 h-20 object-cover rounded"
+                                        />
+                                    </td>
+                                    <td className="px-4 py-2">{activity.date}</td>
+                                    <td className="px-4 py-2 flex gap-2">
+                                        <button
+                                            onClick={() => navigate(`edit-activity/${activity.id}`)}
+                                            className="btn-soft btn-blue"
+                                        >
+                                            تعديل
+                                        </button>
+                                        <button
+                                            onClick={() => confirmDelete(activity.id)}
+                                            className="btn-soft btn-red"
+                                        >
+                                            حذف
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
             )}
 
             {activityToDelete && (

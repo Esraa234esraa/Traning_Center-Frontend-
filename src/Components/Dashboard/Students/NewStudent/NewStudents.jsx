@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import AddStudentPopup from "./AddNewStudent";
 import ConfirmDeletePopup from "./ConfirmDeletePopup";
 import EditStudentPopup from "./EditStudentPopup";
@@ -20,10 +20,7 @@ export default function NewStudentsTable() {
   const [moveToWatingPop, setMoveToWatingPop] = useState({ isOpen: false, student: null });
   const [deletePopup, setDeletePopup] = useState({ isOpen: false, student: null });
 
-  // ✅ جلب الطلاب
   const { data: students, isLoading, isError } = useGetAllStudents();
-
-  // ✅ الميوتيشنز
   const addMutation = useAddNewStudent();
   const updateMutation = useUpdateStudent();
   const deleteMutation = useDeleteStudent();
@@ -37,16 +34,19 @@ export default function NewStudentsTable() {
       .replace(/\s+/g, " ")
       .trim();
 
-  const filteredStudents = (students?.data ?? []).filter((student) =>
-    normalizeText(student.studentName).includes(normalizeText(searchTerm)) ||
-    normalizeText(student.phoneNumber).includes(normalizeText(searchTerm))
-  );
+  // ✅ useMemo لتخزين الطلاب بعد الفلترة
+  const filteredStudents = useMemo(() => {
+    return (students?.data ?? []).filter((student) =>
+      normalizeText(student.studentName).includes(normalizeText(searchTerm)) ||
+      normalizeText(student.phoneNumber).includes(normalizeText(searchTerm))
+    );
+  }, [students, searchTerm]);
 
   if (isLoading) return <p className="text-center p-4">جاري تحميل الطلاب...</p>;
   if (isError) return <p className="text-center p-4 text-red-500">حدث خطأ أثناء جلب الطلاب</p>;
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-5xl mx-auto">
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-6xl mx-auto">
       <div className="flex justify-between items-center p-4">
         <h3 className="text-text_color font-cairo text-basemobile md:text-lg">الطلاب الجدد</h3>
         <button
@@ -78,47 +78,47 @@ export default function NewStudentsTable() {
           </p>
         </div>
       ) : (
-        <table className="w-full text-sm text-left rtl:text-right text-text_color dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-left rtl:text-center text-text_color dark:text-gray-400 border-collapse border border-gray-300">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-300">
             <tr>
-              <th className="p-4">#</th>
-              <th className="px-4 py-3">اسم الطالب</th>
-              <th className="px-4 py-3">رقم الهاتف</th>
-              <th className="px-4 py-3">البريد الالكتروني</th>
-              <th className="px-4 py-3">المدينة</th>
-              <th className="px-4 py-3">اليوم</th>
-              <th className="px-4 py-3">الوقت</th>
-              <th className="px-6 py-3">الإجراء</th>
+              <th className="p-4 border-r border-gray-300">#</th>
+              <th className="px-4 py-3 border-r border-gray-300">اسم الطالب</th>
+              <th className="px-4 py-3 border-r border-gray-300">رقم الهاتف</th>
+              <th className="px-4 py-3 border-r border-gray-300">البريد الالكتروني</th>
+              <th className="px-4 py-3 border-r border-gray-300">المدينة</th>
+              <th className="px-4 py-3 border-r border-gray-300">اليوم</th>
+              <th className="px-4 py-3 border-r border-gray-300">الوقت</th>
+              <th className="px-6 py-3 border-r border-gray-300">الإجراء</th>
             </tr>
           </thead>
           <tbody>
             {filteredStudents.map((student, index) => (
               <tr
                 key={student.id}
-                className="odd:bg-white even:bg-blue-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
+                className="odd:bg-white even:bg-blue-50 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100"
               >
-                <td className="p-4">{index + 1}</td>
-                <td>{student.studentName}</td>
-                <td>{student.phoneNumber}</td>
-                <td>{student.email || "-"}</td>
-                <td>{student.city}</td>
-                <td>{student.date}</td>
-                <td>{student.time}</td>
-                <td className="flex items-center px-6 py-4">
+                <td className="p-4 border-r border-gray-300">{index + 1}</td>
+                <td className="border-r border-gray-300">{student.studentName}</td>
+                <td className="border-r border-gray-300">{student.phoneNumber}</td>
+                <td className="border-r border-gray-300">{student.email || "-"}</td>
+                <td className="border-r border-gray-300">{student.city}</td>
+                <td className="border-r border-gray-300">{student.date}</td>
+                <td className="border-r border-gray-300">{student.time}</td>
+                <td className="flex items-center px-6 py-4 border-r gap-3 justify-center border-gray-300 flex-wrap">
                   <button
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    className="btn-soft btn-blue"
                     onClick={() => setEditPopup({ isOpen: true, student })}
                   >
                     تعديل
                   </button>
-                   <button
-                    className="font-medium text-secondary mr-2 dark:text-yellow-600 hover:underline"
+                  <button
+                    className="btn-soft btn-yellow"
                     onClick={() => setMoveToWatingPop({ isOpen: true, student })}
                   >
                     نقل الي قائمة الانتظار
                   </button>
                   <button
-                    className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                    className="btn-soft btn-red"
                     onClick={() => setDeletePopup({ isOpen: true, student })}
                   >
                     حذف
@@ -130,14 +130,13 @@ export default function NewStudentsTable() {
         </table>
       )}
 
-      {/* بوب اب إضافة طالب */}
+      {/* Popups */}
       <AddStudentPopup
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
         onSubmit={(data) => addMutation.mutate(data)}
       />
 
-      {/* بوب اب تعديل الطالب */}
       {editPopup.isOpen && (
         <EditStudentPopup
           isOpen={editPopup.isOpen}
@@ -145,7 +144,7 @@ export default function NewStudentsTable() {
           studentData={editPopup.student}
           onSubmit={(data) =>
             updateMutation.mutate(
-              { id: editPopup.student.id, data }, 
+              { id: editPopup.student.id, data },
               {
                 onSuccess: () => {
                   setEditPopup({ isOpen: false, student: null });
@@ -157,7 +156,6 @@ export default function NewStudentsTable() {
           }
         />
       )}
-      {/* نقل الطالب الي قائمة الانتظار} */}
 
       {moveToWatingPop.isOpen && (
         <ConfirmMoveToWaitingPopup
@@ -173,14 +171,13 @@ export default function NewStudentsTable() {
               },
               onError: (error) => {
                 console.error("MoveToWaiting error:", error.response?.data || error.message);
-
-                toast.error("حدث خطأ أثناء النقل")
+                toast.error("حدث خطأ أثناء النقل");
               },
             })
           }
         />
       )}
-      {/* بوب اب حذف الطالب */}
+
       {deletePopup.isOpen && (
         <ConfirmDeletePopup
           isOpen={deletePopup.isOpen}
@@ -198,7 +195,6 @@ export default function NewStudentsTable() {
           }
         />
       )}
-
     </div>
   );
 }

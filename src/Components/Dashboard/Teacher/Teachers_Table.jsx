@@ -197,19 +197,19 @@ return (
                 </td>
 
 
-                <td className="border p-2 flex justify-center gap-2 flex-wrap">
+                <td className="border p-2 flex justify-center gap-2 ">
                   <button
                     onClick={() =>
                       navigate(`/dashboard/edit-teacher/${teacher.id}`)
                     }
-                    className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                      className="btn-soft btn-blue"
                   >
                     تعديل
                   </button>
                   <button
                     onClick={() => handleDelete(teacher.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                  >
+                      className="btn-soft btn-red"                    >
+                  
                     حذف
                   </button>
                 </td>

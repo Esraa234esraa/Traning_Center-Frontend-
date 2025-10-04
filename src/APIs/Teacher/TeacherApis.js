@@ -80,3 +80,16 @@ export const GetProfileTeacherWithClassesAsyncByAdmin=async(teacherId)=>{
   }
 };
 
+export const GetAllClassesForTeacher=async(teacherId)=>{
+  try{
+    const response=await api.get(
+      `${TEACHER_URL}/GetAllClassesForTeacher/${teacherId}`
+    );
+    return response.data;
+  }
+  catch(error){
+    console.error("حدث خطأ اثناء جلب حصص المعلم",error);
+    throw error;
+  }
+};
+

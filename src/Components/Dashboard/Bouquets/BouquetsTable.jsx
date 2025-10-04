@@ -7,9 +7,12 @@ import DeleteBouquetModal from "./DeleteBouquetModal";
 
 export default function BouquetsTable() {
   const navigate = useNavigate();
-  const { data, isLoading, isError } = useGetAllBouquets();
 
-  // البحث والفلترة
+  // جلب الباقات
+  const { data, isLoading, isError } = useGetAllBouquets();
+  const bouquets = data || [];
+
+  // بحث وفلترة
   const [search, setSearch] = useState("");
   const [filterCourse, setFilterCourse] = useState("");
   const [filterLevel, setFilterLevel] = useState("");
@@ -26,20 +29,10 @@ export default function BouquetsTable() {
     refetch,
   } = useGetAllClassesOfBouquet(currentBouquetId, showClassesModal);
 
-  // نتأكد إن اللي داخل هو Array مش object
-  const selectedBouquetClasses = classesResponse?.data || [];
-
-  const handleOpenClassesModal = (bouquetId, bouquetName) => {
-    setCurrentBouquetId(bouquetId);
-    setCurrentBouquetName(bouquetName);
-    setShowClassesModal(true);
-    refetch();
-  };
-
   // مودال الحذف
   const [selectedBouquet, setSelectedBouquet] = useState(null);
 
-  const bouquets = data || [];
+  // فلترة الباقات باستخدام useMemo
   const filteredBouquets = useMemo(() => {
     return bouquets.filter((b) => {
       const matchSearch = b.bouquetName.toLowerCase().includes(search.toLowerCase());
@@ -48,6 +41,18 @@ export default function BouquetsTable() {
       return matchSearch && matchCourse && matchLevel;
     });
   }, [bouquets, search, filterCourse, filterLevel]);
+
+  // حصص الباقة الحالية مع useMemo
+  const selectedBouquetClasses = useMemo(() => {
+    return classesResponse?.data || [];
+  }, [classesResponse]);
+
+  const handleOpenClassesModal = (bouquetId, bouquetName) => {
+    setCurrentBouquetId(bouquetId);
+    setCurrentBouquetName(bouquetName);
+    setShowClassesModal(true);
+    refetch();
+  };
 
   if (isLoading) return <Loading />;
   if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب البيانات</p>;
@@ -144,14 +149,12 @@ export default function BouquetsTable() {
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2">{b.bouquetName}</td>
                   <td className="border p-2">{b.courseName}</td>
-                  <td className="border p-2">
-                    {b.levelName} ({b.levelNumber})
-                  </td>
+                  <td className="border p-2">{b.levelName} ({b.levelNumber})</td>
                   <td className="border p-2">{b.studentsPackageCount}</td>
                   <td className="border p-2">{b.money} ريال سعودي</td>
                   <td className="border p-2 space-x-2">
                     <button
-                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                      className="btn-soft btn-blue"
                       onClick={() =>
                         navigate(`/dashboard/bouquets/edit-bouquet/${b.id}`)
                       }
@@ -159,7 +162,7 @@ export default function BouquetsTable() {
                       تعديل
                     </button>
                     <button
-                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      className="btn-soft btn-red"
                       onClick={() => setSelectedBouquet(b)}
                     >
                       حذف
@@ -226,12 +229,8 @@ export default function BouquetsTable() {
                   {selectedBouquetClasses.map((cls, index) => (
                     <tr key={cls.id} className="text-center">
                       <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">
-                        {cls.startDate?.split("T")[0]}
-                      </td>
-                      <td className="border p-2">
-                        {cls.endDate?.split("T")[0]}
-                      </td>
+                      <td className="border p-2">{cls.startDate?.split("T")[0]}</td>
+                      <td className="border p-2">{cls.endDate?.split("T")[0]}</td>
                       <td className="border p-2">{cls.classTime}</td>
                     </tr>
                   ))}

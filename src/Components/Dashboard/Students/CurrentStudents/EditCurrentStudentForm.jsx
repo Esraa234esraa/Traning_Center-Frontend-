@@ -1,45 +1,37 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useGetAllCurrentStudents } from "../../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
+import { useGetCurrentStudentsById } from "../../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
 import CurrentStudentForm from "./CurrentStudentForm";
 import Loading from "../../../Loading";
 
 export default function EditCurrentStudentForm() {
-  const { id } = useParams();
-const { data, isLoading } = useGetAllCurrentStudents();
+  const { id } = useParams(); // اسم الباراميتر في Route لازم يكون :id
+  const { data, isLoading, isError } = useGetCurrentStudentsById(id);
 
-if (isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
 
-// الطلاب موجودين هنا
-const studentList = data?.data?.data?.result || [];
+  if (isError || !data?.data) {
+    return <div className="p-6 text-red-600 font-semibold">❌ لم يتم العثور على بيانات الطالب</div>;
+  }
 
-console.log("Param id:", `"${id}"`);
-console.log("All ids:", studentList.map(s => s.id));
+  const student = Array.isArray(data?.data?.result)
+    ? data?.data?.result[0]
+    : data?.data?.result;
 
-const student = studentList.find(
-  (s) => s.id.trim().toLowerCase() === id.trim().toLowerCase()
-);
-
-if (!student) return <div>الطالب غير موجود</div>;
-
-  // تجهيز initialValues بحيث تكون كاملة ومتوافقة مع الفورم
   const initialValues = {
-    StudentName: student.studentName || "",
-    PhoneNumber: student.phoneNumber || "",
-    Email: student.email || "",
-    City: student.city || "",
-    Gender: student.gender || "",
-    ClassId: student.classes?.[0]?.classId || "", // لو عنده أكثر من حصة خذ أول حصة
-    bouquetName: student.classes?.[0]?.bouquetName || "",
-    bouquetNumber: student.classes?.[0]?.bouquetNumber || 0,
-    courseName: student.classes?.[0]?.courseName || "",
-    levelName: student.classes?.[0]?.levelName || "",
-    levelNumber: student.classes?.[0]?.levelNumber || 0,
-    classTime: student.classes?.[0]?.classTime || "",
-    currentStudentsCount: student.classes?.[0]?.currentStudentsCount || 0,
-    IsPaid: student.isPaid || false,
-    id: student.id, // ضروري لو الفورم يحتاج ID للتعديل
+    id: student?.id,
+    StudentName: student?.studentName || "",
+    PhoneNumber: student?.phoneNumber || "",
+    Email: student?.email || "",
+    City: student?.city || "",
+    Gender: student?.gender || "",
+    IsPaid: student?.isPaid || false,
+    ClassId: student?.classes?.[0]?.classId || "",
+    CourseId: student?.classes?.[0]?.courseId || "",
+    LevelId: student?.classes?.[0]?.levelId || "",
+    BouquetId: student?.classes?.[0]?.bouquetId || "",
   };
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -48,7 +40,6 @@ if (!student) return <div>الطالب غير موجود</div>;
         <CurrentStudentForm
           initialValues={initialValues}
           isEdit={true}
-          onClose={() => window.history.back()} // للرجوع للجدول بعد التعديل
         />
       </div>
     </div>

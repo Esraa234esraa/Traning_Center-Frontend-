@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGetAllAdmins } from '../../../Hooks/Admin/useQueryAdmin';
 import { useDeactivateAdmin } from '../../../Hooks/Admin/useMutationAdmins';
 import Loading from '../../../Components/Loading';
 import { confirmAlert } from 'react-confirm-alert';
-import { FaChalkboardTeacher } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import 'react-confirm-alert/src/react-confirm-alert.css'; // استايل الافتراضيات
+import { toast } from 'react-toastify';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function AdminsTable() {
     const { data, isLoading, isError } = useGetAllAdmins();
     const deactivateMutation = useDeactivateAdmin();
     const navigate = useNavigate();
+    const admins = useMemo(() => data?.data || [], [data]);
 
     if (isLoading) return <Loading />;
-    if (isError) return <p>حدث خطأ أثناء جلب المشرفين</p>;
+    if (isError) return <p className="text-red-500">حدث خطأ أثناء جلب المشرفين</p>;
+
 
     const handleDeactivate = (id) => {
         confirmAlert({
@@ -22,25 +25,29 @@ export default function AdminsTable() {
             buttons: [
                 {
                     label: 'نعم',
-                    onClick: () => deactivateMutation.mutate(id)
+                    onClick: async () => {
+                        try {
+                            await deactivateMutation.mutateAsync(id);
+                            toast.success('تم تعطيل المشرف بنجاح');
+                        } catch (error) {
+                            toast.error('حدث خطأ أثناء تعطيل المشرف');
+                        }
+                    }
                 },
-                {
-                    label: 'لا',
-                    onClick: () => { }
-                }
+                { label: 'لا' }
             ]
         });
-
     };
+
     const handleEdit = (admin) => {
         navigate(`/dashboard/admins/edit-admin/${admin.id}`, { state: { admin } });
     };
 
     return (
-        <div className="overflow-x-auto px-10 py-6">
-            <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr className="bg-gray-100 border-b">
+        <div className="overflow-x-auto px-6 py-4">
+            <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
+                <thead className="bg-gray-100">
+                    <tr>
                         <th className="px-4 py-2 text-right">الاسم</th>
                         <th className="px-4 py-2 text-right">البريد الإلكتروني</th>
                         <th className="px-4 py-2 text-right">رقم الهاتف</th>
@@ -49,8 +56,8 @@ export default function AdminsTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    {data?.data?.map((admin) => (
-                        <tr key={admin.id} className="border-b hover:bg-gray-50">
+                    {admins.map((admin) => (
+                        <tr key={admin.id} className="border-b hover:bg-gray-50 transition">
                             <td className="px-4 py-2">{admin.fullName}</td>
                             <td className="px-4 py-2">{admin.email}</td>
                             <td className="px-4 py-2">{admin.phoneNumber}</td>
@@ -60,14 +67,14 @@ export default function AdminsTable() {
                             <td className="px-4 py-2 flex gap-2">
                                 <button
                                     onClick={() => handleEdit(admin)}
-                                    className="text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white"
+                                    className="btn-soft btn-blue"
                                 >
                                     تعديل
                                 </button>
                                 <button
                                     onClick={() => handleDeactivate(admin.id)}
-                                    className="text-red-500  px-3 py-1 rounded hover:bg-red-600 hover:text-white"
-                                >
+                                    className="btn-soft btn-red"                    >
+                                
                                     تعطيل
                                 </button>
                             </td>
