@@ -6,15 +6,21 @@ import Loading from "../../../Loading";
 
 export default function EditCurrentStudentForm() {
   const { id } = useParams();
-  const { data, isLoading } = useGetAllCurrentStudents();
+const { data, isLoading } = useGetAllCurrentStudents();
 
- 
+if (isLoading) return <Loading />;
 
-  if (isLoading) return <Loading />;
+// الطلاب موجودين هنا
+const studentList = data?.data?.data?.result || [];
 
-  const student = data?.data?.data.find((s) => s.id === id);
+console.log("Param id:", `"${id}"`);
+console.log("All ids:", studentList.map(s => s.id));
 
-  if (!student) return <div>الطالب غير موجود</div>;
+const student = studentList.find(
+  (s) => s.id.trim().toLowerCase() === id.trim().toLowerCase()
+);
+
+if (!student) return <div>الطالب غير موجود</div>;
 
   // تجهيز initialValues بحيث تكون كاملة ومتوافقة مع الفورم
   const initialValues = {
