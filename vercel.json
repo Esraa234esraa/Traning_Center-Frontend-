@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "routes": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://traning-center.runasp.net/api/$1"
+      "source": "/api/(.*)",
+      "destination": "https://traning-center.runasp.net/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/ndex.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  ]
 }
