@@ -113,7 +113,34 @@ export default function ClassesTable() {
                   </td>
                   <td className="border p-2">{cls.classTime}</td>
                   <td className="border p-2">{cls.currentStudentsCount}</td>
-                  <td className="border p-2">{cls.status}</td>
+<td className="border p-2 text-center">
+  {(() => {
+    const availableSeats = cls.bouquetCount - cls.currentStudentsCount;
+
+    // نحدد الحالة حسب عدد الأماكن
+    let statusText = "";
+    let statusColor = "";
+
+    if (availableSeats === 0) {
+      statusText = "مكتملة";
+      statusColor = "bg-red-100 text-red-700 border border-red-300";
+    } else if (availableSeats < cls.bouquetCount && availableSeats > 0) {
+      statusText = `متوفر ${availableSeats} مكان`;
+      statusColor = "bg-yellow-100 text-yellow-700 border border-yellow-300";
+    } else if (availableSeats === cls.bouquetCount) {
+      statusText = "فارغة (كل الأماكن متاحة)";
+      statusColor = "bg-green-100 text-green-700 border border-green-300";
+    }
+
+    return (
+      <span
+        className={`inline-block px-3 py-1 rounded-full font-medium text-sm transition-all duration-200 ${statusColor}`}
+      >
+        {statusText}
+      </span>
+    );
+  })()}
+</td>
                   <td className="border p-2 space-x-2">
                     <button
                       className="bg-yellow-500 text-white px-2 py-1 rounded"
