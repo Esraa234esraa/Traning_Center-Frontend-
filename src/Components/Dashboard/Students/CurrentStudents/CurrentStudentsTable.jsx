@@ -170,7 +170,7 @@ export default function CurrentStudentTable() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-0">
-                {filteredStudents.map((student, idx) => {
+                {filteredStudents.map((student, id) => {
                   const firstClass = student.classes?.[0] || {};
                   return (
                     <tr

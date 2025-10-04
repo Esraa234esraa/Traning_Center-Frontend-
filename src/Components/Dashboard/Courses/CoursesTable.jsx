@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../Loading";
 import { useGetAllCourses } from "../../../Hooks/Courses/useQueryCourses";
-import { useDeleteCourse, useHideCourse, useVisibleCourse } from "../../../Hooks/Courses/useMutationCourses";
+import { useDeleteCourse } from "../../../Hooks/Courses/useMutationCourses";
 import { getImageUrl } from "../../../Utils/getImageUrl";
 import { toast } from "react-toastify";
 import { Formik, Form } from "formik";
@@ -13,8 +13,6 @@ export default function CoursesTable() {
   const { data: courses, isLoading } = useGetAllCourses();
 
   const deleteCourseMutation = useDeleteCourse();
-  const hideCourseMutation = useHideCourse();
-  const visibleCourseMutation = useVisibleCourse();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
@@ -50,17 +48,6 @@ export default function CoursesTable() {
     });
   };
 
-  const toggleVisibility = (course) => {
-    if (course.isVisible) {
-      hideCourseMutation.mutate(course.id, {
-        onSuccess: () => toast.info("تم إخفاء الدورة 👁️‍🗨️"),
-      });
-    } else {
-      visibleCourseMutation.mutate(course.id, {
-        onSuccess: () => toast.success("تم إظهار الدورة "),
-      });
-    }
-  };
 
   // استخدم useMemo للفلترة
   const filteredCourses = useMemo(() => {
