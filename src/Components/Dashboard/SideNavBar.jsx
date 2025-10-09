@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 import LogoPlaceholder from "../../assets/images/light-logo.png";
 import {
   FaHome, FaChalkboardTeacher, FaUsers, FaSignOutAlt, FaListUl,
-  FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper, 
-  FaRunning, FaChevronDown, FaLayerGroup, FaBookOpen, FaBoxOpen
+  FaUserPlus, FaFileAlt, FaStar, FaUserFriends, FaClock, FaNewspaper,
+  FaRunning, FaChevronDown, FaLayerGroup, FaBookOpen, FaBoxOpen,FaStickyNote
 } from "react-icons/fa";
 import { useAdminLogout } from '../../Hooks/Admin/useMutationAdmins';
 
@@ -167,6 +167,15 @@ export default function Sidebar() {
                   </li>
                   <li>
                     <NavLink
+                      to="/dashboard/external-courses"
+                      className={linkClasses}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <FaRunning /> <span className="flex-1 text-right">الدورات الخارجية</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
                       to="/dashboard/levels"
                       className={linkClasses}
                       onClick={() => setIsOpen(false)}
@@ -199,6 +208,15 @@ export default function Sidebar() {
                       onClick={() => setIsOpen(false)}
                     >
                       <FaStar /> <span className="flex-1 text-right">التقييمات</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/dashboard/notes"
+                      className={linkClasses}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <FaStickyNote /> <span className="flex-1 text-right">الملاحظات</span>
                     </NavLink>
                   </li>
                   <li>
@@ -235,6 +253,7 @@ export default function Sidebar() {
                       </ul>
                     )}
                   </li>
+
                 </>
               )}
 

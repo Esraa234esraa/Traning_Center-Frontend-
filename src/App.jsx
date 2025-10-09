@@ -60,6 +60,11 @@ import AddCurrentStudentForm from './Components/Dashboard/Students/CurrentStuden
 import EditCurrentStudentForm from './Components/Dashboard/Students/CurrentStudents/EditCurrentStudentForm';
 import AddTeacherToClass from './Components/Dashboard/Teacher/AddTeacherToClass';
 import UnAuthorized from './Components/Unauthorized';
+import ExternalCoursesTable from './Components/Dashboard/ExternalCourses/ExternalCoursesTable';
+import AddExternalCourse from './Components/Dashboard/ExternalCourses/AddExternalCourse';
+import EditExternalCourse from './Components/Dashboard/ExternalCourses/EditExternalCourse';
+import NotesTable from './Components/Dashboard/Notes/NotesTable';
+import AddNote from './Components/Dashboard/Notes/AddNote';
 
 
 
@@ -168,11 +173,19 @@ function App() {
                 <Route index element={<ClassesTable />} />
                 <Route path="add-classes" element={<AddClass />} />
               </Route>
+              {/* الملاحظات */}
+              <Route path='notes'>
+                <Route index element={<NotesTable />} />
+                <Route path="add-note" element={<AddNote />} />
+              </Route>
+              {/* الدورات الخارجية */}
+              <Route path='external-courses'>
+                <Route index element={<ExternalCoursesTable />} />
+                {/* صفحة إضافة دورة جديدة */}
+                <Route path="add" element={<AddExternalCourse />} />
 
-
-
-
-
+                {/* صفحة تعديل دورة موجودة */}
+                <Route path="edit/:id" element={<EditExternalCourse />} />           </Route>
             </Route>
             <Route
               path="/dashboard"

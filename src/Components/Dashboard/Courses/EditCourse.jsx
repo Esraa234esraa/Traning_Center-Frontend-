@@ -119,13 +119,15 @@ export default function EditCourse() {
               <label className="block mb-2">رفع صورة جديدة (اختياري)</label>
               <input
                 type="file"
+                name="file"
+                accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  if (file) {
-                    setFieldValue("file", file);
-                    setPreview(URL.createObjectURL(file));
-                  }
+                  setFieldValue("file", file);
+                  setPreview(file ? URL.createObjectURL(file) : null);
                 }}
+                className="hidden"
+                id="fileUpload"
               />
               <label
                 htmlFor="fileUpload"
@@ -134,6 +136,7 @@ export default function EditCourse() {
                 <Upload className="w-8 h-8 text-gray-500 mb-2" />
                 <span className="text-sm text-gray-500">اضغط لرفع صورة</span>
               </label>
+
 
               {preview && (
                 <div className="mt-3">
