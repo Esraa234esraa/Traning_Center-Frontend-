@@ -1,16 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAddNote } from "../../../Hooks/Notes/useMutationNote";
-import { useGetAllCurrentStudents } from "../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
+import { useGetAllStudentsForNote } from "../../../Hooks/Notes/useQueryNote";
 import { toast } from "react-toastify";
 import Loading from "../../Loading";
 
 export default function AddNote() {
   const navigate = useNavigate();
   const addMutation = useAddNote();
-  const { data: studentsData, isLoading } = useGetAllCurrentStudents();
+  const { data: studentsData, isLoading } = useGetAllStudentsForNote();
 
-  const students = useMemo(() => studentsData?.data?.data?.result || [], [studentsData]);
+  const students = useMemo(() => studentsData?.data?.data || [], [studentsData]);
   
   const [form, setForm] = useState({
     studentId: "",

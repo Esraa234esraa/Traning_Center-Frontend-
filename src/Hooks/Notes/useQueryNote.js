@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllNotes, getNoteById } from "../../APIs/Notes/NotesApi";
+import { getAllNotes, getNoteById ,getAllStudentsForNote} from "../../APIs/Notes/NotesApi";
 
 // ✅ Get All Levels
 export const useGetAllNotes = () => {
@@ -8,6 +8,15 @@ export const useGetAllNotes = () => {
     queryFn: getAllNotes,
   });
 };
+
+export const useGetAllStudentsForNote = (options = {}) => {
+  return useQuery({
+    queryKey: ["StudentsForNotes"],
+    queryFn: getAllStudentsForNote,
+    enabled: options.enabled ?? true, 
+    });
+};
+
 
 
 

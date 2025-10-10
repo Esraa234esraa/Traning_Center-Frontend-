@@ -8,13 +8,16 @@ import { FaStickyNote } from "react-icons/fa";
 
 export default function NotesTable() {
     const navigate = useNavigate();
-    const { data, isLoading, refetch } = useGetAllNotes();
+    const { data: allnotes, isLoading, refetch } = useGetAllNotes();
+    console.log("getAllNotes 2",allnotes);
 
     const [selectedNote, setSelectedNote] = useState(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    const notes = useMemo(() => data?.data?.data || [], [data]);
+    const notes = useMemo(() => allnotes?.data?.data || [], [allnotes]);
+   console.log("notes",notes);
+   
 
     if (isLoading) return <Loading />;
 

@@ -12,6 +12,9 @@ export const addNote = (formData) =>
 // ✅ Get All Notes
 export const getAllNotes = () => api.get(`${NOTE_URL}/GetAllNotesAsync`);
 
+// ✅ Get All student for notes
+export const getAllStudentsForNote = () => api.get(`${NOTE_URL}/GetAllStudentsForNote`);
+
 
 // ✅ Get Note by Id
 export const getNoteById = (id) => api.get(`${NOTE_URL}/GetNotesByIdAsync/${id}`);

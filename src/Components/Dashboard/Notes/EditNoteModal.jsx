@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useUpdateNote } from "../../../Hooks/Notes/useMutationNote";
 import { useGetNoteById } from "../../../Hooks/Notes/useQueryNote";
-import { useGetAllCurrentStudents } from "../../../Hooks/Students/CurrentStudent/useQueryCurrentStudent";
+import { useGetAllStudentsForNote } from "../../../Hooks/Notes/useQueryNote";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 
 export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
   const { data: noteData, isLoading: isNoteLoading } = useGetNoteById(noteId);
-  const { data: studentsData } = useGetAllCurrentStudents();
+  const { data: studentsData } = useGetAllStudentsForNote({ enabled: isOpen });
   const updateMutation = useUpdateNote();
 
   const [form, setForm] = useState({
@@ -40,7 +40,7 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
         description: n.description || "",
       });
 
-      }
+    }
   }, [noteData, studentsData]);
 
   if (!isOpen) return null;
