@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: ./public_html/
-          local-dir: ./dist/
+          server-dir: /domains/ilc-training.com/public_html/
+          local-dir: dist/
           timeout: 60000
           dangerous-clean-slate: false   # ⚠️ خليه ما يمسحش الملفات القديمة
