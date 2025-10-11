@@ -23,7 +23,6 @@ export default defineConfig({
           vendor: ["axios", "lodash"],
         },
       },
-      // ✅ ده السطر المهم: تجاهل ملف CSS الوهمي اللي بيكسر الـ build
       external: ["react-select/dist/react-select.css"],
     },
   },
