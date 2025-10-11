@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useUpdateNote } from "../../../Hooks/Notes/useMutationNote";
-import { useGetNoteById } from "../../../Hooks/Notes/useQueryNote";
-import { useGetAllStudentsForNote } from "../../../Hooks/Notes/useQueryNote";
+import { useGetNoteById, useGetAllStudentsForNote } from "../../../Hooks/Notes/useQueryNote";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import { FaSpinner } from "react-icons/fa";
 
 export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
@@ -15,23 +15,20 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
     description: "",
   });
 
-  // 🧠 نحفظ الطلاب في useMemo
+  // 🧠 تجهيز بيانات الطلاب في react-select
   const studentOptions = useMemo(() => {
     if (!studentsData?.data?.data) return [];
     return studentsData.data.data.map((student) => ({
-      id: student.id,
-      name: student.studentName,
+      value: student.id,
+      label: student.studentName,
     }));
   }, [studentsData]);
 
-  // 🧩 تحميل بيانات الملاحظة في الفورم أول ما توصل
+  // 🧩 تحميل بيانات الملاحظة في الفورم
   useEffect(() => {
     if (noteData?.data?.data && studentsData?.data?.data) {
       const n = noteData.data.data;
-      const students = studentsData.data.data;
-
-      // 🔍 نجيب الطالب اللي اسمه زي اللي في الملاحظة
-      const matchedStudent = students.find(
+      const matchedStudent = studentsData.data.data.find(
         (s) => s.studentName === n.studentName
       );
 
@@ -39,7 +36,6 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
         studentId: matchedStudent ? matchedStudent.id : "",
         description: n.description || "",
       });
-
     }
   }, [noteData, studentsData]);
 
@@ -53,11 +49,8 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
       return;
     }
 
-
     updateMutation.mutate(
       { id: noteId, formData: form },
-
-
       {
         onSuccess: (res) => {
           toast.success(res?.data?.message || "تم تعديل الملاحظة بنجاح");
@@ -67,8 +60,7 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
         onError: (error) => {
           console.error(error);
           toast.error(
-            error?.response?.data?.message ||
-            "حدث خطأ أثناء تعديل الملاحظة"
+            error?.response?.data?.message || "حدث خطأ أثناء تعديل الملاحظة"
           );
         },
       }
@@ -93,20 +85,22 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
               <label className="block text-sm font-medium mb-1 text-gray-700">
                 اسم الطالب
               </label>
-              <select
-                value={form.studentId}
-                onChange={(e) =>
-                  setForm({ ...form, studentId: e.target.value })
+              <Select
+                options={studentOptions}
+                value={
+                  studentOptions.find((s) => s.value === form.studentId) || null
                 }
-                className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">اختر الطالب...</option>
-                {studentOptions.map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(selected) =>
+                  setForm({
+                    ...form,
+                    studentId: selected ? selected.value : "",
+                  })
+                }
+                placeholder="ابحث عن الطالب..."
+                isSearchable
+                className="react-select-container"
+                classNamePrefix="react-select"
+              />
             </div>
 
             {/* ✏️ محتوى الملاحظة */}
