@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddNote } from "../../../Hooks/Notes/useMutationNote";
 import { useGetAllStudentsForNote } from "../../../Hooks/Notes/useQueryNote";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import Loading from "../../Loading";
 
 export default function AddNote() {
@@ -11,20 +12,22 @@ export default function AddNote() {
   const { data: studentsData, isLoading } = useGetAllStudentsForNote();
 
   const students = useMemo(() => studentsData?.data?.data || [], [studentsData]);
-  
+
   const [form, setForm] = useState({
     studentId: "",
     description: "",
   });
-
+  const studentOptions = students.map((student) => ({
+    value: student.id,
+    label: student.studentName,
+  }));
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.studentId || !form.description.trim()) {
       toast.error("يرجى إدخال جميع الحقول");
       return;
     }
-    console.log(form.studentId);
-    
+
 
     addMutation.mutate(form, {
       onSuccess: () => {
@@ -47,21 +50,17 @@ export default function AddNote() {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             الطالب
           </label>
-          <select
-            name="studentId"
-            value={form.studentId}
-            onChange={(e) => setForm({ ...form, studentId: e.target.value })}
-            className="w-full border rounded p-2 bg-white"
-            required
-          >
-            <option value="">اختر الطالب</option>
-            {students.map((student) => (
-              <option key={student.id} value={student.id}>
-                {student.studentName}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={studentOptions}
+            value={studentOptions.find((s) => s.value === form.studentId)}
+            onChange={(selected) =>
+              setForm({ ...form, studentId: selected ? selected.value : "" })
+            }
+            placeholder="ابحث عن الطالب..."
+            isSearchable
+          />
         </div>
+
 
         {/* Description */}
         <div>
