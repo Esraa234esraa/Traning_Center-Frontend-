@@ -17,16 +17,20 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build React App
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm install
 
-      - name: Deploy files via FTP
+      - name: Build React App (Vite)
+        run: npm run build
+
+      - name: Deploy to Hostinger via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: public_html/
+          port: 21
+          protocol: ftp
           local-dir: dist/
+          server-dir: public_html/
+          timeout: 60000
