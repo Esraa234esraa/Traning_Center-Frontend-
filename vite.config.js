@@ -11,10 +11,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      
     },
   },
   build: {
+    outDir: "dist",
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -22,8 +23,8 @@ export default defineConfig({
           vendor: ["axios", "lodash"],
         },
       },
+      // ✅ ده السطر المهم: تجاهل ملف CSS الوهمي اللي بيكسر الـ build
+      external: ["react-select/dist/react-select.css"],
     },
-    outDir:'dist',
-    cssCodeSplit: true,
   },
 });
