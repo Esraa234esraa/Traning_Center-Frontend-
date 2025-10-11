@@ -17,8 +17,8 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
 
   // 🧠 نحفظ الطلاب في useMemo
   const studentOptions = useMemo(() => {
-    if (!studentsData?.data?.data?.result) return [];
-    return studentsData.data.data.result.map((student) => ({
+    if (!studentsData?.data?.data) return [];
+    return studentsData.data.data.map((student) => ({
       id: student.id,
       name: student.studentName,
     }));
@@ -26,9 +26,9 @@ export default function EditNoteModal({ isOpen, onClose, noteId, refetch }) {
 
   // 🧩 تحميل بيانات الملاحظة في الفورم أول ما توصل
   useEffect(() => {
-    if (noteData?.data?.data && studentsData?.data?.data?.result) {
+    if (noteData?.data?.data && studentsData?.data?.data) {
       const n = noteData.data.data;
-      const students = studentsData.data.data.result;
+      const students = studentsData.data.data;
 
       // 🔍 نجيب الطالب اللي اسمه زي اللي في الملاحظة
       const matchedStudent = students.find(
