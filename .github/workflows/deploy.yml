@@ -3,7 +3,7 @@ name: Deploy React App to Hostinger
 on:
   push:
     branches:
-      - main  # هيشتغل كل مرة تعملي push للفرع main
+      - main
 
 jobs:
   deploy:
@@ -17,20 +17,20 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+      - name: Build React App
+        run: |
+          npm install
+          npm run build
 
-      - name: Build React App (Vite)
-        run: npm run build
-
-      - name: Deploy to Hostinger via FTP
+      - name: Deploy files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
           protocol: ftp
-          local-dir: dist/
-          server-dir: /domains/ilc-training.com/public_html/
+          port: 21
+          server-dir: ./public_html/
+          local-dir: ./dist/
           timeout: 60000
+          dangerous-clean-slate: false   # ⚠️ خليه ما يمسحش الملفات القديمة
