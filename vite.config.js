@@ -17,7 +17,6 @@ export default defineConfig({
     outDir: "dist",
     cssCodeSplit: true,
     rollupOptions: {
-      external: ["react-select"], // ✅ استبعاد المكتبة نفسها مش ملف CSS
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
